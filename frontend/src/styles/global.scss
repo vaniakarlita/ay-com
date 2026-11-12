@@ -32,3 +32,36 @@ body {
 a {
   color: inherit;
 }
+
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+
+  &:hover:not(:disabled) { background: var(--primary-hover); }
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--primary);
+
+  &:hover:not(:disabled) { background: rgba(29, 155, 240, 0.1); }
+}

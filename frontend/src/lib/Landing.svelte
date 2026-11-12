@@ -102,26 +102,5 @@
     color: var(--text-muted);
   }
 
-    :global(.btn) {
-    padding: 0.75rem 1rem;
-    border-radius: 999px;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 700;
-    transition: background 0.2s;
-    }
 
-    :global(.btn-primary) {
-    background: var(--primary);
-    color: #fff;
-
-    &:hover { background: var(--primary-hover); }
-    }
-
-    :global(.btn-outline) {
-    border: 1px solid var(--border);
-    color: var(--primary);
-
-    &:hover { background: rgba(29, 155, 240, 0.1); }
-}
 </style>
