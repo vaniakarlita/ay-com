@@ -2,7 +2,9 @@
   import logoLight from '../assets/ay_light.png';
   import logoDark from '../assets/ay_dark.png';
   import { theme } from './theme';
+  import Link from './Link.svelte';
 </script>
+
 
 <main class="landing">
   <section class="logo">
@@ -15,14 +17,14 @@
     <p class="tagline">Connect, share, engage.</p>
 
     <p class="label">Don't have an account?</p>
-    <a class="btn btn-primary" href="/register">Create account</a>
+    <Link class="btn btn-primary" href="/register">Create account</Link>
     <p class="terms">
       By signing up, you agree to the Terms of Service and Privacy Policy,
       including Cookie Use.
     </p>
 
     <p class="label">Already have an account?</p>
-    <a class="btn btn-outline" href="/login">Sign in</a>
+    <Link class="btn btn-outline" href="/login">Sign in</Link>
   </section>
 </main>
 
@@ -100,26 +102,26 @@
     color: var(--text-muted);
   }
 
-  .btn {
+    :global(.btn) {
     padding: 0.75rem 1rem;
     border-radius: 999px;
     text-align: center;
     text-decoration: none;
     font-weight: 700;
     transition: background 0.2s;
-  }
+    }
 
-  .btn-primary {
+    :global(.btn-primary) {
     background: var(--primary);
     color: #fff;
 
     &:hover { background: var(--primary-hover); }
-  }
+    }
 
-  .btn-outline {
+    :global(.btn-outline) {
     border: 1px solid var(--border);
     color: var(--primary);
 
     &:hover { background: rgba(29, 155, 240, 0.1); }
-  }
+}
 </style>
