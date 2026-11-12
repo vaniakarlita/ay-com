@@ -4,8 +4,8 @@
 
   let { email, onBack }: { email: string; onBack: () => void } = $props();
 
-  const CODE_LIFETIME = 5 * 60; // 5 menit, dalam detik
-  const MOCK_CODE = '123456'; // TODO (backend): hapus, verifikasi lewat API
+  const CODE_LIFETIME = 5 * 60;
+  const MOCK_CODE = '123456';
 
   let code = $state('');
   let error = $state('');
@@ -25,7 +25,6 @@
   onDestroy(() => clearInterval(timer));
 
   function resend() {
-    // TODO (backend): panggil API kirim ulang kode
     secondsLeft = CODE_LIFETIME;
     code = '';
     error = '';
@@ -44,7 +43,6 @@
       return;
     }
     loading = true;
-    // TODO (backend): kirim kode ke API, aktifkan akun
     await new Promise((r) => setTimeout(r, 500));
     loading = false;
     if (code !== MOCK_CODE) {

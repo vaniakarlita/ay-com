@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ForgotPassword from './lib/ForgotPassword.svelte';
   import Landing from './lib/Landing.svelte';
   import Login from './lib/Login.svelte';
   import Register from './lib/Register.svelte';
@@ -12,6 +13,8 @@
   <Register />
 {:else if $path === '/login'}
   <Login />
+{:else if $path === '/forgot-password'}
+  <ForgotPassword />
 {:else}
   <Landing />
 {/if}
