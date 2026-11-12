@@ -1,5 +1,6 @@
 <script lang="ts">
   import Link from './Link.svelte';
+  import VerifyStep from './VerifyStep.svelte';
   import {
     SECURITY_QUESTIONS, PASSWORD_RULES,
     validateName, validateUsername, validateEmail, validatePassword,
@@ -174,9 +175,8 @@
         <button class="btn btn-primary" type="submit" disabled={submitted && !isValid}>Next</button>
       </form>
     {:else}
-      <p>Step 2 (verification code) — kita kerjakan berikutnya.</p>
-      <button class="btn btn-outline" onclick={() => (step = 1)}>← Previous step</button>
-    {/if}
+  <VerifyStep email={form.email} onBack={() => (step = 1)} />
+{/if}
   </div>
 </main>
 
