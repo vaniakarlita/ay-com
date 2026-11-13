@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "github.com/vaniakarlita/ay-com/backend/auth-service/authpb";
+
+service AuthService {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+  rpc ResendCode(ResendCodeRequest) returns (ResendCodeResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+}
+
+message RegisterRequest {
+  string name = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+  string gender = 5;
+  string date_of_birth = 6;
+  string profile_picture_url = 7;
+  string banner_url = 8;
+  string security_question = 9;
+  string security_answer = 10;
+  bool newsletter = 11;
+}
+
+message RegisterResponse {
+  string user_id = 1;
+  string message = 2;
+}
+
+message VerifyEmailRequest {
+  string email = 1;
+  string code = 2;
+}
+
+message VerifyEmailResponse {
+  string message = 1;
+}
+
+message ResendCodeRequest {
+  string email = 1;
+}
+
+message ResendCodeResponse {
+  string message = 1;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
