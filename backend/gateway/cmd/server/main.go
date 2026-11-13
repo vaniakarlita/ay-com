@@ -24,6 +24,10 @@ func main() {
 	cfg := config.Load()
 	log := logger.New(cfg.Env, cfg.LogLevel)
 	slog.SetDefault(log)
+	if err := cfg.Validate(); err != nil {
+		log.Error("invalid configuration", "error", err)
+		os.Exit(1)
+	}
 
 	conn, err := grpc.NewClient(cfg.AuthAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -33,7 +37,9 @@ func main() {
 	defer conn.Close()
 
 	mux := http.NewServeMux()
-	handler.NewAuthHandler(authpb.NewAuthServiceClient(conn), log).Routes(mux)
+	authHandler := handler.NewAuthHandler(authpb.NewAuthServiceClient(conn), log)
+	authHandler.Routes(mux)
+	authHandler.SessionRoutes(mux, middleware.Auth(cfg.JWTAccessSecret))
 
 	var root http.Handler = mux
 	root = middleware.Logging(log)(root)
