@@ -9,9 +9,14 @@ import (
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc"
 
+	"github.com/vaniakarlita/ay-com/backend/auth-service/authpb"
+	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/codestore"
 	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/config"
 	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/db"
 	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/logger"
+	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/mailer"
+	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/repository"
+	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/service"
 )
 
 func main() {
@@ -43,7 +48,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	authService := service.New(
+		repository.NewUserRepository(pool),
+		codestore.New(rdb),
+		mailer.NewLogMailer(log),
+		log,
+	)
+
 	server := grpc.NewServer()
+	authpb.RegisterAuthServiceServer(server, authService)
 	log.Info("auth-service listening", "port", cfg.GRPCPort, "log_level", cfg.LogLevel)
 
 	if err := server.Serve(lis); err != nil {
