@@ -1,0 +1,70 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"log/slog"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
+	"github.com/vaniakarlita/ay-com/backend/gateway/authpb"
+	"github.com/vaniakarlita/ay-com/backend/gateway/internal/config"
+	"github.com/vaniakarlita/ay-com/backend/gateway/internal/handler"
+	"github.com/vaniakarlita/ay-com/backend/gateway/internal/logger"
+	"github.com/vaniakarlita/ay-com/backend/gateway/internal/middleware"
+)
+
+func main() {
+	cfg := config.Load()
+	log := logger.New(cfg.Env, cfg.LogLevel)
+	slog.SetDefault(log)
+
+	conn, err := grpc.NewClient(cfg.AuthAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Error("create auth client failed", "error", err)
+		os.Exit(1)
+	}
+	defer conn.Close()
+
+	mux := http.NewServeMux()
+	handler.NewAuthHandler(authpb.NewAuthServiceClient(conn), log).Routes(mux)
+
+	var root http.Handler = mux
+	root = middleware.Logging(log)(root)
+	root = middleware.CORS(cfg.AllowedOrigin)(root)
+	root = middleware.Recover(log)(root)
+
+	srv := &http.Server{
+		Addr:              ":" + cfg.Port,
+		Handler:           root,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+
+	go func() {
+		log.Info("gateway listening", "port", cfg.Port, "auth_addr", cfg.AuthAddr, "log_level", cfg.LogLevel)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Error("http server failed", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	<-stop
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Error("shutdown failed", "error", err)
+	}
+	log.Info("gateway stopped")
+}
