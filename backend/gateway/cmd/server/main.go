@@ -18,6 +18,7 @@ import (
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/handler"
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/logger"
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/middleware"
+	"github.com/vaniakarlita/ay-com/backend/gateway/internal/docs"
 )
 
 func main() {
@@ -41,12 +42,13 @@ func main() {
 	authHandler.Routes(mux)
 	authHandler.SessionRoutes(mux, middleware.Auth(cfg.JWTAccessSecret))
 	authHandler.RecoveryRoutes(mux)
+	docs.Routes(mux)
 
 	var root http.Handler = mux
 	root = middleware.Logging(log)(root)
 	root = middleware.CORS(cfg.AllowedOrigin)(root)
 	root = middleware.Recover(log)(root)
-	
+
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
 		Handler:           root,
