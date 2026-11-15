@@ -17,12 +17,19 @@ import (
 	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/mailer"
 	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/repository"
 	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/service"
+	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/token"
+	"github.com/vaniakarlita/ay-com/backend/auth-service/internal/tokenstore"
 )
 
 func main() {
 	cfg := config.Load()
 	log := logger.New(cfg.Env, cfg.LogLevel)
 	slog.SetDefault(log)
+
+	if err := cfg.Validate(); err != nil {
+		log.Error("invalid configuration", "error", err)
+		os.Exit(1)
+	}
 
 	ctx := context.Background()
 
@@ -48,10 +55,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	tokens := token.NewManager(cfg.JWTAccessSecret, cfg.JWTRefreshSecret, cfg.AccessTTL, cfg.RefreshTTL)
+
 	authService := service.New(
 		repository.NewUserRepository(pool),
 		codestore.New(rdb),
 		mailer.NewLogMailer(log),
+		tokenstore.New(rdb),
+		tokens,
 		log,
 	)
 

@@ -12,6 +12,7 @@ import (
 var (
 	ErrEmailTaken    = errors.New("email is already registered")
 	ErrUsernameTaken = errors.New("username is already taken")
+	ErrNotFound      = errors.New("user not found")
 )
 
 type NewUser struct {
@@ -26,6 +27,14 @@ type NewUser struct {
 	SecurityQuestion   string
 	SecurityAnswerHash string
 	Newsletter         bool
+}
+
+type Credentials struct {
+	ID            string
+	PasswordHash  string
+	IsActive      bool
+	IsBanned      bool
+	IsDeactivated bool
 }
 
 type UserRepository struct {
@@ -76,4 +85,34 @@ func (r *UserRepository) Status(ctx context.Context, email string) (bool, bool, 
 func (r *UserRepository) Activate(ctx context.Context, email string) error {
 	_, err := r.pool.Exec(ctx, `UPDATE users SET is_active = TRUE WHERE email = $1`, email)
 	return err
+}
+
+func (r *UserRepository) FindCredentials(ctx context.Context, email string) (Credentials, error) {
+	var c Credentials
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, password_hash, is_active, is_banned, is_deactivated
+		FROM users WHERE email = $1`, email,
+	).Scan(&c.ID, &c.PasswordHash, &c.IsActive, &c.IsBanned, &c.IsDeactivated)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Credentials{}, ErrNotFound
+	}
+	if err != nil {
+		return Credentials{}, err
+	}
+	return c, nil
+}
+
+func (r *UserRepository) FindByID(ctx context.Context, id string) (Credentials, error) {
+	var c Credentials
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, password_hash, is_active, is_banned, is_deactivated
+		FROM users WHERE id = $1`, id,
+	).Scan(&c.ID, &c.PasswordHash, &c.IsActive, &c.IsBanned, &c.IsDeactivated)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Credentials{}, ErrNotFound
+	}
+	if err != nil {
+		return Credentials{}, err
+	}
+	return c, nil
 }

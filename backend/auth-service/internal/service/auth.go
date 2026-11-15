@@ -26,6 +26,8 @@ type UserStore interface {
 	Create(ctx context.Context, u repository.NewUser) (string, error)
 	Status(ctx context.Context, email string) (exists bool, active bool, err error)
 	Activate(ctx context.Context, email string) error
+	FindCredentials(ctx context.Context, email string) (repository.Credentials, error)
+	FindByID(ctx context.Context, id string) (repository.Credentials, error)
 }
 
 type CodeStore interface {
@@ -43,11 +45,13 @@ type AuthService struct {
 	users  UserStore
 	codes  CodeStore
 	mailer Mailer
+	tokens TokenStore
+	issuer TokenIssuer
 	log    *slog.Logger
 }
 
-func New(users UserStore, codes CodeStore, mailer Mailer, log *slog.Logger) *AuthService {
-	return &AuthService{users: users, codes: codes, mailer: mailer, log: log}
+func New(users UserStore, codes CodeStore, mailer Mailer, tokens TokenStore, issuer TokenIssuer, log *slog.Logger) *AuthService {
+	return &AuthService{users: users, codes: codes, mailer: mailer, tokens: tokens, issuer: issuer, log: log}
 }
 
 func (s *AuthService) Register(ctx context.Context, req *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
