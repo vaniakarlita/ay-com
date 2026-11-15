@@ -1,6 +1,9 @@
 <script lang="ts">
   import Link from './Link.svelte';
   import { validateEmail } from './validators';
+  import { authApi, ApiError } from './api';
+  import { navigate } from './router';
+  import { saveSession } from './session';
 
   let email = $state('');
   let password = $state('');
@@ -14,16 +17,22 @@
   const isValid = $derived(!emailError && !passwordError);
 
   async function handleSubmit(e: SubmitEvent) {
-    e.preventDefault();
-    submitted = true;
-    serverError = '';
-    if (!isValid) return;
+  e.preventDefault();
+  submitted = true;
+  serverError = '';
+  if (!isValid || loading) return;
 
-    loading = true;
-    await new Promise((r) => setTimeout(r, 500));
+  loading = true;
+  try {
+    const res = await authApi.login(email.trim().toLowerCase(), password);
+    saveSession(res.accessToken, res.refreshToken);
+    navigate('/home', true);
+  } catch (err) {
+    serverError = err instanceof ApiError ? err.message : 'Login failed. Please try again.';
+  } finally {
     loading = false;
-    serverError = 'Login service is not available yet.';
   }
+}
 
   function handleGoogle() {
     serverError = 'Google sign-in is not available yet.';

@@ -1,17 +1,18 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
+  import { authApi, ApiError } from './api';
   import { navigate } from './router';
 
   let { email, onBack }: { email: string; onBack: () => void } = $props();
 
   const CODE_LIFETIME = 5 * 60;
-  const MOCK_CODE = '123456';
 
   let code = $state('');
   let error = $state('');
   let info = $state('');
   let secondsLeft = $state(CODE_LIFETIME);
   let loading = $state(false);
+  let resending = $state(false);
 
   const expired = $derived(secondsLeft <= 0);
   const timeText = $derived(
@@ -24,11 +25,21 @@
 
   onDestroy(() => clearInterval(timer));
 
-  function resend() {
-    secondsLeft = CODE_LIFETIME;
-    code = '';
+  async function resend() {
+    if (resending) return;
+    resending = true;
     error = '';
-    info = 'A new code has been sent to your email.';
+    info = '';
+    try {
+      await authApi.resendCode(email);
+      secondsLeft = CODE_LIFETIME;
+      code = '';
+      info = 'A new code has been sent to your email.';
+    } catch (err) {
+      error = err instanceof ApiError ? err.message : 'Could not resend the code.';
+    } finally {
+      resending = false;
+    }
   }
 
   async function handleSubmit(e: SubmitEvent) {
@@ -43,14 +54,15 @@
       return;
     }
     loading = true;
-    await new Promise((r) => setTimeout(r, 500));
-    loading = false;
-    if (code !== MOCK_CODE) {
-      error = 'Invalid verification code.';
-      return;
+    try {
+      await authApi.verify(email, code);
+      error = '';
+      navigate('/login');
+    } catch (err) {
+      error = err instanceof ApiError ? err.message : 'Verification failed. Please try again.';
+    } finally {
+      loading = false;
     }
-    error = '';
-    navigate('/login');
   }
 </script>
 
@@ -78,8 +90,8 @@
       {expired ? 'Code expired' : `Code expires in ${timeText}`}
     </p>
 
-    <button type="button" class="link" onclick={resend}>
-      Didn't receive email? Resend code
+    <button type="button" class="link" onclick={resend} disabled={resending}>
+      {resending ? 'Sending...' : "Didn't receive email? Resend code"}
     </button>
 
     <div class="actions">
@@ -118,9 +130,15 @@
 
   .link {
     align-self: flex-start;
-    background: none; border: 0; padding: 0;
-    color: var(--primary); font-size: 0.85rem; cursor: pointer;
-    &:hover { text-decoration: underline; }
+    background: none;
+    border: 0;
+    padding: 0;
+    color: var(--primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+
+    &:hover:not(:disabled) { text-decoration: underline; }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
   }
 
   .actions { display: flex; gap: 0.75rem; justify-content: space-between; }

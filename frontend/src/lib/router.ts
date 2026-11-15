@@ -6,9 +6,13 @@ function getPath(): string {
 
 export const path = writable<string>(getPath());
 
-export function navigate(to: string) {
+export function navigate(to: string, replace = false) {
   if (to === window.location.pathname) return;
-  window.history.pushState({}, '', to);
+  if (replace) {
+    window.history.replaceState({}, '', to);
+  } else {
+    window.history.pushState({}, '', to);
+  }
   path.set(to);
 }
 

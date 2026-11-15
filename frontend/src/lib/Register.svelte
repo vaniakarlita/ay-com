@@ -1,6 +1,7 @@
 <script lang="ts">
   import Link from './Link.svelte';
   import VerifyStep from './VerifyStep.svelte';
+  import { authApi, ApiError, uploadImage } from './api';
   import {
     SECURITY_QUESTIONS, PASSWORD_RULES,
     validateName, validateUsername, validateEmail, validatePassword,
@@ -10,6 +11,8 @@
   let step = $state(1);
   let submitted = $state(false);
   let showPassword = $state(false);
+  let loading = $state(false);
+  let serverError = $state('');
 
   let form = $state({
     name: '', username: '', email: '', password: '', confirm: '',
@@ -60,12 +63,34 @@
     }
   }
 
-  function handleSubmit(e: SubmitEvent) {
-    e.preventDefault();
-    submitted = true;
-    if (!isValid) return;
+  async function handleSubmit(e: SubmitEvent) {
+  e.preventDefault();
+  submitted = true;
+  serverError = '';
+  if (!isValid || loading) return;
+
+  loading = true;
+  try {
+    await authApi.register({
+      name: form.name.trim(),
+      username: form.username,
+      email: form.email.trim().toLowerCase(),
+      password: form.password,
+      gender: form.gender,
+      dateOfBirth: form.dob,
+      profilePictureUrl: await uploadImage(profile!, 'profile'),
+      bannerUrl: await uploadImage(banner!, 'banner'),
+      securityQuestion: form.question,
+      securityAnswer: form.answer,
+      newsletter: form.newsletter,
+    });
     step = 2;
+  } catch (err) {
+    serverError = err instanceof ApiError ? err.message : 'Registration failed. Please try again.';
+  } finally {
+    loading = false;
   }
+}
 </script>
 
 <main class="page">
@@ -77,6 +102,9 @@
     </header>
 
     {#if step === 1}
+      {#if serverError}
+        <p class="alert" role="alert">{serverError}</p>
+      {/if}
       <form onsubmit={handleSubmit} novalidate>
         <div class="field">
           <label for="name">Name</label>
@@ -172,7 +200,9 @@
           Subscribe to our newsletter
         </label>
 
-        <button class="btn btn-primary" type="submit" disabled={submitted && !isValid}>Next</button>
+        <button class="btn btn-primary" type="submit" disabled={loading || (submitted && !isValid)}>
+        {loading ? 'Creating account...' : 'Next'}
+        </button>
       </form>
     {:else}
   <VerifyStep email={form.email} onBack={() => (step = 1)} />
@@ -243,4 +273,13 @@
 
   .avatar { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; }
   .banner { width: 100%; height: 100px; border-radius: 8px; object-fit: cover; }
+
+    .alert {
+    margin: 1rem 0 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid #f4212e;
+    border-radius: 8px;
+    color: #f4212e;
+    font-size: 0.9rem;
+  }
 </style>
