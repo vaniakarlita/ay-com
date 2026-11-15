@@ -1,20 +1,12 @@
 <script lang="ts">
   import Link from './Link.svelte';
+  import { authApi, ApiError } from './api';
   import {
-    SECURITY_QUESTIONS,
     PASSWORD_RULES,
     validateEmail,
     validatePassword,
     validateConfirm,
   } from './validators';
-
-  const MOCK_USER = {
-    email: 'adrian.yu@gmail.com',
-    question: SECURITY_QUESTIONS[0],
-    answer: 'bobby',
-    password: 'Abcdef1!',
-  };
-  const MOCK_BANNED = 'banned@gmail.com';
 
   type Step = 'email' | 'answer' | 'reset' | 'done';
 
@@ -22,6 +14,7 @@
   let email = $state('');
   let question = $state('');
   let answer = $state('');
+  let resetToken = $state('');
   let newPassword = $state('');
   let confirm = $state('');
   let showPassword = $state(false);
@@ -31,10 +24,7 @@
 
   const emailError = $derived(validateEmail(email));
   const answerError = $derived(answer.trim() ? '' : 'Please answer your security question');
-  const passwordError = $derived(
-    validatePassword(newPassword) ||
-      (newPassword === MOCK_USER.password ? 'New password cannot be the same as the old one' : '')
-  );
+  const passwordError = $derived(validatePassword(newPassword));
   const confirmError = $derived(validateConfirm(newPassword, confirm));
 
   function reset() {
@@ -42,57 +32,63 @@
     error = '';
   }
 
+  function message(err: unknown): string {
+    return err instanceof ApiError ? err.message : 'Something went wrong. Please try again.';
+  }
+
   async function submitEmail(e: SubmitEvent) {
     e.preventDefault();
     submitted = true;
     error = '';
-    if (emailError) return;
+    if (emailError || loading) return;
 
     loading = true;
-    await new Promise((r) => setTimeout(r, 400));
-    loading = false;
-
-    if (email === MOCK_BANNED) {
-      error = 'This account is banned.';
-      return;
+    try {
+      const res = await authApi.forgotQuestion(email.trim().toLowerCase());
+      question = res.question;
+      step = 'answer';
+      reset();
+    } catch (err) {
+      error = message(err);
+    } finally {
+      loading = false;
     }
-    if (email !== MOCK_USER.email) {
-      error = 'Email is not registered.';
-      return;
-    }
-    question = MOCK_USER.question;
-    step = 'answer';
-    reset();
   }
 
   async function submitAnswer(e: SubmitEvent) {
     e.preventDefault();
     submitted = true;
     error = '';
-    if (answerError) return;
+    if (answerError || loading) return;
 
     loading = true;
-    await new Promise((r) => setTimeout(r, 400));
-    loading = false;
-
-    if (answer.trim().toLowerCase() !== MOCK_USER.answer) {
-      error = 'Incorrect answer. Please try again.';
-      return;
+    try {
+      const res = await authApi.forgotVerify(email.trim().toLowerCase(), answer);
+      resetToken = res.resetToken;
+      step = 'reset';
+      reset();
+    } catch (err) {
+      error = message(err);
+    } finally {
+      loading = false;
     }
-    step = 'reset';
-    reset();
   }
 
   async function submitPassword(e: SubmitEvent) {
     e.preventDefault();
     submitted = true;
     error = '';
-    if (passwordError || confirmError) return;
+    if (passwordError || confirmError || loading) return;
 
     loading = true;
-    await new Promise((r) => setTimeout(r, 400));
-    loading = false;
-    step = 'done';
+    try {
+      await authApi.forgotReset(email.trim().toLowerCase(), resetToken, newPassword);
+      step = 'done';
+    } catch (err) {
+      error = message(err);
+    } finally {
+      loading = false;
+    }
   }
 </script>
 

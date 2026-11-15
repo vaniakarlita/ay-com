@@ -11,6 +11,9 @@ service AuthService {
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
   rpc Logout(LogoutRequest) returns (LogoutResponse);
+  rpc GetSecurityQuestion(GetSecurityQuestionRequest) returns (GetSecurityQuestionResponse);
+  rpc VerifySecurityAnswer(VerifySecurityAnswerRequest) returns (VerifySecurityAnswerResponse);
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
 }
 
 message RegisterRequest {
@@ -73,5 +76,32 @@ message LogoutRequest {
 }
 
 message LogoutResponse {
+  string message = 1;
+}
+
+message GetSecurityQuestionRequest {
+  string email = 1;
+}
+
+message GetSecurityQuestionResponse {
+  string question = 1;
+}
+
+message VerifySecurityAnswerRequest {
+  string email = 1;
+  string answer = 2;
+}
+
+message VerifySecurityAnswerResponse {
+  string reset_token = 1;
+}
+
+message ResetPasswordRequest {
+  string email = 1;
+  string reset_token = 2;
+  string new_password = 3;
+}
+
+message ResetPasswordResponse {
   string message = 1;
 }

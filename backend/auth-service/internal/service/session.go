@@ -16,6 +16,12 @@ import (
 type TokenStore interface {
 	Save(ctx context.Context, userID, jti string, ttl time.Duration) error
 	Consume(ctx context.Context, userID, jti string) (bool, error)
+	SaveReset(ctx context.Context, email, token string, ttl time.Duration) error
+	CheckReset(ctx context.Context, email, token string) (bool, error)
+	DeleteReset(ctx context.Context, email string) error
+	AddAttempt(ctx context.Context, email string, window time.Duration) (int64, error)
+	Attempts(ctx context.Context, email string) (int64, error)
+	ClearAttempts(ctx context.Context, email string) error
 }
 
 type TokenIssuer interface {
@@ -135,3 +141,4 @@ func checkAccess(c repository.Credentials) error {
 	}
 	return nil
 }
+

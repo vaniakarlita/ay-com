@@ -104,6 +104,12 @@ export const authApi = {
   login: (email: string, password: string) =>
     request<Tokens>('/api/auth/login', { method: 'POST', body: { email, password } }),
   me: () => request<{ userId: string }>('/api/me', { auth: true }),
+  forgotQuestion: (email: string) =>
+    request<{ question: string }>('/api/auth/forgot/question', { method: 'POST', body: { email } }),
+  forgotVerify: (email: string, answer: string) =>
+    request<{ resetToken: string }>('/api/auth/forgot/verify', { method: 'POST', body: { email, answer } }),
+  forgotReset: (email: string, resetToken: string, newPassword: string) =>
+    request<Message>('/api/auth/forgot/reset', { method: 'POST', body: { email, resetToken, newPassword } }),
   async logout() {
     const refreshToken = tokens.refresh;
     try {

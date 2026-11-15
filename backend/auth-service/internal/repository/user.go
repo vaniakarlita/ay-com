@@ -116,3 +116,31 @@ func (r *UserRepository) FindByID(ctx context.Context, id string) (Credentials, 
 	}
 	return c, nil
 }
+
+type Recovery struct {
+	ID           string
+	Question     string
+	AnswerHash   string
+	PasswordHash string
+	IsBanned     bool
+}
+
+func (r *UserRepository) FindRecovery(ctx context.Context, email string) (Recovery, error) {
+	var v Recovery
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, security_question, security_answer_hash, password_hash, is_banned
+		FROM users WHERE email = $1`, email,
+	).Scan(&v.ID, &v.Question, &v.AnswerHash, &v.PasswordHash, &v.IsBanned)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Recovery{}, ErrNotFound
+	}
+	if err != nil {
+		return Recovery{}, err
+	}
+	return v, nil
+}
+
+func (r *UserRepository) UpdatePassword(ctx context.Context, id, hash string) error {
+	_, err := r.pool.Exec(ctx, `UPDATE users SET password_hash = $1 WHERE id = $2`, hash, id)
+	return err
+}

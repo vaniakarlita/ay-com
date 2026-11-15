@@ -143,6 +143,8 @@ func (h *AuthHandler) fail(w http.ResponseWriter, err error) {
 		writeError(w, http.StatusUnprocessableEntity, st.Message())
 	case codes.PermissionDenied:
 		writeError(w, http.StatusForbidden, st.Message())
+	case codes.ResourceExhausted:
+		writeError(w, http.StatusTooManyRequests, st.Message())
 	case codes.Unauthenticated:
 		writeError(w, http.StatusUnauthorized, st.Message())
 	case codes.DeadlineExceeded, codes.Unavailable:

@@ -40,12 +40,13 @@ func main() {
 	authHandler := handler.NewAuthHandler(authpb.NewAuthServiceClient(conn), log)
 	authHandler.Routes(mux)
 	authHandler.SessionRoutes(mux, middleware.Auth(cfg.JWTAccessSecret))
+	authHandler.RecoveryRoutes(mux)
 
 	var root http.Handler = mux
 	root = middleware.Logging(log)(root)
 	root = middleware.CORS(cfg.AllowedOrigin)(root)
 	root = middleware.Recover(log)(root)
-
+	
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
 		Handler:           root,
