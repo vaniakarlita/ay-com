@@ -10,6 +10,7 @@ tags:
   - name: Registration
   - name: Session
   - name: Password recovery
+  - name: Uploads
 paths:
   /api/health:
     get:
@@ -27,6 +28,38 @@ paths:
                     type: string
                     example: ok
   /api/auth/register:
+    /api/uploads/image:
+    post:
+      tags: [Uploads]
+      summary: Upload a profile picture or banner (max 2 MB; JPEG, PNG, GIF, WebP)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [kind, file]
+              properties:
+                kind:
+                  type: string
+                  enum: [profile, banner]
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Image stored
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "503":
+          $ref: "#/components/responses/Unavailable"
     post:
       tags: [Registration]
       summary: Create an account and send a verification code

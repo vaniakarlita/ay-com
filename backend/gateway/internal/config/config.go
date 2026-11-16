@@ -14,6 +14,9 @@ type Config struct {
 	AllowedOrigin   string
 	LogLevel        string
 	JWTAccessSecret string
+	SupabaseURL     string
+	SupabaseKey     string
+	SupabaseBucket  string
 }
 
 func Load() Config {
@@ -30,6 +33,9 @@ func Load() Config {
 		AllowedOrigin:   get("ALLOWED_ORIGIN", "http://localhost:5173"),
 		LogLevel:        get("LOG_LEVEL", defaultLevel),
 		JWTAccessSecret: get("JWT_ACCESS_SECRET", devAccessSecret),
+		SupabaseURL:     get("SUPABASE_URL", ""),
+		SupabaseKey:     get("SUPABASE_SERVICE_KEY", ""),
+		SupabaseBucket:  get("SUPABASE_BUCKET", "media"),
 	}
 }
 

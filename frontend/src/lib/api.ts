@@ -122,8 +122,21 @@ export const authApi = {
   },
 };
 
-export async function uploadImage(_file: File, kind: 'profile' | 'banner'): Promise<string> {
-  return kind === 'profile'
-    ? 'https://placehold.co/400x400/png'
-    : 'https://placehold.co/1500x500/png';
+export async function uploadImage(file: File, kind: 'profile' | 'banner'): Promise<string> {
+  const form = new FormData();
+  form.append('kind', kind);
+  form.append('file', file);
+
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}/api/uploads/image`, { method: 'POST', body: form });
+  } catch {
+    throw new ApiError(0, 'Cannot reach the server. Please try again.');
+  }
+
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new ApiError(res.status, data?.error ?? 'Image upload failed. Please try again.');
+  }
+  return data.url as string;
 }

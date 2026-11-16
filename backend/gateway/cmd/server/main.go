@@ -19,9 +19,12 @@ import (
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/logger"
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/middleware"
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/docs"
+	"github.com/joho/godotenv"
+	"github.com/vaniakarlita/ay-com/backend/gateway/internal/storage"
 )
 
 func main() {
+	_ = godotenv.Load()
 	cfg := config.Load()
 	log := logger.New(cfg.Env, cfg.LogLevel)
 	slog.SetDefault(log)
@@ -43,6 +46,7 @@ func main() {
 	authHandler.SessionRoutes(mux, middleware.Auth(cfg.JWTAccessSecret))
 	authHandler.RecoveryRoutes(mux)
 	docs.Routes(mux)
+	handler.NewUploadHandler(storage.New(cfg.SupabaseURL, cfg.SupabaseKey, cfg.SupabaseBucket), log).Routes(mux)
 
 	var root http.Handler = mux
 	root = middleware.Logging(log)(root)
