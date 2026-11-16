@@ -57,10 +57,18 @@ func main() {
 
 	tokens := token.NewManager(cfg.JWTAccessSecret, cfg.JWTRefreshSecret, cfg.AccessTTL, cfg.RefreshTTL)
 
+	mail, err := mailer.NewRabbitMailer(cfg.RabbitURL)
+	if err != nil {
+		log.Error("rabbitmq connection failed", "error", err)
+		os.Exit(1)
+	}
+	defer mail.Close()
+	log.Info("connected to rabbitmq")
+
 	authService := service.New(
 		repository.NewUserRepository(pool),
 		codestore.New(rdb),
-		mailer.NewLogMailer(log),
+		mail,
 		tokenstore.New(rdb),
 		tokens,
 		log,

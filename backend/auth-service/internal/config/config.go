@@ -21,6 +21,7 @@ type Config struct {
 	JWTRefreshSecret string
 	AccessTTL        time.Duration
 	RefreshTTL       time.Duration
+	RabbitURL        string
 }
 
 func Load() Config {
@@ -40,6 +41,7 @@ func Load() Config {
 		JWTRefreshSecret: get("JWT_REFRESH_SECRET", devRefreshSecret),
 		AccessTTL:        15 * time.Minute,
 		RefreshTTL:       7 * 24 * time.Hour,
+		RabbitURL:        get("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
 	}
 }
 
