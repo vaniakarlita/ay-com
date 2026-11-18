@@ -82,5 +82,18 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"userId": middleware.UserID(r.Context())})
+	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
+	defer cancel()
+
+	res, err := h.client.GetProfile(ctx, &authpb.GetProfileRequest{UserId: middleware.UserID(r.Context())})
+	if err != nil {
+		h.fail(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{
+		"userId":            res.UserId,
+		"name":              res.Name,
+		"username":          res.Username,
+		"profilePictureUrl": res.ProfilePictureUrl,
+	})
 }

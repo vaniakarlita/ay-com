@@ -144,3 +144,25 @@ func (r *UserRepository) UpdatePassword(ctx context.Context, id, hash string) er
 	_, err := r.pool.Exec(ctx, `UPDATE users SET password_hash = $1 WHERE id = $2`, hash, id)
 	return err
 }
+
+type Profile struct {
+	ID                string
+	Name              string
+	Username          string
+	ProfilePictureURL string
+}
+
+func (r *UserRepository) FindProfile(ctx context.Context, id string) (Profile, error) {
+	var p Profile
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, name, username, profile_picture_url
+		FROM users WHERE id = $1`, id,
+	).Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Profile{}, ErrNotFound
+	}
+	if err != nil {
+		return Profile{}, err
+	}
+	return p, nil
+}

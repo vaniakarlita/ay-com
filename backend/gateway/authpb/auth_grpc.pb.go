@@ -29,6 +29,7 @@ const (
 	AuthService_VerifySecurityAnswer_FullMethodName = "/auth.AuthService/VerifySecurityAnswer"
 	AuthService_ResetPassword_FullMethodName        = "/auth.AuthService/ResetPassword"
 	AuthService_GoogleAuth_FullMethodName           = "/auth.AuthService/GoogleAuth"
+	AuthService_GetProfile_FullMethodName           = "/auth.AuthService/GetProfile"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -45,6 +46,7 @@ type AuthServiceClient interface {
 	VerifySecurityAnswer(ctx context.Context, in *VerifySecurityAnswerRequest, opts ...grpc.CallOption) (*VerifySecurityAnswerResponse, error)
 	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error)
 	GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opts ...grpc.CallOption) (*GoogleAuthResponse, error)
+	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error)
 }
 
 type authServiceClient struct {
@@ -155,6 +157,16 @@ func (c *authServiceClient) GoogleAuth(ctx context.Context, in *GoogleAuthReques
 	return out, nil
 }
 
+func (c *authServiceClient) GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetProfileResponse)
+	err := c.cc.Invoke(ctx, AuthService_GetProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -169,6 +181,7 @@ type AuthServiceServer interface {
 	VerifySecurityAnswer(context.Context, *VerifySecurityAnswerRequest) (*VerifySecurityAnswerResponse, error)
 	ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error)
 	GoogleAuth(context.Context, *GoogleAuthRequest) (*GoogleAuthResponse, error)
+	GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -208,6 +221,9 @@ func (UnimplementedAuthServiceServer) ResetPassword(context.Context, *ResetPassw
 }
 func (UnimplementedAuthServiceServer) GoogleAuth(context.Context, *GoogleAuthRequest) (*GoogleAuthResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GoogleAuth not implemented")
+}
+func (UnimplementedAuthServiceServer) GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProfile not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -410,6 +426,24 @@ func _AuthService_GoogleAuth_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GetProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetProfile(ctx, req.(*GetProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -456,6 +490,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GoogleAuth",
 			Handler:    _AuthService_GoogleAuth_Handler,
+		},
+		{
+			MethodName: "GetProfile",
+			Handler:    _AuthService_GetProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -30,6 +30,7 @@ type UserStore interface {
 	FindByID(ctx context.Context, id string) (repository.Credentials, error)
 	FindRecovery(ctx context.Context, email string) (repository.Recovery, error)
 	UpdatePassword(ctx context.Context, id, hash string) error
+	FindProfile(ctx context.Context, id string) (repository.Profile, error)
 }
 
 type CodeStore interface {

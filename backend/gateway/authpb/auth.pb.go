@@ -1077,6 +1077,118 @@ func (x *GoogleAuthResponse) GetName() string {
 	return ""
 }
 
+type GetProfileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProfileRequest) Reset() {
+	*x = GetProfileRequest{}
+	mi := &file_auth_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProfileRequest) ProtoMessage() {}
+
+func (x *GetProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProfileRequest.ProtoReflect.Descriptor instead.
+func (*GetProfileRequest) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *GetProfileRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetProfileResponse struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	UserId            string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Name              string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Username          string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	ProfilePictureUrl string                 `protobuf:"bytes,4,opt,name=profile_picture_url,json=profilePictureUrl,proto3" json:"profile_picture_url,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetProfileResponse) Reset() {
+	*x = GetProfileResponse{}
+	mi := &file_auth_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProfileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProfileResponse) ProtoMessage() {}
+
+func (x *GetProfileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProfileResponse.ProtoReflect.Descriptor instead.
+func (*GetProfileResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *GetProfileResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetProfileResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GetProfileResponse) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *GetProfileResponse) GetProfilePictureUrl() string {
+	if x != nil {
+		return x.ProfilePictureUrl
+	}
+	return ""
+}
+
 var File_auth_proto protoreflect.FileDescriptor
 
 const file_auth_proto_rawDesc = "" +
@@ -1152,7 +1264,14 @@ const file_auth_proto_rawDesc = "" +
 	"\faccess_token\x18\x02 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\x12\x14\n" +
 	"\x05email\x18\x04 \x01(\tR\x05email\x12\x12\n" +
-	"\x04name\x18\x05 \x01(\tR\x04name2\xc1\x05\n" +
+	"\x04name\x18\x05 \x01(\tR\x04name\",\n" +
+	"\x11GetProfileRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"\x8d\x01\n" +
+	"\x12GetProfileResponse\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\busername\x18\x03 \x01(\tR\busername\x12.\n" +
+	"\x13profile_picture_url\x18\x04 \x01(\tR\x11profilePictureUrl2\x82\x06\n" +
 	"\vAuthService\x129\n" +
 	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x12B\n" +
 	"\vVerifyEmail\x12\x18.auth.VerifyEmailRequest\x1a\x19.auth.VerifyEmailResponse\x12?\n" +
@@ -1165,7 +1284,9 @@ const file_auth_proto_rawDesc = "" +
 	"\x14VerifySecurityAnswer\x12!.auth.VerifySecurityAnswerRequest\x1a\".auth.VerifySecurityAnswerResponse\x12H\n" +
 	"\rResetPassword\x12\x1a.auth.ResetPasswordRequest\x1a\x1b.auth.ResetPasswordResponse\x12?\n" +
 	"\n" +
-	"GoogleAuth\x12\x17.auth.GoogleAuthRequest\x1a\x18.auth.GoogleAuthResponseB<Z:github.com/vaniakarlita/ay-com/backend/auth-service/authpbb\x06proto3"
+	"GoogleAuth\x12\x17.auth.GoogleAuthRequest\x1a\x18.auth.GoogleAuthResponse\x12?\n" +
+	"\n" +
+	"GetProfile\x12\x17.auth.GetProfileRequest\x1a\x18.auth.GetProfileResponseB<Z:github.com/vaniakarlita/ay-com/backend/auth-service/authpbb\x06proto3"
 
 var (
 	file_auth_proto_rawDescOnce sync.Once
@@ -1179,7 +1300,7 @@ func file_auth_proto_rawDescGZIP() []byte {
 	return file_auth_proto_rawDescData
 }
 
-var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_auth_proto_goTypes = []any{
 	(*RegisterRequest)(nil),              // 0: auth.RegisterRequest
 	(*RegisterResponse)(nil),             // 1: auth.RegisterResponse
@@ -1201,6 +1322,8 @@ var file_auth_proto_goTypes = []any{
 	(*ResetPasswordResponse)(nil),        // 17: auth.ResetPasswordResponse
 	(*GoogleAuthRequest)(nil),            // 18: auth.GoogleAuthRequest
 	(*GoogleAuthResponse)(nil),           // 19: auth.GoogleAuthResponse
+	(*GetProfileRequest)(nil),            // 20: auth.GetProfileRequest
+	(*GetProfileResponse)(nil),           // 21: auth.GetProfileResponse
 }
 var file_auth_proto_depIdxs = []int32{
 	0,  // 0: auth.AuthService.Register:input_type -> auth.RegisterRequest
@@ -1213,18 +1336,20 @@ var file_auth_proto_depIdxs = []int32{
 	14, // 7: auth.AuthService.VerifySecurityAnswer:input_type -> auth.VerifySecurityAnswerRequest
 	16, // 8: auth.AuthService.ResetPassword:input_type -> auth.ResetPasswordRequest
 	18, // 9: auth.AuthService.GoogleAuth:input_type -> auth.GoogleAuthRequest
-	1,  // 10: auth.AuthService.Register:output_type -> auth.RegisterResponse
-	3,  // 11: auth.AuthService.VerifyEmail:output_type -> auth.VerifyEmailResponse
-	5,  // 12: auth.AuthService.ResendCode:output_type -> auth.ResendCodeResponse
-	7,  // 13: auth.AuthService.Login:output_type -> auth.LoginResponse
-	9,  // 14: auth.AuthService.RefreshToken:output_type -> auth.RefreshTokenResponse
-	11, // 15: auth.AuthService.Logout:output_type -> auth.LogoutResponse
-	13, // 16: auth.AuthService.GetSecurityQuestion:output_type -> auth.GetSecurityQuestionResponse
-	15, // 17: auth.AuthService.VerifySecurityAnswer:output_type -> auth.VerifySecurityAnswerResponse
-	17, // 18: auth.AuthService.ResetPassword:output_type -> auth.ResetPasswordResponse
-	19, // 19: auth.AuthService.GoogleAuth:output_type -> auth.GoogleAuthResponse
-	10, // [10:20] is the sub-list for method output_type
-	0,  // [0:10] is the sub-list for method input_type
+	20, // 10: auth.AuthService.GetProfile:input_type -> auth.GetProfileRequest
+	1,  // 11: auth.AuthService.Register:output_type -> auth.RegisterResponse
+	3,  // 12: auth.AuthService.VerifyEmail:output_type -> auth.VerifyEmailResponse
+	5,  // 13: auth.AuthService.ResendCode:output_type -> auth.ResendCodeResponse
+	7,  // 14: auth.AuthService.Login:output_type -> auth.LoginResponse
+	9,  // 15: auth.AuthService.RefreshToken:output_type -> auth.RefreshTokenResponse
+	11, // 16: auth.AuthService.Logout:output_type -> auth.LogoutResponse
+	13, // 17: auth.AuthService.GetSecurityQuestion:output_type -> auth.GetSecurityQuestionResponse
+	15, // 18: auth.AuthService.VerifySecurityAnswer:output_type -> auth.VerifySecurityAnswerResponse
+	17, // 19: auth.AuthService.ResetPassword:output_type -> auth.ResetPasswordResponse
+	19, // 20: auth.AuthService.GoogleAuth:output_type -> auth.GoogleAuthResponse
+	21, // 21: auth.AuthService.GetProfile:output_type -> auth.GetProfileResponse
+	11, // [11:22] is the sub-list for method output_type
+	0,  // [0:11] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -1241,7 +1366,7 @@ func file_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_proto_rawDesc), len(file_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

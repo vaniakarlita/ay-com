@@ -15,6 +15,7 @@ service AuthService {
   rpc VerifySecurityAnswer(VerifySecurityAnswerRequest) returns (VerifySecurityAnswerResponse);
   rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
   rpc GoogleAuth(GoogleAuthRequest) returns (GoogleAuthResponse);
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
 }
 
 message RegisterRequest {
@@ -117,4 +118,15 @@ message GoogleAuthResponse {
   string refresh_token = 3;
   string email = 4;
   string name = 5;
+}
+
+message GetProfileRequest {
+  string user_id = 1;
+}
+
+message GetProfileResponse {
+  string user_id = 1;
+  string name = 2;
+  string username = 3;
+  string profile_picture_url = 4;
 }

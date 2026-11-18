@@ -40,6 +40,11 @@ func (m *MockUserStore) FindRecovery(ctx context.Context, email string) (reposit
 	return args.Get(0).(repository.Recovery), args.Error(1)
 }
 
+func (m *MockUserStore) FindProfile(ctx context.Context, id string) (repository.Profile, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).(repository.Profile), args.Error(1)
+}
+
 func (m *MockUserStore) UpdatePassword(ctx context.Context, id, hash string) error {
 	return m.Called(ctx, id, hash).Error(0)
 }

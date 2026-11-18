@@ -7,7 +7,7 @@
   onclick={toggleTheme}
   aria-label="Switch to {$theme === 'light' ? 'dark' : 'light'} theme"
 >
-  {$theme === 'light' ? '🌙 Dark' : '☀️ Light'}
+  {$theme === 'light' ? 'Dark' : 'Light'}
 </button>
 
 <style lang="scss">

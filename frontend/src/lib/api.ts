@@ -94,6 +94,14 @@ export type RegisterPayload = {
 type Tokens = { accessToken: string; refreshToken: string };
 type Message = { message: string };
 
+export type CurrentUser = {
+  userId: string;
+  name?: string;
+  username?: string;
+  profilePictureUrl?: string;
+  isVerified?: boolean;
+};
+
 type GoogleResult = {
   registered: boolean;
   accessToken: string;
@@ -111,7 +119,7 @@ export const authApi = {
     request<Message>('/api/auth/resend-code', { method: 'POST', body: { email } }),
   login: (email: string, password: string) =>
     request<Tokens>('/api/auth/login', { method: 'POST', body: { email, password } }),
-  me: () => request<{ userId: string }>('/api/me', { auth: true }),
+  me: () => request<CurrentUser>('/api/me', { auth: true }),
   forgotQuestion: (email: string) =>
     request<{ question: string }>('/api/auth/forgot/question', { method: 'POST', body: { email } }),
   forgotVerify: (email: string, answer: string) =>
