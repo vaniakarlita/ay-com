@@ -31,6 +31,10 @@ func compose(m message) (string, string, error) {
 		return "Your AY.com verification code",
 			fmt.Sprintf("Your verification code is %s.\r\nIt expires in 5 minutes.\r\nIf you did not create an AY.com account, you can ignore this email.", m.Code),
 			nil
+	case "welcome":
+		return "Welcome to AY.com",
+			"Your registration was successful. Your account is now active and you can sign in at any time.\r\nWelcome aboard!",
+			nil
 	default:
 		return "", "", fmt.Errorf("unknown message type %q", m.Type)
 	}
