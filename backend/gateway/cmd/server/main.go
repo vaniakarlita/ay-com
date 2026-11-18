@@ -14,6 +14,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/vaniakarlita/ay-com/backend/gateway/authpb"
+	"github.com/vaniakarlita/ay-com/backend/gateway/threadpb"
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/config"
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/handler"
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/logger"
@@ -40,14 +41,27 @@ func main() {
 	}
 	defer conn.Close()
 
+	threadConn, err := grpc.NewClient(cfg.ThreadAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Error("create thread client failed", "error", err)
+		os.Exit(1)
+	}
+	defer threadConn.Close()
+
+	authClient := authpb.NewAuthServiceClient(conn)
+	threadClient := threadpb.NewThreadServiceClient(threadConn)
+
 	mux := http.NewServeMux()
-	authHandler := handler.NewAuthHandler(authpb.NewAuthServiceClient(conn), log)
+	authHandler := handler.NewAuthHandler(authClient, log)
 	authHandler.Routes(mux)
 	authHandler.SessionRoutes(mux, middleware.Auth(cfg.JWTAccessSecret))
 	authHandler.RecoveryRoutes(mux)
 	authHandler.GoogleRoutes(mux)
 	docs.Routes(mux)
 	handler.NewUploadHandler(storage.New(cfg.SupabaseURL, cfg.SupabaseKey, cfg.SupabaseBucket), log).Routes(mux)
+
+	threadHandler := handler.NewThreadHandler(threadClient, authClient, log)
+	threadHandler.Routes(mux, middleware.Auth(cfg.JWTAccessSecret))
 
 	var root http.Handler = mux
 	root = middleware.Logging(log)(root)

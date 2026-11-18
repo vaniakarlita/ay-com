@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package thread;
+
+option go_package = "github.com/vaniakarlita/ay-com/backend/thread-service/threadpb";
+
+service ThreadService {
+  rpc CreateThread(CreateThreadRequest) returns (CreateThreadResponse);
+  rpc GetThread(GetThreadRequest) returns (GetThreadResponse);
+  rpc ListFeed(ListFeedRequest) returns (ListFeedResponse);
+  rpc DeleteThread(DeleteThreadRequest) returns (DeleteThreadResponse);
+  rpc GetCategories(GetCategoriesRequest) returns (GetCategoriesResponse);
+}
+
+message ThreadAuthor {
+  string user_id = 1;
+  string name = 2;
+  string username = 3;
+  string avatar_url = 4;
+  bool is_verified = 5;
+}
+
+message Thread {
+  string id = 1;
+  string user_id = 2;
+  string author_name = 3;
+  string author_username = 4;
+  string author_avatar_url = 5;
+  bool author_is_verified = 6;
+  string content = 7;
+  string reply_permission = 8;
+  repeated string categories = 9;
+  string community_id = 10;
+  string community_name = 11;
+  bool is_ad = 12;
+  string scheduled_at = 13;
+  string created_at = 14;
+  int32 like_count = 15;
+  int32 reply_count = 16;
+  int32 repost_count = 17;
+  int32 bookmark_count = 18;
+  bool liked_by_me = 19;
+  bool reposted_by_me = 20;
+  bool bookmarked_by_me = 21;
+}
+
+message CreateThreadRequest {
+  string user_id = 1;
+  string author_name = 2;
+  string author_username = 3;
+  string author_avatar_url = 4;
+  bool author_is_verified = 5;
+  string content = 6;
+  string reply_permission = 7;
+  repeated string categories = 8;
+  string community_id = 9;
+  string scheduled_at = 10;
+  bool is_ad = 11;
+}
+
+message CreateThreadResponse {
+  Thread thread = 1;
+}
+
+message GetThreadRequest {
+  string thread_id = 1;
+  string viewer_user_id = 2;
+}
+
+message GetThreadResponse {
+  Thread thread = 1;
+}
+
+message ListFeedRequest {
+  string viewer_user_id = 1;
+  string feed_type = 2; // "for-you" or "following"
+  int32 limit = 3;
+  string cursor = 4;
+}
+
+message ListFeedResponse {
+  repeated Thread threads = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+message DeleteThreadRequest {
+  string thread_id = 1;
+  string user_id = 2;
+}
+
+message DeleteThreadResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message Category {
+  string id = 1;
+  string name = 2;
+}
+
+message GetCategoriesRequest {}
+
+message GetCategoriesResponse {
+  repeated Category categories = 1;
+}

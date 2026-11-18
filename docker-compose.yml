@@ -10,6 +10,17 @@ services:
     volumes:
       - auth_db_data:/var/lib/postgresql/data
 
+  thread-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: thread_user
+      POSTGRES_PASSWORD: thread_pass
+      POSTGRES_DB: thread_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - thread_db_data:/var/lib/postgresql/data
+
   redis:
     image: redis:7-alpine
     ports:
@@ -29,3 +40,4 @@ services:
 
 volumes:
   auth_db_data:
+  thread_db_data:

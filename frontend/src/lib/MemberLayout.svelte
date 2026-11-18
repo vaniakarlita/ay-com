@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount, type Snippet } from 'svelte';
   import { authApi } from './api';
+  import CreateThreadModal from './components/CreateThreadModal.svelte';
   import RightSidebar from './RightSidebar.svelte';
   import { navigate, path } from './router';
+  import { isCreateModalOpen, openCreateModal, closeCreateModal, notifyThreadCreated } from './stores/ui';
   import { theme, toggleTheme } from './theme';
   import { currentUser, loadCurrentUser } from './user';
 
@@ -67,7 +69,7 @@
         </a>
       {/each}
 
-      <button class="post" type="button">
+      <button class="post" type="button" onclick={openCreateModal}>
         <span class="long">Post</span>
         <span class="short">+</span>
       </button>
@@ -122,6 +124,12 @@
   <aside class="right">
     <RightSidebar />
   </aside>
+
+  <CreateThreadModal
+    isOpen={$isCreateModalOpen}
+    onClose={closeCreateModal}
+    onCreated={notifyThreadCreated}
+  />
 </div>
 
 <style lang="scss">

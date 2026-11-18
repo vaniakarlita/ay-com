@@ -140,6 +140,67 @@ export const authApi = {
   },
 };
 
+export type ThreadItem = {
+  id: string;
+  userId: string;
+  authorName: string;
+  authorUsername: string;
+  authorAvatarUrl: string;
+  authorIsVerified: boolean;
+  content: string;
+  replyPermission: string;
+  categories: string[];
+  communityId: string;
+  communityName: string;
+  isAd: boolean;
+  scheduledAt: string;
+  createdAt: string;
+  likeCount: number;
+  replyCount: number;
+  repostCount: number;
+  bookmarkCount: number;
+  likedByMe: boolean;
+  repostedByMe: boolean;
+  bookmarkedByMe: boolean;
+};
+
+export type CategoryItem = {
+  id: string;
+  name: string;
+};
+
+export type FeedResponse = {
+  threads: ThreadItem[];
+  nextCursor: string;
+  hasMore: boolean;
+};
+
+export type CreateThreadPayload = {
+  content: string;
+  replyPermission?: string;
+  categories?: string[];
+  communityId?: string;
+  scheduledAt?: string;
+};
+
+export const threadApi = {
+  create: (body: CreateThreadPayload) =>
+    request<ThreadItem>('/api/threads', { method: 'POST', body, auth: true }),
+  feed: (cursor = '', limit = 20) => {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (limit) params.set('limit', limit.toString());
+    const q = params.toString() ? `?${params.toString()}` : '';
+    return request<FeedResponse>(`/api/threads/feed${q}`, { auth: true });
+  },
+  delete: (id: string) =>
+    request<{ success: boolean; message: string }>(`/api/threads/${id}`, {
+      method: 'DELETE',
+      auth: true,
+    }),
+  categories: () => request<CategoryItem[]>('/api/categories'),
+};
+
 export async function uploadImage(file: File, kind: 'profile' | 'banner'): Promise<string> {
   const form = new FormData();
   form.append('kind', kind);
