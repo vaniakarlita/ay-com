@@ -40,8 +40,8 @@ func NewRabbitMailer(url string) (*RabbitMailer, error) {
 	return &RabbitMailer{conn: conn, ch: ch}, nil
 }
 
-func (m *RabbitMailer) SendVerification(ctx context.Context, to, code string) error {
-	body, err := json.Marshal(Message{Type: "verification", To: to, Code: code})
+func (m *RabbitMailer) publish(ctx context.Context, msg Message) error {
+	body, err := json.Marshal(msg)
 	if err != nil {
 		return err
 	}
@@ -54,6 +54,14 @@ func (m *RabbitMailer) SendVerification(ctx context.Context, to, code string) er
 		Timestamp:    time.Now(),
 		Body:         body,
 	})
+}
+
+func (m *RabbitMailer) SendVerification(ctx context.Context, to, code string) error {
+	return m.publish(ctx, Message{Type: "verification", To: to, Code: code})
+}
+
+func (m *RabbitMailer) SendWelcome(ctx context.Context, to string) error {
+	return m.publish(ctx, Message{Type: "welcome", To: to})
 }
 
 func (m *RabbitMailer) Close() {

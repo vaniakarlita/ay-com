@@ -40,6 +40,7 @@ type CodeStore interface {
 
 type Mailer interface {
 	SendVerification(ctx context.Context, to, code string) error
+	SendWelcome(ctx context.Context, to string) error
 }
 
 type AuthService struct {
@@ -137,6 +138,11 @@ func (s *AuthService) VerifyEmail(ctx context.Context, req *authpb.VerifyEmailRe
 	}
 	if err := s.codes.Delete(ctx, email); err != nil {
 		s.log.Warn("delete verification code failed", "error", err)
+	}
+
+
+	if err := s.mailer.SendWelcome(ctx, email); err != nil {
+	s.log.Warn("queue welcome email failed", "error", err)
 	}
 
 	s.log.Info("account activated")

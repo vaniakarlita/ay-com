@@ -65,6 +65,10 @@ func (m *MockMailer) SendVerification(ctx context.Context, to, code string) erro
 	return m.Called(ctx, to, code).Error(0)
 }
 
+func (m *MockMailer) SendWelcome(ctx context.Context, to string) error {
+	return m.Called(ctx, to).Error(0)
+}
+
 type MockTokenStore struct{ mock.Mock }
 
 func (m *MockTokenStore) Save(ctx context.Context, userID, jti string, ttl time.Duration) error {

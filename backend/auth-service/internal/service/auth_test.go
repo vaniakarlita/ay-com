@@ -130,12 +130,14 @@ func TestVerifyEmail(t *testing.T) {
 		f.codeStore.On("Get", mock.Anything, "adrian.yu@gmail.com").Return("123456", nil)
 		f.users.On("Activate", mock.Anything, "adrian.yu@gmail.com").Return(nil)
 		f.codeStore.On("Delete", mock.Anything, "adrian.yu@gmail.com").Return(nil)
+		f.mailer.On("SendWelcome", mock.Anything, "adrian.yu@gmail.com").Return(nil)
 
 		_, err := f.svc.VerifyEmail(ctx, &authpb.VerifyEmailRequest{Email: "adrian.yu@gmail.com", Code: " 123456 "})
 
 		require.NoError(t, err)
 		f.users.AssertExpectations(t)
 		f.codeStore.AssertExpectations(t)
+		f.mailer.AssertExpectations(t)
 	})
 
 	t.Run("expired code", func(t *testing.T) {
