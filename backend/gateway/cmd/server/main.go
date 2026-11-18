@@ -45,6 +45,7 @@ func main() {
 	authHandler.Routes(mux)
 	authHandler.SessionRoutes(mux, middleware.Auth(cfg.JWTAccessSecret))
 	authHandler.RecoveryRoutes(mux)
+	authHandler.GoogleRoutes(mux)
 	docs.Routes(mux)
 	handler.NewUploadHandler(storage.New(cfg.SupabaseURL, cfg.SupabaseKey, cfg.SupabaseBucket), log).Routes(mux)
 

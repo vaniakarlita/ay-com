@@ -957,6 +957,126 @@ func (x *ResetPasswordResponse) GetMessage() string {
 	return ""
 }
 
+type GoogleAuthRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IdToken       string                 `protobuf:"bytes,1,opt,name=id_token,json=idToken,proto3" json:"id_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GoogleAuthRequest) Reset() {
+	*x = GoogleAuthRequest{}
+	mi := &file_auth_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GoogleAuthRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoogleAuthRequest) ProtoMessage() {}
+
+func (x *GoogleAuthRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoogleAuthRequest.ProtoReflect.Descriptor instead.
+func (*GoogleAuthRequest) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GoogleAuthRequest) GetIdToken() string {
+	if x != nil {
+		return x.IdToken
+	}
+	return ""
+}
+
+type GoogleAuthResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Registered    bool                   `protobuf:"varint,1,opt,name=registered,proto3" json:"registered,omitempty"`
+	AccessToken   string                 `protobuf:"bytes,2,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	RefreshToken  string                 `protobuf:"bytes,3,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
+	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GoogleAuthResponse) Reset() {
+	*x = GoogleAuthResponse{}
+	mi := &file_auth_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GoogleAuthResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoogleAuthResponse) ProtoMessage() {}
+
+func (x *GoogleAuthResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoogleAuthResponse.ProtoReflect.Descriptor instead.
+func (*GoogleAuthResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GoogleAuthResponse) GetRegistered() bool {
+	if x != nil {
+		return x.Registered
+	}
+	return false
+}
+
+func (x *GoogleAuthResponse) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
+func (x *GoogleAuthResponse) GetRefreshToken() string {
+	if x != nil {
+		return x.RefreshToken
+	}
+	return ""
+}
+
+func (x *GoogleAuthResponse) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *GoogleAuthResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
 var File_auth_proto protoreflect.FileDescriptor
 
 const file_auth_proto_rawDesc = "" +
@@ -1022,7 +1142,17 @@ const file_auth_proto_rawDesc = "" +
 	"resetToken\x12!\n" +
 	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\"1\n" +
 	"\x15ResetPasswordResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2\x80\x05\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\".\n" +
+	"\x11GoogleAuthRequest\x12\x19\n" +
+	"\bid_token\x18\x01 \x01(\tR\aidToken\"\xa6\x01\n" +
+	"\x12GoogleAuthResponse\x12\x1e\n" +
+	"\n" +
+	"registered\x18\x01 \x01(\bR\n" +
+	"registered\x12!\n" +
+	"\faccess_token\x18\x02 \x01(\tR\vaccessToken\x12#\n" +
+	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\x12\x14\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\x12\x12\n" +
+	"\x04name\x18\x05 \x01(\tR\x04name2\xc1\x05\n" +
 	"\vAuthService\x129\n" +
 	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x12B\n" +
 	"\vVerifyEmail\x12\x18.auth.VerifyEmailRequest\x1a\x19.auth.VerifyEmailResponse\x12?\n" +
@@ -1033,7 +1163,9 @@ const file_auth_proto_rawDesc = "" +
 	"\x06Logout\x12\x13.auth.LogoutRequest\x1a\x14.auth.LogoutResponse\x12Z\n" +
 	"\x13GetSecurityQuestion\x12 .auth.GetSecurityQuestionRequest\x1a!.auth.GetSecurityQuestionResponse\x12]\n" +
 	"\x14VerifySecurityAnswer\x12!.auth.VerifySecurityAnswerRequest\x1a\".auth.VerifySecurityAnswerResponse\x12H\n" +
-	"\rResetPassword\x12\x1a.auth.ResetPasswordRequest\x1a\x1b.auth.ResetPasswordResponseB<Z:github.com/vaniakarlita/ay-com/backend/auth-service/authpbb\x06proto3"
+	"\rResetPassword\x12\x1a.auth.ResetPasswordRequest\x1a\x1b.auth.ResetPasswordResponse\x12?\n" +
+	"\n" +
+	"GoogleAuth\x12\x17.auth.GoogleAuthRequest\x1a\x18.auth.GoogleAuthResponseB<Z:github.com/vaniakarlita/ay-com/backend/auth-service/authpbb\x06proto3"
 
 var (
 	file_auth_proto_rawDescOnce sync.Once
@@ -1047,7 +1179,7 @@ func file_auth_proto_rawDescGZIP() []byte {
 	return file_auth_proto_rawDescData
 }
 
-var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_auth_proto_goTypes = []any{
 	(*RegisterRequest)(nil),              // 0: auth.RegisterRequest
 	(*RegisterResponse)(nil),             // 1: auth.RegisterResponse
@@ -1067,6 +1199,8 @@ var file_auth_proto_goTypes = []any{
 	(*VerifySecurityAnswerResponse)(nil), // 15: auth.VerifySecurityAnswerResponse
 	(*ResetPasswordRequest)(nil),         // 16: auth.ResetPasswordRequest
 	(*ResetPasswordResponse)(nil),        // 17: auth.ResetPasswordResponse
+	(*GoogleAuthRequest)(nil),            // 18: auth.GoogleAuthRequest
+	(*GoogleAuthResponse)(nil),           // 19: auth.GoogleAuthResponse
 }
 var file_auth_proto_depIdxs = []int32{
 	0,  // 0: auth.AuthService.Register:input_type -> auth.RegisterRequest
@@ -1078,17 +1212,19 @@ var file_auth_proto_depIdxs = []int32{
 	12, // 6: auth.AuthService.GetSecurityQuestion:input_type -> auth.GetSecurityQuestionRequest
 	14, // 7: auth.AuthService.VerifySecurityAnswer:input_type -> auth.VerifySecurityAnswerRequest
 	16, // 8: auth.AuthService.ResetPassword:input_type -> auth.ResetPasswordRequest
-	1,  // 9: auth.AuthService.Register:output_type -> auth.RegisterResponse
-	3,  // 10: auth.AuthService.VerifyEmail:output_type -> auth.VerifyEmailResponse
-	5,  // 11: auth.AuthService.ResendCode:output_type -> auth.ResendCodeResponse
-	7,  // 12: auth.AuthService.Login:output_type -> auth.LoginResponse
-	9,  // 13: auth.AuthService.RefreshToken:output_type -> auth.RefreshTokenResponse
-	11, // 14: auth.AuthService.Logout:output_type -> auth.LogoutResponse
-	13, // 15: auth.AuthService.GetSecurityQuestion:output_type -> auth.GetSecurityQuestionResponse
-	15, // 16: auth.AuthService.VerifySecurityAnswer:output_type -> auth.VerifySecurityAnswerResponse
-	17, // 17: auth.AuthService.ResetPassword:output_type -> auth.ResetPasswordResponse
-	9,  // [9:18] is the sub-list for method output_type
-	0,  // [0:9] is the sub-list for method input_type
+	18, // 9: auth.AuthService.GoogleAuth:input_type -> auth.GoogleAuthRequest
+	1,  // 10: auth.AuthService.Register:output_type -> auth.RegisterResponse
+	3,  // 11: auth.AuthService.VerifyEmail:output_type -> auth.VerifyEmailResponse
+	5,  // 12: auth.AuthService.ResendCode:output_type -> auth.ResendCodeResponse
+	7,  // 13: auth.AuthService.Login:output_type -> auth.LoginResponse
+	9,  // 14: auth.AuthService.RefreshToken:output_type -> auth.RefreshTokenResponse
+	11, // 15: auth.AuthService.Logout:output_type -> auth.LogoutResponse
+	13, // 16: auth.AuthService.GetSecurityQuestion:output_type -> auth.GetSecurityQuestionResponse
+	15, // 17: auth.AuthService.VerifySecurityAnswer:output_type -> auth.VerifySecurityAnswerResponse
+	17, // 18: auth.AuthService.ResetPassword:output_type -> auth.ResetPasswordResponse
+	19, // 19: auth.AuthService.GoogleAuth:output_type -> auth.GoogleAuthResponse
+	10, // [10:20] is the sub-list for method output_type
+	0,  // [0:10] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -1105,7 +1241,7 @@ func file_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_proto_rawDesc), len(file_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

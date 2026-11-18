@@ -4,6 +4,8 @@
   import { authApi, ApiError } from './api';
   import { navigate } from './router';
   import { saveSession } from './session';
+  import GoogleButton from './GoogleButton.svelte';
+  import { googleDraft } from './googleDraft';
 
   let email = $state('');
   let password = $state('');
@@ -34,8 +36,25 @@
   }
 }
 
-  function handleGoogle() {
-    serverError = 'Google sign-in is not available yet.';
+  async function handleGoogle(idToken: string) {
+  serverError = '';
+  if (loading) return;
+
+    loading = true;
+  try {
+    const res = await authApi.google(idToken);
+      if (res.registered) {
+        saveSession(res.accessToken, res.refreshToken);
+        navigate('/home', true);
+      return;
+    }
+    googleDraft.set({ name: res.name, email: res.email });
+    navigate('/register');
+  } catch (err) {
+    serverError = err instanceof ApiError ? err.message : 'Google sign-in failed. Please try again.';
+  } finally {
+    loading = false;
+    }
   }
 </script>
 
@@ -49,10 +68,6 @@
     {#if serverError}
       <p class="alert" role="alert">{serverError}</p>
     {/if}
-
-    <button type="button" class="btn btn-outline google" onclick={handleGoogle}>
-      Sign in with Google
-    </button>
 
     <p class="divider"><span>or</span></p>
 

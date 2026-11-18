@@ -14,6 +14,7 @@ service AuthService {
   rpc GetSecurityQuestion(GetSecurityQuestionRequest) returns (GetSecurityQuestionResponse);
   rpc VerifySecurityAnswer(VerifySecurityAnswerRequest) returns (VerifySecurityAnswerResponse);
   rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+  rpc GoogleAuth(GoogleAuthRequest) returns (GoogleAuthResponse);
 }
 
 message RegisterRequest {
@@ -104,4 +105,16 @@ message ResetPasswordRequest {
 
 message ResetPasswordResponse {
   string message = 1;
+}
+
+message GoogleAuthRequest {
+  string id_token = 1;
+}
+
+message GoogleAuthResponse {
+  bool registered = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+  string email = 4;
+  string name = 5;
 }

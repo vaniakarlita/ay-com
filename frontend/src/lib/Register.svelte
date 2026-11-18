@@ -1,6 +1,11 @@
 <script lang="ts">
   import Link from './Link.svelte';
   import VerifyStep from './VerifyStep.svelte';
+  import GoogleButton from './GoogleButton.svelte';
+  import { googleDraft } from './googleDraft';
+  import { get } from 'svelte/store';
+  import { navigate } from './router';
+  import { saveSession } from './session';
   import { authApi, ApiError, uploadImage } from './api';
   import {
     SECURITY_QUESTIONS, PASSWORD_RULES,
@@ -18,6 +23,14 @@
     name: '', username: '', email: '', password: '', confirm: '',
     gender: '', dob: '', question: '', answer: '', newsletter: false,
   });
+
+  const draft = get(googleDraft);
+  if (draft) {
+    form.name = draft.name;
+    form.email = draft.email;
+    googleDraft.set(null);
+  }
+
   let profile = $state<File | null>(null);
   let banner = $state<File | null>(null);
   let profilePreview = $state('');
@@ -63,34 +76,52 @@
     }
   }
 
-  async function handleSubmit(e: SubmitEvent) {
-  e.preventDefault();
-  submitted = true;
-  serverError = '';
-  if (!isValid || loading) return;
+    async function handleSubmit(e: SubmitEvent) {
+    e.preventDefault();
+    submitted = true;
+    serverError = '';
+    if (!isValid || loading) return;
 
-  loading = true;
-  try {
-    await authApi.register({
-      name: form.name.trim(),
-      username: form.username,
-      email: form.email.trim().toLowerCase(),
-      password: form.password,
-      gender: form.gender,
-      dateOfBirth: form.dob,
-      profilePictureUrl: await uploadImage(profile!, 'profile'),
-      bannerUrl: await uploadImage(banner!, 'banner'),
-      securityQuestion: form.question,
-      securityAnswer: form.answer,
-      newsletter: form.newsletter,
-    });
-    step = 2;
-  } catch (err) {
-    serverError = err instanceof ApiError ? err.message : 'Registration failed. Please try again.';
-  } finally {
-    loading = false;
+    loading = true;
+    try {
+      await authApi.register({
+        name: form.name.trim(),
+        username: form.username,
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+        gender: form.gender,
+        dateOfBirth: form.dob,
+        profilePictureUrl: await uploadImage(profile!, 'profile'),
+        bannerUrl: await uploadImage(banner!, 'banner'),
+        securityQuestion: form.question,
+        securityAnswer: form.answer,
+        newsletter: form.newsletter,
+      });
+      step = 2;
+    } catch (err) {
+      serverError = err instanceof ApiError ? err.message : 'Registration failed. Please try again.';
+    } finally {
+      loading = false;
+    }
   }
-}
+
+  async function handleGoogle(idToken: string) {
+    serverError = '';
+    try {
+      const res = await authApi.google(idToken);
+      if (res.registered) {
+        saveSession(res.accessToken, res.refreshToken);
+        navigate('/home', true);
+        return;
+      }
+      form.name = res.name;
+      form.email = res.email;
+      touched.name = true;
+      touched.email = true;
+    } catch (err) {
+      serverError = err instanceof ApiError ? err.message : 'Google sign-up failed. Please try again.';
+    }
+  }
 </script>
 
 <main class="page">
@@ -105,6 +136,8 @@
       {#if serverError}
         <p class="alert" role="alert">{serverError}</p>
       {/if}
+      <GoogleButton onCredential={handleGoogle} text="signup_with" />
+      <p class="divider"><span>or fill in the form</span></p>
       <form onsubmit={handleSubmit} novalidate>
         <div class="field">
           <label for="name">Name</label>
@@ -282,4 +315,16 @@
     color: #f4212e;
     font-size: 0.9rem;
   }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+
+    &::before, &::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  }
+
 </style>

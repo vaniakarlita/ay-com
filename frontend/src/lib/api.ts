@@ -94,6 +94,14 @@ export type RegisterPayload = {
 type Tokens = { accessToken: string; refreshToken: string };
 type Message = { message: string };
 
+type GoogleResult = {
+  registered: boolean;
+  accessToken: string;
+  refreshToken: string;
+  email: string;
+  name: string;
+};
+
 export const authApi = {
   register: (body: RegisterPayload) =>
     request<{ userId: string; message: string }>('/api/auth/register', { method: 'POST', body }),
@@ -110,6 +118,8 @@ export const authApi = {
     request<{ resetToken: string }>('/api/auth/forgot/verify', { method: 'POST', body: { email, answer } }),
   forgotReset: (email: string, resetToken: string, newPassword: string) =>
     request<Message>('/api/auth/forgot/reset', { method: 'POST', body: { email, resetToken, newPassword } }),
+  google: (idToken: string) =>
+    request<GoogleResult>('/api/auth/google', { method: 'POST', body: { idToken } }),
   async logout() {
     const refreshToken = tokens.refresh;
     try {
