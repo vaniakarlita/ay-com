@@ -20,6 +20,7 @@ service ThreadService {
   rpc BookmarkThread(InteractionRequest) returns (InteractionResponse);
   rpc UnbookmarkThread(InteractionRequest) returns (InteractionResponse);
   rpc ListBookmarks(ListBookmarksRequest) returns (ListBookmarksResponse);
+  rpc ListUserThreads(ListUserThreadsRequest) returns (ListFeedResponse);
 }
 
 message ThreadAuthor {
@@ -165,4 +166,11 @@ message ListBookmarksResponse {
   repeated Thread threads = 1;
   string next_cursor = 2;
   bool has_more = 3;
+}
+
+message ListUserThreadsRequest {
+  string author_user_id = 1;
+  string viewer_user_id = 2;
+  int32 limit = 3;
+  string cursor = 4;
 }

@@ -1127,6 +1127,9 @@ type GetProfileResponse struct {
 	Name              string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Username          string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
 	ProfilePictureUrl string                 `protobuf:"bytes,4,opt,name=profile_picture_url,json=profilePictureUrl,proto3" json:"profile_picture_url,omitempty"`
+	BannerUrl         string                 `protobuf:"bytes,5,opt,name=banner_url,json=bannerUrl,proto3" json:"banner_url,omitempty"`
+	Bio               string                 `protobuf:"bytes,6,opt,name=bio,proto3" json:"bio,omitempty"`
+	CreatedAt         string                 `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -1185,6 +1188,27 @@ func (x *GetProfileResponse) GetUsername() string {
 func (x *GetProfileResponse) GetProfilePictureUrl() string {
 	if x != nil {
 		return x.ProfilePictureUrl
+	}
+	return ""
+}
+
+func (x *GetProfileResponse) GetBannerUrl() string {
+	if x != nil {
+		return x.BannerUrl
+	}
+	return ""
+}
+
+func (x *GetProfileResponse) GetBio() string {
+	if x != nil {
+		return x.Bio
+	}
+	return ""
+}
+
+func (x *GetProfileResponse) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
 	}
 	return ""
 }
@@ -1398,12 +1422,17 @@ const file_auth_proto_rawDesc = "" +
 	"\x05email\x18\x04 \x01(\tR\x05email\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\tR\x04name\",\n" +
 	"\x11GetProfileRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"\x8d\x01\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"\xdd\x01\n" +
 	"\x12GetProfileResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
 	"\busername\x18\x03 \x01(\tR\busername\x12.\n" +
-	"\x13profile_picture_url\x18\x04 \x01(\tR\x11profilePictureUrl\"9\n" +
+	"\x13profile_picture_url\x18\x04 \x01(\tR\x11profilePictureUrl\x12\x1d\n" +
+	"\n" +
+	"banner_url\x18\x05 \x01(\tR\tbannerUrl\x12\x10\n" +
+	"\x03bio\x18\x06 \x01(\tR\x03bio\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\a \x01(\tR\tcreatedAt\"9\n" +
 	"\x1bGetProfileByUsernameRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\"4\n" +
 	"\x17GetProfilesByIDsRequest\x12\x19\n" +

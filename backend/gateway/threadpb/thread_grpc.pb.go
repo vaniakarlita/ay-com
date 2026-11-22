@@ -33,6 +33,7 @@ const (
 	ThreadService_BookmarkThread_FullMethodName    = "/thread.ThreadService/BookmarkThread"
 	ThreadService_UnbookmarkThread_FullMethodName  = "/thread.ThreadService/UnbookmarkThread"
 	ThreadService_ListBookmarks_FullMethodName     = "/thread.ThreadService/ListBookmarks"
+	ThreadService_ListUserThreads_FullMethodName   = "/thread.ThreadService/ListUserThreads"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -53,6 +54,7 @@ type ThreadServiceClient interface {
 	BookmarkThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error)
 	UnbookmarkThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error)
 	ListBookmarks(ctx context.Context, in *ListBookmarksRequest, opts ...grpc.CallOption) (*ListBookmarksResponse, error)
+	ListUserThreads(ctx context.Context, in *ListUserThreadsRequest, opts ...grpc.CallOption) (*ListFeedResponse, error)
 }
 
 type threadServiceClient struct {
@@ -203,6 +205,16 @@ func (c *threadServiceClient) ListBookmarks(ctx context.Context, in *ListBookmar
 	return out, nil
 }
 
+func (c *threadServiceClient) ListUserThreads(ctx context.Context, in *ListUserThreadsRequest, opts ...grpc.CallOption) (*ListFeedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListFeedResponse)
+	err := c.cc.Invoke(ctx, ThreadService_ListUserThreads_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
@@ -221,6 +233,7 @@ type ThreadServiceServer interface {
 	BookmarkThread(context.Context, *InteractionRequest) (*InteractionResponse, error)
 	UnbookmarkThread(context.Context, *InteractionRequest) (*InteractionResponse, error)
 	ListBookmarks(context.Context, *ListBookmarksRequest) (*ListBookmarksResponse, error)
+	ListUserThreads(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -272,6 +285,9 @@ func (UnimplementedThreadServiceServer) UnbookmarkThread(context.Context, *Inter
 }
 func (UnimplementedThreadServiceServer) ListBookmarks(context.Context, *ListBookmarksRequest) (*ListBookmarksResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListBookmarks not implemented")
+}
+func (UnimplementedThreadServiceServer) ListUserThreads(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListUserThreads not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -546,6 +562,24 @@ func _ThreadService_ListBookmarks_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_ListUserThreads_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUserThreadsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).ListUserThreads(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_ListUserThreads_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).ListUserThreads(ctx, req.(*ListUserThreadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -608,6 +642,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListBookmarks",
 			Handler:    _ThreadService_ListBookmarks_Handler,
+		},
+		{
+			MethodName: "ListUserThreads",
+			Handler:    _ThreadService_ListUserThreads_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -150,14 +151,17 @@ type Profile struct {
 	Name              string
 	Username          string
 	ProfilePictureURL string
+	BannerURL         string
+	Bio               string
+	CreatedAt         time.Time
 }
 
 func (r *UserRepository) FindProfile(ctx context.Context, id string) (Profile, error) {
 	var p Profile
 	err := r.pool.QueryRow(ctx, `
-		SELECT id, name, username, profile_picture_url
+		SELECT id, name, username, profile_picture_url, banner_url, bio, created_at
 		FROM users WHERE id = $1`, id,
-	).Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL)
+	).Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL, &p.BannerURL, &p.Bio, &p.CreatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Profile{}, ErrNotFound
 	}
@@ -170,9 +174,10 @@ func (r *UserRepository) FindProfile(ctx context.Context, id string) (Profile, e
 func (r *UserRepository) FindProfileByUsername(ctx context.Context, username string) (Profile, error) {
 	var p Profile
 	err := r.pool.QueryRow(ctx, `
-		SELECT id, name, username, profile_picture_url
-		FROM users WHERE username = $1`, username,
-	).Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL)
+		SELECT id, name, username, profile_picture_url, banner_url, bio, created_at
+		FROM users 
+		WHERE username = $1 AND is_banned = FALSE AND is_deactivated = FALSE`, username,
+	).Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL, &p.BannerURL, &p.Bio, &p.CreatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Profile{}, ErrNotFound
 	}
@@ -187,7 +192,7 @@ func (r *UserRepository) FindProfilesByIDs(ctx context.Context, ids []string) ([
 		return nil, nil
 	}
 	rows, err := r.pool.Query(ctx, `
-		SELECT id, name, username, profile_picture_url
+		SELECT id, name, username, profile_picture_url, banner_url, bio, created_at
 		FROM users WHERE id = ANY($1)`, ids,
 	)
 	if err != nil {
@@ -198,7 +203,7 @@ func (r *UserRepository) FindProfilesByIDs(ctx context.Context, ids []string) ([
 	var profiles []Profile
 	for rows.Next() {
 		var p Profile
-		if err := rows.Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL); err != nil {
+		if err := rows.Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL, &p.BannerURL, &p.Bio, &p.CreatedAt); err != nil {
 			return nil, err
 		}
 		profiles = append(profiles, p)

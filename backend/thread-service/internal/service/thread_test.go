@@ -29,6 +29,7 @@ type mockRepo struct {
 	getCountsAndStatusFunc func(ctx context.Context, threadID, userID string) (int32, int32, int32, bool, bool, bool, error)
 	listBookmarksFunc      func(ctx context.Context, userID, query string, limit int, cursor time.Time) ([]*repository.ThreadModel, error)
 	listRepliesFunc        func(ctx context.Context, parentID, viewerUserID string, limit int, cursor time.Time) ([]*repository.ThreadModel, error)
+	listUserThreadsFunc    func(ctx context.Context, authorUserID, viewerUserID string, limit int, cursor time.Time) ([]*repository.ThreadModel, error)
 }
 
 func (m *mockRepo) Create(ctx context.Context, t *repository.ThreadModel, hashtags []string) error {
@@ -94,6 +95,22 @@ func (m *mockRepo) ListReplies(ctx context.Context, parentID, viewerUserID strin
 			AuthorName:     "Alice",
 			AuthorUsername: "alice",
 			Content:        "Nice reply!",
+			CreatedAt:      time.Now(),
+		},
+	}, nil
+}
+
+func (m *mockRepo) ListUserThreads(ctx context.Context, authorUserID, viewerUserID string, limit int, cursor time.Time) ([]*repository.ThreadModel, error) {
+	if m.listUserThreadsFunc != nil {
+		return m.listUserThreadsFunc(ctx, authorUserID, viewerUserID, limit, cursor)
+	}
+	return []*repository.ThreadModel{
+		{
+			ID:             "u1",
+			UserID:         authorUserID,
+			AuthorName:     "Adrian",
+			AuthorUsername: "adrian",
+			Content:        "My original thread",
 			CreatedAt:      time.Now(),
 		},
 	}, nil

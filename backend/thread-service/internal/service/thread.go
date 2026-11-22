@@ -172,6 +172,45 @@ func (s *ThreadService) ListFeed(ctx context.Context, req *threadpb.ListFeedRequ
 	}, nil
 }
 
+func (s *ThreadService) ListUserThreads(ctx context.Context, req *threadpb.ListUserThreadsRequest) (*threadpb.ListFeedResponse, error) {
+	if req.AuthorUserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "author_user_id is required")
+	}
+
+	limit := int(req.Limit)
+	if limit <= 0 {
+		limit = 20
+	}
+
+	var cursorTime time.Time
+	if req.Cursor != "" {
+		if t, err := time.Parse(time.RFC3339Nano, req.Cursor); err == nil {
+			cursorTime = t
+		}
+	}
+
+	threads, err := s.repo.ListUserThreads(ctx, req.AuthorUserId, req.ViewerUserId, limit, cursorTime)
+	if err != nil {
+		s.logger.Error("failed to list user threads", "error", err, "author_user_id", req.AuthorUserId)
+		return nil, status.Errorf(codes.Internal, "failed to list user threads: %v", err)
+	}
+
+	protoThreads := make([]*threadpb.Thread, len(threads))
+	var nextCursor string
+	for i, t := range threads {
+		protoThreads[i] = toProtoThread(t)
+		if i == len(threads)-1 {
+			nextCursor = t.CreatedAt.Format(time.RFC3339Nano)
+		}
+	}
+
+	return &threadpb.ListFeedResponse{
+		Threads:    protoThreads,
+		NextCursor: nextCursor,
+		HasMore:    len(threads) >= limit,
+	}, nil
+}
+
 func (s *ThreadService) ListFollowingFeed(ctx context.Context, req *threadpb.ListFollowingFeedRequest) (*threadpb.ListFeedResponse, error) {
 	limit := int(req.Limit)
 	if limit <= 0 {

@@ -9,6 +9,7 @@
   import Register from './lib/Register.svelte';
   import ThemeToggle from './lib/ThemeToggle.svelte';
   import ThreadDetail from './lib/ThreadDetail.svelte';
+  import Profile from './lib/Profile.svelte';
   import { navigate, path } from './lib/router';
   import { isLoggedIn } from './lib/session';
 
@@ -29,7 +30,11 @@
   const isThreadPage = $derived(!!threadMatch);
   const threadId = $derived(threadMatch ? threadMatch[1] : '');
 
-  const isMemberPage = $derived($path in memberPages || isThreadPage);
+  const profileMatch = $derived($path.match(/^\/profile(?:\/([a-zA-Z0-9_]+))?$/));
+  const isProfilePage = $derived(!!profileMatch);
+  const profileUsername = $derived(profileMatch && profileMatch[1] ? profileMatch[1] : undefined);
+
+  const isMemberPage = $derived($path in memberPages || isThreadPage || isProfilePage);
   const current = $derived(isMemberPage ? $path : guestPages.includes($path) ? $path : '/');
 
   $effect(() => {
@@ -47,6 +52,8 @@
     <MemberLayout>
       {#if isThreadPage}
         <ThreadDetail {threadId} />
+      {:else if isProfilePage}
+        <Profile username={profileUsername} />
       {:else if current === '/home'}
         <Home />
       {:else if current === '/bookmarks'}

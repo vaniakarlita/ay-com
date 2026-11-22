@@ -35,6 +35,7 @@ CREATE INDEX IF NOT EXISTS idx_threads_created_at ON threads(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_threads_user_id ON threads(user_id);
 CREATE INDEX IF NOT EXISTS idx_threads_is_ad ON threads(is_ad);
 CREATE INDEX IF NOT EXISTS idx_threads_parent_id ON threads(parent_id);
+CREATE INDEX IF NOT EXISTS idx_threads_author_published ON threads(user_id, created_at DESC, id DESC) WHERE parent_id IS NULL;
 
 CREATE TABLE IF NOT EXISTS categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

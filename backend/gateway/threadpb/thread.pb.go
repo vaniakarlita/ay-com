@@ -1429,6 +1429,74 @@ func (x *ListBookmarksResponse) GetHasMore() bool {
 	return false
 }
 
+type ListUserThreadsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AuthorUserId  string                 `protobuf:"bytes,1,opt,name=author_user_id,json=authorUserId,proto3" json:"author_user_id,omitempty"`
+	ViewerUserId  string                 `protobuf:"bytes,2,opt,name=viewer_user_id,json=viewerUserId,proto3" json:"viewer_user_id,omitempty"`
+	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        string                 `protobuf:"bytes,4,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListUserThreadsRequest) Reset() {
+	*x = ListUserThreadsRequest{}
+	mi := &file_thread_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListUserThreadsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListUserThreadsRequest) ProtoMessage() {}
+
+func (x *ListUserThreadsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListUserThreadsRequest.ProtoReflect.Descriptor instead.
+func (*ListUserThreadsRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListUserThreadsRequest) GetAuthorUserId() string {
+	if x != nil {
+		return x.AuthorUserId
+	}
+	return ""
+}
+
+func (x *ListUserThreadsRequest) GetViewerUserId() string {
+	if x != nil {
+		return x.ViewerUserId
+	}
+	return ""
+}
+
+func (x *ListUserThreadsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListUserThreadsRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
 var File_thread_proto protoreflect.FileDescriptor
 
 const file_thread_proto_rawDesc = "" +
@@ -1558,7 +1626,12 @@ const file_thread_proto_rawDesc = "" +
 	"\athreads\x18\x01 \x03(\v2\x0e.thread.ThreadR\athreads\x12\x1f\n" +
 	"\vnext_cursor\x18\x02 \x01(\tR\n" +
 	"nextCursor\x12\x19\n" +
-	"\bhas_more\x18\x03 \x01(\bR\ahasMore2\x97\b\n" +
+	"\bhas_more\x18\x03 \x01(\bR\ahasMore\"\x92\x01\n" +
+	"\x16ListUserThreadsRequest\x12$\n" +
+	"\x0eauthor_user_id\x18\x01 \x01(\tR\fauthorUserId\x12$\n" +
+	"\x0eviewer_user_id\x18\x02 \x01(\tR\fviewerUserId\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor2\xe4\b\n" +
 	"\rThreadService\x12I\n" +
 	"\fCreateThread\x12\x1b.thread.CreateThreadRequest\x1a\x1c.thread.CreateThreadResponse\x12@\n" +
 	"\tGetThread\x12\x18.thread.GetThreadRequest\x1a\x19.thread.GetThreadResponse\x12F\n" +
@@ -1574,7 +1647,8 @@ const file_thread_proto_rawDesc = "" +
 	"\x0eUnrepostThread\x12\x1a.thread.InteractionRequest\x1a\x1b.thread.InteractionResponse\x12I\n" +
 	"\x0eBookmarkThread\x12\x1a.thread.InteractionRequest\x1a\x1b.thread.InteractionResponse\x12K\n" +
 	"\x10UnbookmarkThread\x12\x1a.thread.InteractionRequest\x1a\x1b.thread.InteractionResponse\x12L\n" +
-	"\rListBookmarks\x12\x1c.thread.ListBookmarksRequest\x1a\x1d.thread.ListBookmarksResponseB@Z>github.com/vaniakarlita/ay-com/backend/thread-service/threadpbb\x06proto3"
+	"\rListBookmarks\x12\x1c.thread.ListBookmarksRequest\x1a\x1d.thread.ListBookmarksResponse\x12K\n" +
+	"\x0fListUserThreads\x12\x1e.thread.ListUserThreadsRequest\x1a\x18.thread.ListFeedResponseB@Z>github.com/vaniakarlita/ay-com/backend/thread-service/threadpbb\x06proto3"
 
 var (
 	file_thread_proto_rawDescOnce sync.Once
@@ -1588,7 +1662,7 @@ func file_thread_proto_rawDescGZIP() []byte {
 	return file_thread_proto_rawDescData
 }
 
-var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_thread_proto_goTypes = []any{
 	(*ThreadAuthor)(nil),             // 0: thread.ThreadAuthor
 	(*Thread)(nil),                   // 1: thread.Thread
@@ -1610,6 +1684,7 @@ var file_thread_proto_goTypes = []any{
 	(*InteractionResponse)(nil),      // 17: thread.InteractionResponse
 	(*ListBookmarksRequest)(nil),     // 18: thread.ListBookmarksRequest
 	(*ListBookmarksResponse)(nil),    // 19: thread.ListBookmarksResponse
+	(*ListUserThreadsRequest)(nil),   // 20: thread.ListUserThreadsRequest
 }
 var file_thread_proto_depIdxs = []int32{
 	1,  // 0: thread.CreateThreadResponse.thread:type_name -> thread.Thread
@@ -1632,22 +1707,24 @@ var file_thread_proto_depIdxs = []int32{
 	16, // 17: thread.ThreadService.BookmarkThread:input_type -> thread.InteractionRequest
 	16, // 18: thread.ThreadService.UnbookmarkThread:input_type -> thread.InteractionRequest
 	18, // 19: thread.ThreadService.ListBookmarks:input_type -> thread.ListBookmarksRequest
-	3,  // 20: thread.ThreadService.CreateThread:output_type -> thread.CreateThreadResponse
-	5,  // 21: thread.ThreadService.GetThread:output_type -> thread.GetThreadResponse
-	7,  // 22: thread.ThreadService.ListReplies:output_type -> thread.ListRepliesResponse
-	9,  // 23: thread.ThreadService.ListFeed:output_type -> thread.ListFeedResponse
-	9,  // 24: thread.ThreadService.ListFollowingFeed:output_type -> thread.ListFeedResponse
-	12, // 25: thread.ThreadService.DeleteThread:output_type -> thread.DeleteThreadResponse
-	15, // 26: thread.ThreadService.GetCategories:output_type -> thread.GetCategoriesResponse
-	17, // 27: thread.ThreadService.LikeThread:output_type -> thread.InteractionResponse
-	17, // 28: thread.ThreadService.UnlikeThread:output_type -> thread.InteractionResponse
-	17, // 29: thread.ThreadService.RepostThread:output_type -> thread.InteractionResponse
-	17, // 30: thread.ThreadService.UnrepostThread:output_type -> thread.InteractionResponse
-	17, // 31: thread.ThreadService.BookmarkThread:output_type -> thread.InteractionResponse
-	17, // 32: thread.ThreadService.UnbookmarkThread:output_type -> thread.InteractionResponse
-	19, // 33: thread.ThreadService.ListBookmarks:output_type -> thread.ListBookmarksResponse
-	20, // [20:34] is the sub-list for method output_type
-	6,  // [6:20] is the sub-list for method input_type
+	20, // 20: thread.ThreadService.ListUserThreads:input_type -> thread.ListUserThreadsRequest
+	3,  // 21: thread.ThreadService.CreateThread:output_type -> thread.CreateThreadResponse
+	5,  // 22: thread.ThreadService.GetThread:output_type -> thread.GetThreadResponse
+	7,  // 23: thread.ThreadService.ListReplies:output_type -> thread.ListRepliesResponse
+	9,  // 24: thread.ThreadService.ListFeed:output_type -> thread.ListFeedResponse
+	9,  // 25: thread.ThreadService.ListFollowingFeed:output_type -> thread.ListFeedResponse
+	12, // 26: thread.ThreadService.DeleteThread:output_type -> thread.DeleteThreadResponse
+	15, // 27: thread.ThreadService.GetCategories:output_type -> thread.GetCategoriesResponse
+	17, // 28: thread.ThreadService.LikeThread:output_type -> thread.InteractionResponse
+	17, // 29: thread.ThreadService.UnlikeThread:output_type -> thread.InteractionResponse
+	17, // 30: thread.ThreadService.RepostThread:output_type -> thread.InteractionResponse
+	17, // 31: thread.ThreadService.UnrepostThread:output_type -> thread.InteractionResponse
+	17, // 32: thread.ThreadService.BookmarkThread:output_type -> thread.InteractionResponse
+	17, // 33: thread.ThreadService.UnbookmarkThread:output_type -> thread.InteractionResponse
+	19, // 34: thread.ThreadService.ListBookmarks:output_type -> thread.ListBookmarksResponse
+	9,  // 35: thread.ThreadService.ListUserThreads:output_type -> thread.ListFeedResponse
+	21, // [21:36] is the sub-list for method output_type
+	6,  // [6:21] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name
 	6,  // [6:6] is the sub-list for extension extendee
 	0,  // [0:6] is the sub-list for field type_name
@@ -1664,7 +1741,7 @@ func file_thread_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_thread_proto_rawDesc), len(file_thread_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

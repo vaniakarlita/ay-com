@@ -131,6 +131,9 @@ message GetProfileResponse {
   string name = 2;
   string username = 3;
   string profile_picture_url = 4;
+  string banner_url = 5;
+  string bio = 6;
+  string created_at = 7;
 }
 
 message GetProfileByUsernameRequest {

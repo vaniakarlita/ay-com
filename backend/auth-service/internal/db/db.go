@@ -25,8 +25,11 @@ CREATE TABLE IF NOT EXISTS users (
 	is_active BOOLEAN NOT NULL DEFAULT FALSE,
 	is_banned BOOLEAN NOT NULL DEFAULT FALSE,
 	is_deactivated BOOLEAN NOT NULL DEFAULT FALSE,
+	bio TEXT NOT NULL DEFAULT '',
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT NOT NULL DEFAULT '';
 `
 
 func Connect(ctx context.Context, url string) (*pgxpool.Pool, error) {

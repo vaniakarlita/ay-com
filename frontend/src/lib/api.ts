@@ -212,17 +212,16 @@ export type UserSuggestion = {
 };
 
 export type UserProfileResponse = {
-  id: string;
+  userId: string;
   name: string;
   username: string;
-  email: string;
-  bio: string;
   profilePictureUrl: string;
-  bannerUrl: string;
+  bannerUrl?: string;
+  bio?: string;
+  createdAt?: string;
   followerCount: number;
   followingCount: number;
   isFollowing: boolean;
-  isSelf: boolean;
 };
 
 export type FollowListResponse = {
@@ -313,6 +312,13 @@ export const threadApi = {
     if (limit) params.set('limit', limit.toString());
     const q = params.toString() ? `?${params.toString()}` : '';
     return request<RepliesResponse>(`/api/threads/${id}/replies${q}`, { auth: true });
+  },
+  userThreads: (userId: string, cursor = '', limit = 20) => {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (limit) params.set('limit', limit.toString());
+    const q = params.toString() ? `?${params.toString()}` : '';
+    return request<FeedResponse>(`/api/users/${userId}/threads${q}`, { auth: true });
   },
 };
 

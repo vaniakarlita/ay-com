@@ -25,6 +25,9 @@ func (s *AuthService) GetProfile(ctx context.Context, req *authpb.GetProfileRequ
 		Name:              p.Name,
 		Username:          p.Username,
 		ProfilePictureUrl: p.ProfilePictureURL,
+		BannerUrl:         p.BannerURL,
+		Bio:               p.Bio,
+		CreatedAt:         p.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}, nil
 }
 
@@ -42,6 +45,9 @@ func (s *AuthService) GetProfileByUsername(ctx context.Context, req *authpb.GetP
 		Name:              p.Name,
 		Username:          p.Username,
 		ProfilePictureUrl: p.ProfilePictureURL,
+		BannerUrl:         p.BannerURL,
+		Bio:               p.Bio,
+		CreatedAt:         p.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}, nil
 }
 

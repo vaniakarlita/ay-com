@@ -513,6 +513,29 @@ paths:
       responses:
         "200":
           description: Bookmarked threads
+  /api/users/{id}/threads:
+    get:
+      tags: [Threads]
+      summary: List original threads posted by a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User threads list
   /api/users/suggestions:
     get:
       tags: [Users]

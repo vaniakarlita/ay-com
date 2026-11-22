@@ -57,6 +57,7 @@ func (h *ThreadHandler) Routes(mux *http.ServeMux, auth func(http.Handler) http.
 	mux.Handle("POST /api/threads/{id}/bookmark", auth(http.HandlerFunc(h.BookmarkThread)))
 	mux.Handle("DELETE /api/threads/{id}/bookmark", auth(http.HandlerFunc(h.UnbookmarkThread)))
 	mux.Handle("GET /api/bookmarks", auth(http.HandlerFunc(h.ListBookmarks)))
+	mux.Handle("GET /api/users/{id}/threads", auth(http.HandlerFunc(h.ListUserThreads)))
 }
 
 func (h *ThreadHandler) CreateThread(w http.ResponseWriter, r *http.Request) {
@@ -429,6 +430,46 @@ func (h *ThreadHandler) ListReplies(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, map[string]any{
 		"replies":    res.Replies,
+		"nextCursor": res.NextCursor,
+		"hasMore":    res.HasMore,
+	})
+}
+
+func (h *ThreadHandler) ListUserThreads(w http.ResponseWriter, r *http.Request) {
+	viewerID := middleware.UserID(r.Context())
+	authorID := r.PathValue("id")
+	if authorID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "User ID required"})
+		return
+	}
+
+	cursor := r.URL.Query().Get("cursor")
+	limitStr := r.URL.Query().Get("limit")
+
+	limit := 20
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 50 {
+			limit = l
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
+	defer cancel()
+
+	res, err := h.threadClient.ListUserThreads(ctx, &threadpb.ListUserThreadsRequest{
+		AuthorUserId: authorID,
+		ViewerUserId: viewerID,
+		Limit:        int32(limit),
+		Cursor:       cursor,
+	})
+	if err != nil {
+		h.log.Error("failed to list user threads", "error", err, "author_id", authorID)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fetch user threads"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"threads":    res.Threads,
 		"nextCursor": res.NextCursor,
 		"hasMore":    res.HasMore,
 	})
