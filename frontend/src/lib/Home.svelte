@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { untrack } from 'svelte';
   import { threadApi, type ThreadItem } from './api';
   import CreateThread from './components/CreateThread.svelte';
   import ThreadCard from './components/ThreadCard.svelte';
@@ -27,16 +27,17 @@
     try {
       const res = await threadApi.feed(currentCursor, 15);
       if (reset) {
-        threads = res.threads;
+        threads = res.threads ?? [];
       } else {
         const existingIds = new Set(threads.map((t) => t.id));
-        const newThreads = (res.threads || []).filter((t) => !existingIds.has(t.id));
+        const newThreads = (res.threads ?? []).filter((t) => !existingIds.has(t.id));
         threads = [...threads, ...newThreads];
       }
       cursor = res.nextCursor;
       hasMore = res.hasMore;
     } catch (err: any) {
       errorMsg = err.message || 'Failed to load feed';
+      hasMore = false;
     } finally {
       loading = false;
       initialLoaded = true;
@@ -51,26 +52,29 @@
     threads = threads.filter((t) => t.id !== deletedId);
   }
 
-  // Watch for threads created via Sidebar Modal
   $effect(() => {
-    if ($latestCreatedThread) {
-      handleThreadCreated($latestCreatedThread);
+    const current = tab;
+    untrack(() => {
+      if (current === 'for-you') {
+        loadFeed(true);
+      } else {
+        threads = [];
+        hasMore = false;
+      }
+    });
+  });
+
+  $effect(() => {
+    const created = $latestCreatedThread;
+    if (created) {
+      untrack(() => handleThreadCreated(created));
       latestCreatedThread.set(null);
     }
   });
 
-  // Watch tab changes
   $effect(() => {
-    if (tab === 'for-you') {
-      loadFeed(true);
-    } else {
-      threads = [];
-      hasMore = false;
-    }
-  });
-
-  onMount(() => {
-    loadFeed(true);
+    const el = sentinelElement;
+    if (!el) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -80,19 +84,13 @@
       },
       { rootMargin: '300px' }
     );
+    observer.observe(el);
 
-    if (sentinelElement) {
-      observer.observe(sentinelElement);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   });
 </script>
 
 <section class="home-container">
-  <!-- Top Sticky Navigation Tabs -->
   <header class="top">
     <h1>Home</h1>
     <div class="tabs" role="tablist">
@@ -117,12 +115,10 @@
     </div>
   </header>
 
-  <!-- Create Thread Box at the top of feed (Case requirement) -->
   <div class="composer-section">
     <CreateThread onCreated={handleThreadCreated} placeholder="What's happening?" />
   </div>
 
-  <!-- Feed Content Area -->
   <div class="feed-content">
     {#if errorMsg}
       <div class="error-box">
@@ -139,26 +135,23 @@
         <p class="subtitle">When accounts you follow post threads, they'll show up here.</p>
       </div>
     {:else}
-      <!-- For you Tab Feed -->
-      {#if threads && threads.length > 0}
+      {#if threads.length > 0}
         <div class="threads-list">
           {#each threads as thread (thread.id)}
             <ThreadCard {thread} onDelete={handleThreadDeleted} />
           {/each}
         </div>
-      {:else if initialLoaded && !loading}
+      {:else if initialLoaded && !loading && !errorMsg}
         <div class="empty-state">
           <p class="title">Welcome to AY.com!</p>
           <p class="subtitle">There are no threads yet. Be the first to share something above!</p>
         </div>
       {/if}
 
-      <!-- Loading Skeleton (Case Requirement) -->
       {#if loading}
         <ThreadSkeleton count={initialLoaded ? 2 : 5} />
       {/if}
 
-      <!-- Infinite scroll trigger sentinel -->
       <div bind:this={sentinelElement} class="sentinel"></div>
     {/if}
   </div>
