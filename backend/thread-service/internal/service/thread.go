@@ -47,6 +47,11 @@ func (s *ThreadService) CreateThread(ctx context.Context, req *threadpb.CreateTh
 
 	hashtags := parser.ExtractHashtags(req.Content)
 
+	var parentID *string
+	if req.ParentId != "" {
+		parentID = &req.ParentId
+	}
+
 	model := &repository.ThreadModel{
 		UserID:           req.UserId,
 		AuthorName:       req.AuthorName,
@@ -58,6 +63,7 @@ func (s *ThreadService) CreateThread(ctx context.Context, req *threadpb.CreateTh
 		CommunityID:      req.CommunityId,
 		IsAd:             req.IsAd,
 		ScheduledAt:      scheduledAt,
+		ParentID:         parentID,
 		Categories:       req.Categories,
 	}
 
@@ -78,7 +84,7 @@ func (s *ThreadService) GetThread(ctx context.Context, req *threadpb.GetThreadRe
 		return nil, status.Error(codes.InvalidArgument, "thread_id is required")
 	}
 
-	t, err := s.repo.GetByID(ctx, req.ThreadId)
+	t, err := s.repo.GetByID(ctx, req.ThreadId, req.ViewerUserId)
 	if err != nil {
 		s.logger.Error("failed to get thread", "error", err, "thread_id", req.ThreadId)
 		return nil, status.Errorf(codes.Internal, "failed to get thread: %v", err)
@@ -89,6 +95,45 @@ func (s *ThreadService) GetThread(ctx context.Context, req *threadpb.GetThreadRe
 
 	return &threadpb.GetThreadResponse{
 		Thread: toProtoThread(t),
+	}, nil
+}
+
+func (s *ThreadService) ListReplies(ctx context.Context, req *threadpb.ListRepliesRequest) (*threadpb.ListRepliesResponse, error) {
+	if req.ParentId == "" {
+		return nil, status.Error(codes.InvalidArgument, "parent_id is required")
+	}
+
+	limit := int(req.Limit)
+	if limit <= 0 {
+		limit = 20
+	}
+
+	var cursorTime time.Time
+	if req.Cursor != "" {
+		if t, err := time.Parse(time.RFC3339Nano, req.Cursor); err == nil {
+			cursorTime = t
+		}
+	}
+
+	replies, err := s.repo.ListReplies(ctx, req.ParentId, req.ViewerUserId, limit, cursorTime)
+	if err != nil {
+		s.logger.Error("failed to list replies", "error", err, "parent_id", req.ParentId)
+		return nil, status.Errorf(codes.Internal, "failed to list replies: %v", err)
+	}
+
+	protoReplies := make([]*threadpb.Thread, len(replies))
+	var nextCursor string
+	for i, t := range replies {
+		protoReplies[i] = toProtoThread(t)
+		if i == len(replies)-1 {
+			nextCursor = t.CreatedAt.Format(time.RFC3339Nano)
+		}
+	}
+
+	return &threadpb.ListRepliesResponse{
+		Replies:    protoReplies,
+		NextCursor: nextCursor,
+		HasMore:    len(replies) >= limit,
 	}, nil
 }
 
@@ -105,10 +150,45 @@ func (s *ThreadService) ListFeed(ctx context.Context, req *threadpb.ListFeedRequ
 		}
 	}
 
-	threads, err := s.repo.ListForYou(ctx, limit, cursorTime)
+	threads, err := s.repo.ListForYou(ctx, req.ViewerUserId, limit, cursorTime)
 	if err != nil {
 		s.logger.Error("failed to list feed", "error", err, "user_id", req.ViewerUserId)
 		return nil, status.Errorf(codes.Internal, "failed to list feed: %v", err)
+	}
+
+	protoThreads := make([]*threadpb.Thread, len(threads))
+	var nextCursor string
+	for i, t := range threads {
+		protoThreads[i] = toProtoThread(t)
+		if i == len(threads)-1 {
+			nextCursor = t.CreatedAt.Format(time.RFC3339Nano)
+		}
+	}
+
+	return &threadpb.ListFeedResponse{
+		Threads:    protoThreads,
+		NextCursor: nextCursor,
+		HasMore:    len(threads) >= limit,
+	}, nil
+}
+
+func (s *ThreadService) ListFollowingFeed(ctx context.Context, req *threadpb.ListFollowingFeedRequest) (*threadpb.ListFeedResponse, error) {
+	limit := int(req.Limit)
+	if limit <= 0 {
+		limit = 20
+	}
+
+	var cursorTime time.Time
+	if req.Cursor != "" {
+		if t, err := time.Parse(time.RFC3339Nano, req.Cursor); err == nil {
+			cursorTime = t
+		}
+	}
+
+	threads, err := s.repo.ListFollowing(ctx, req.ViewerUserId, req.AuthorUserIds, limit, cursorTime)
+	if err != nil {
+		s.logger.Error("failed to list following feed", "error", err, "user_id", req.ViewerUserId)
+		return nil, status.Errorf(codes.Internal, "failed to list following feed: %v", err)
 	}
 
 	protoThreads := make([]*threadpb.Thread, len(threads))
@@ -164,10 +244,210 @@ func (s *ThreadService) GetCategories(ctx context.Context, req *threadpb.GetCate
 	}, nil
 }
 
+func (s *ThreadService) LikeThread(ctx context.Context, req *threadpb.InteractionRequest) (*threadpb.InteractionResponse, error) {
+	if req.ThreadId == "" || req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "thread_id and user_id are required")
+	}
+
+	if err := s.repo.Like(ctx, req.ThreadId, req.UserId); err != nil {
+		s.logger.Error("failed to like thread", "error", err, "thread_id", req.ThreadId, "user_id", req.UserId)
+		return nil, status.Errorf(codes.Internal, "failed to like thread: %v", err)
+	}
+
+	likes, reposts, bookmarks, isLiked, isReposted, isBookmarked, err := s.repo.GetCountsAndStatus(ctx, req.ThreadId, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get counts: %v", err)
+	}
+
+	return &threadpb.InteractionResponse{
+		Success:        true,
+		LikeCount:      likes,
+		RepostCount:    reposts,
+		BookmarkCount:  bookmarks,
+		LikedByMe:      isLiked,
+		RepostedByMe:   isReposted,
+		BookmarkedByMe: isBookmarked,
+	}, nil
+}
+
+func (s *ThreadService) UnlikeThread(ctx context.Context, req *threadpb.InteractionRequest) (*threadpb.InteractionResponse, error) {
+	if req.ThreadId == "" || req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "thread_id and user_id are required")
+	}
+
+	if err := s.repo.Unlike(ctx, req.ThreadId, req.UserId); err != nil {
+		s.logger.Error("failed to unlike thread", "error", err, "thread_id", req.ThreadId, "user_id", req.UserId)
+		return nil, status.Errorf(codes.Internal, "failed to unlike thread: %v", err)
+	}
+
+	likes, reposts, bookmarks, isLiked, isReposted, isBookmarked, err := s.repo.GetCountsAndStatus(ctx, req.ThreadId, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get counts: %v", err)
+	}
+
+	return &threadpb.InteractionResponse{
+		Success:        true,
+		LikeCount:      likes,
+		RepostCount:    reposts,
+		BookmarkCount:  bookmarks,
+		LikedByMe:      isLiked,
+		RepostedByMe:   isReposted,
+		BookmarkedByMe: isBookmarked,
+	}, nil
+}
+
+func (s *ThreadService) RepostThread(ctx context.Context, req *threadpb.InteractionRequest) (*threadpb.InteractionResponse, error) {
+	if req.ThreadId == "" || req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "thread_id and user_id are required")
+	}
+
+	if err := s.repo.Repost(ctx, req.ThreadId, req.UserId); err != nil {
+		s.logger.Error("failed to repost thread", "error", err, "thread_id", req.ThreadId, "user_id", req.UserId)
+		return nil, status.Errorf(codes.Internal, "failed to repost thread: %v", err)
+	}
+
+	likes, reposts, bookmarks, isLiked, isReposted, isBookmarked, err := s.repo.GetCountsAndStatus(ctx, req.ThreadId, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get counts: %v", err)
+	}
+
+	return &threadpb.InteractionResponse{
+		Success:        true,
+		LikeCount:      likes,
+		RepostCount:    reposts,
+		BookmarkCount:  bookmarks,
+		LikedByMe:      isLiked,
+		RepostedByMe:   isReposted,
+		BookmarkedByMe: isBookmarked,
+	}, nil
+}
+
+func (s *ThreadService) UnrepostThread(ctx context.Context, req *threadpb.InteractionRequest) (*threadpb.InteractionResponse, error) {
+	if req.ThreadId == "" || req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "thread_id and user_id are required")
+	}
+
+	if err := s.repo.Unrepost(ctx, req.ThreadId, req.UserId); err != nil {
+		s.logger.Error("failed to unrepost thread", "error", err, "thread_id", req.ThreadId, "user_id", req.UserId)
+		return nil, status.Errorf(codes.Internal, "failed to unrepost thread: %v", err)
+	}
+
+	likes, reposts, bookmarks, isLiked, isReposted, isBookmarked, err := s.repo.GetCountsAndStatus(ctx, req.ThreadId, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get counts: %v", err)
+	}
+
+	return &threadpb.InteractionResponse{
+		Success:        true,
+		LikeCount:      likes,
+		RepostCount:    reposts,
+		BookmarkCount:  bookmarks,
+		LikedByMe:      isLiked,
+		RepostedByMe:   isReposted,
+		BookmarkedByMe: isBookmarked,
+	}, nil
+}
+
+func (s *ThreadService) BookmarkThread(ctx context.Context, req *threadpb.InteractionRequest) (*threadpb.InteractionResponse, error) {
+	if req.ThreadId == "" || req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "thread_id and user_id are required")
+	}
+
+	if err := s.repo.Bookmark(ctx, req.ThreadId, req.UserId); err != nil {
+		s.logger.Error("failed to bookmark thread", "error", err, "thread_id", req.ThreadId, "user_id", req.UserId)
+		return nil, status.Errorf(codes.Internal, "failed to bookmark thread: %v", err)
+	}
+
+	likes, reposts, bookmarks, isLiked, isReposted, isBookmarked, err := s.repo.GetCountsAndStatus(ctx, req.ThreadId, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get counts: %v", err)
+	}
+
+	return &threadpb.InteractionResponse{
+		Success:        true,
+		LikeCount:      likes,
+		RepostCount:    reposts,
+		BookmarkCount:  bookmarks,
+		LikedByMe:      isLiked,
+		RepostedByMe:   isReposted,
+		BookmarkedByMe: isBookmarked,
+	}, nil
+}
+
+func (s *ThreadService) UnbookmarkThread(ctx context.Context, req *threadpb.InteractionRequest) (*threadpb.InteractionResponse, error) {
+	if req.ThreadId == "" || req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "thread_id and user_id are required")
+	}
+
+	if err := s.repo.Unbookmark(ctx, req.ThreadId, req.UserId); err != nil {
+		s.logger.Error("failed to unbookmark thread", "error", err, "thread_id", req.ThreadId, "user_id", req.UserId)
+		return nil, status.Errorf(codes.Internal, "failed to unbookmark thread: %v", err)
+	}
+
+	likes, reposts, bookmarks, isLiked, isReposted, isBookmarked, err := s.repo.GetCountsAndStatus(ctx, req.ThreadId, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get counts: %v", err)
+	}
+
+	return &threadpb.InteractionResponse{
+		Success:        true,
+		LikeCount:      likes,
+		RepostCount:    reposts,
+		BookmarkCount:  bookmarks,
+		LikedByMe:      isLiked,
+		RepostedByMe:   isReposted,
+		BookmarkedByMe: isBookmarked,
+	}, nil
+}
+
+func (s *ThreadService) ListBookmarks(ctx context.Context, req *threadpb.ListBookmarksRequest) (*threadpb.ListBookmarksResponse, error) {
+	if req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "user_id is required")
+	}
+
+	limit := int(req.Limit)
+	if limit <= 0 {
+		limit = 20
+	}
+
+	var cursorTime time.Time
+	if req.Cursor != "" {
+		if t, err := time.Parse(time.RFC3339Nano, req.Cursor); err == nil {
+			cursorTime = t
+		}
+	}
+
+	threads, err := s.repo.ListBookmarks(ctx, req.UserId, req.Query, limit, cursorTime)
+	if err != nil {
+		s.logger.Error("failed to list bookmarks", "error", err, "user_id", req.UserId)
+		return nil, status.Errorf(codes.Internal, "failed to list bookmarks: %v", err)
+	}
+
+	protoThreads := make([]*threadpb.Thread, len(threads))
+	var nextCursor string
+	for i, t := range threads {
+		protoThreads[i] = toProtoThread(t)
+		if i == len(threads)-1 {
+			nextCursor = t.CreatedAt.Format(time.RFC3339Nano)
+		}
+	}
+
+	return &threadpb.ListBookmarksResponse{
+		Threads:    protoThreads,
+		NextCursor: nextCursor,
+		HasMore:    len(threads) >= limit,
+	}, nil
+}
+
 func toProtoThread(m *repository.ThreadModel) *threadpb.Thread {
 	schedStr := ""
 	if m.ScheduledAt != nil && !m.ScheduledAt.IsZero() {
 		schedStr = m.ScheduledAt.Format(time.RFC3339)
+	}
+
+	parentIDStr := ""
+	if m.ParentID != nil {
+		parentIDStr = *m.ParentID
 	}
 
 	return &threadpb.Thread{
@@ -185,12 +465,14 @@ func toProtoThread(m *repository.ThreadModel) *threadpb.Thread {
 		IsAd:             m.IsAd,
 		ScheduledAt:      schedStr,
 		CreatedAt:        m.CreatedAt.Format(time.RFC3339),
-		LikeCount:        0,
-		ReplyCount:       0,
-		RepostCount:      0,
-		BookmarkCount:    0,
-		LikedByMe:        false,
-		RepostedByMe:     false,
-		BookmarkedByMe:   false,
+		LikeCount:        m.LikeCount,
+		ReplyCount:       m.ReplyCount,
+		RepostCount:      m.RepostCount,
+		BookmarkCount:    m.BookmarkCount,
+		LikedByMe:        m.LikedByMe,
+		RepostedByMe:     m.RepostedByMe,
+		BookmarkedByMe:   m.BookmarkedByMe,
+		RepostedByName:   m.RepostedByName,
+		ParentId:         parentIDStr,
 	}
 }

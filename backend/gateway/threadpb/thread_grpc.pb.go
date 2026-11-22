@@ -19,11 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ThreadService_CreateThread_FullMethodName  = "/thread.ThreadService/CreateThread"
-	ThreadService_GetThread_FullMethodName     = "/thread.ThreadService/GetThread"
-	ThreadService_ListFeed_FullMethodName      = "/thread.ThreadService/ListFeed"
-	ThreadService_DeleteThread_FullMethodName  = "/thread.ThreadService/DeleteThread"
-	ThreadService_GetCategories_FullMethodName = "/thread.ThreadService/GetCategories"
+	ThreadService_CreateThread_FullMethodName      = "/thread.ThreadService/CreateThread"
+	ThreadService_GetThread_FullMethodName         = "/thread.ThreadService/GetThread"
+	ThreadService_ListReplies_FullMethodName       = "/thread.ThreadService/ListReplies"
+	ThreadService_ListFeed_FullMethodName          = "/thread.ThreadService/ListFeed"
+	ThreadService_ListFollowingFeed_FullMethodName = "/thread.ThreadService/ListFollowingFeed"
+	ThreadService_DeleteThread_FullMethodName      = "/thread.ThreadService/DeleteThread"
+	ThreadService_GetCategories_FullMethodName     = "/thread.ThreadService/GetCategories"
+	ThreadService_LikeThread_FullMethodName        = "/thread.ThreadService/LikeThread"
+	ThreadService_UnlikeThread_FullMethodName      = "/thread.ThreadService/UnlikeThread"
+	ThreadService_RepostThread_FullMethodName      = "/thread.ThreadService/RepostThread"
+	ThreadService_UnrepostThread_FullMethodName    = "/thread.ThreadService/UnrepostThread"
+	ThreadService_BookmarkThread_FullMethodName    = "/thread.ThreadService/BookmarkThread"
+	ThreadService_UnbookmarkThread_FullMethodName  = "/thread.ThreadService/UnbookmarkThread"
+	ThreadService_ListBookmarks_FullMethodName     = "/thread.ThreadService/ListBookmarks"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -32,9 +41,18 @@ const (
 type ThreadServiceClient interface {
 	CreateThread(ctx context.Context, in *CreateThreadRequest, opts ...grpc.CallOption) (*CreateThreadResponse, error)
 	GetThread(ctx context.Context, in *GetThreadRequest, opts ...grpc.CallOption) (*GetThreadResponse, error)
+	ListReplies(ctx context.Context, in *ListRepliesRequest, opts ...grpc.CallOption) (*ListRepliesResponse, error)
 	ListFeed(ctx context.Context, in *ListFeedRequest, opts ...grpc.CallOption) (*ListFeedResponse, error)
+	ListFollowingFeed(ctx context.Context, in *ListFollowingFeedRequest, opts ...grpc.CallOption) (*ListFeedResponse, error)
 	DeleteThread(ctx context.Context, in *DeleteThreadRequest, opts ...grpc.CallOption) (*DeleteThreadResponse, error)
 	GetCategories(ctx context.Context, in *GetCategoriesRequest, opts ...grpc.CallOption) (*GetCategoriesResponse, error)
+	LikeThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error)
+	UnlikeThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error)
+	RepostThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error)
+	UnrepostThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error)
+	BookmarkThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error)
+	UnbookmarkThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error)
+	ListBookmarks(ctx context.Context, in *ListBookmarksRequest, opts ...grpc.CallOption) (*ListBookmarksResponse, error)
 }
 
 type threadServiceClient struct {
@@ -65,10 +83,30 @@ func (c *threadServiceClient) GetThread(ctx context.Context, in *GetThreadReques
 	return out, nil
 }
 
+func (c *threadServiceClient) ListReplies(ctx context.Context, in *ListRepliesRequest, opts ...grpc.CallOption) (*ListRepliesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRepliesResponse)
+	err := c.cc.Invoke(ctx, ThreadService_ListReplies_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *threadServiceClient) ListFeed(ctx context.Context, in *ListFeedRequest, opts ...grpc.CallOption) (*ListFeedResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListFeedResponse)
 	err := c.cc.Invoke(ctx, ThreadService_ListFeed_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) ListFollowingFeed(ctx context.Context, in *ListFollowingFeedRequest, opts ...grpc.CallOption) (*ListFeedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListFeedResponse)
+	err := c.cc.Invoke(ctx, ThreadService_ListFollowingFeed_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,15 +133,94 @@ func (c *threadServiceClient) GetCategories(ctx context.Context, in *GetCategori
 	return out, nil
 }
 
+func (c *threadServiceClient) LikeThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InteractionResponse)
+	err := c.cc.Invoke(ctx, ThreadService_LikeThread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) UnlikeThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InteractionResponse)
+	err := c.cc.Invoke(ctx, ThreadService_UnlikeThread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) RepostThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InteractionResponse)
+	err := c.cc.Invoke(ctx, ThreadService_RepostThread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) UnrepostThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InteractionResponse)
+	err := c.cc.Invoke(ctx, ThreadService_UnrepostThread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) BookmarkThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InteractionResponse)
+	err := c.cc.Invoke(ctx, ThreadService_BookmarkThread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) UnbookmarkThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InteractionResponse)
+	err := c.cc.Invoke(ctx, ThreadService_UnbookmarkThread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) ListBookmarks(ctx context.Context, in *ListBookmarksRequest, opts ...grpc.CallOption) (*ListBookmarksResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListBookmarksResponse)
+	err := c.cc.Invoke(ctx, ThreadService_ListBookmarks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
 type ThreadServiceServer interface {
 	CreateThread(context.Context, *CreateThreadRequest) (*CreateThreadResponse, error)
 	GetThread(context.Context, *GetThreadRequest) (*GetThreadResponse, error)
+	ListReplies(context.Context, *ListRepliesRequest) (*ListRepliesResponse, error)
 	ListFeed(context.Context, *ListFeedRequest) (*ListFeedResponse, error)
+	ListFollowingFeed(context.Context, *ListFollowingFeedRequest) (*ListFeedResponse, error)
 	DeleteThread(context.Context, *DeleteThreadRequest) (*DeleteThreadResponse, error)
 	GetCategories(context.Context, *GetCategoriesRequest) (*GetCategoriesResponse, error)
+	LikeThread(context.Context, *InteractionRequest) (*InteractionResponse, error)
+	UnlikeThread(context.Context, *InteractionRequest) (*InteractionResponse, error)
+	RepostThread(context.Context, *InteractionRequest) (*InteractionResponse, error)
+	UnrepostThread(context.Context, *InteractionRequest) (*InteractionResponse, error)
+	BookmarkThread(context.Context, *InteractionRequest) (*InteractionResponse, error)
+	UnbookmarkThread(context.Context, *InteractionRequest) (*InteractionResponse, error)
+	ListBookmarks(context.Context, *ListBookmarksRequest) (*ListBookmarksResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -120,14 +237,41 @@ func (UnimplementedThreadServiceServer) CreateThread(context.Context, *CreateThr
 func (UnimplementedThreadServiceServer) GetThread(context.Context, *GetThreadRequest) (*GetThreadResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetThread not implemented")
 }
+func (UnimplementedThreadServiceServer) ListReplies(context.Context, *ListRepliesRequest) (*ListRepliesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListReplies not implemented")
+}
 func (UnimplementedThreadServiceServer) ListFeed(context.Context, *ListFeedRequest) (*ListFeedResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListFeed not implemented")
+}
+func (UnimplementedThreadServiceServer) ListFollowingFeed(context.Context, *ListFollowingFeedRequest) (*ListFeedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListFollowingFeed not implemented")
 }
 func (UnimplementedThreadServiceServer) DeleteThread(context.Context, *DeleteThreadRequest) (*DeleteThreadResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteThread not implemented")
 }
 func (UnimplementedThreadServiceServer) GetCategories(context.Context, *GetCategoriesRequest) (*GetCategoriesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetCategories not implemented")
+}
+func (UnimplementedThreadServiceServer) LikeThread(context.Context, *InteractionRequest) (*InteractionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method LikeThread not implemented")
+}
+func (UnimplementedThreadServiceServer) UnlikeThread(context.Context, *InteractionRequest) (*InteractionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UnlikeThread not implemented")
+}
+func (UnimplementedThreadServiceServer) RepostThread(context.Context, *InteractionRequest) (*InteractionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RepostThread not implemented")
+}
+func (UnimplementedThreadServiceServer) UnrepostThread(context.Context, *InteractionRequest) (*InteractionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UnrepostThread not implemented")
+}
+func (UnimplementedThreadServiceServer) BookmarkThread(context.Context, *InteractionRequest) (*InteractionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BookmarkThread not implemented")
+}
+func (UnimplementedThreadServiceServer) UnbookmarkThread(context.Context, *InteractionRequest) (*InteractionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UnbookmarkThread not implemented")
+}
+func (UnimplementedThreadServiceServer) ListBookmarks(context.Context, *ListBookmarksRequest) (*ListBookmarksResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListBookmarks not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -186,6 +330,24 @@ func _ThreadService_GetThread_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_ListReplies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRepliesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).ListReplies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_ListReplies_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).ListReplies(ctx, req.(*ListRepliesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ThreadService_ListFeed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListFeedRequest)
 	if err := dec(in); err != nil {
@@ -200,6 +362,24 @@ func _ThreadService_ListFeed_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ThreadServiceServer).ListFeed(ctx, req.(*ListFeedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_ListFollowingFeed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListFollowingFeedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).ListFollowingFeed(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_ListFollowingFeed_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).ListFollowingFeed(ctx, req.(*ListFollowingFeedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -240,6 +420,132 @@ func _ThreadService_GetCategories_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_LikeThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InteractionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).LikeThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_LikeThread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).LikeThread(ctx, req.(*InteractionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_UnlikeThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InteractionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).UnlikeThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_UnlikeThread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).UnlikeThread(ctx, req.(*InteractionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_RepostThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InteractionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).RepostThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_RepostThread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).RepostThread(ctx, req.(*InteractionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_UnrepostThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InteractionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).UnrepostThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_UnrepostThread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).UnrepostThread(ctx, req.(*InteractionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_BookmarkThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InteractionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).BookmarkThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_BookmarkThread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).BookmarkThread(ctx, req.(*InteractionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_UnbookmarkThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InteractionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).UnbookmarkThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_UnbookmarkThread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).UnbookmarkThread(ctx, req.(*InteractionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_ListBookmarks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListBookmarksRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).ListBookmarks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_ListBookmarks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).ListBookmarks(ctx, req.(*ListBookmarksRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -256,8 +562,16 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ThreadService_GetThread_Handler,
 		},
 		{
+			MethodName: "ListReplies",
+			Handler:    _ThreadService_ListReplies_Handler,
+		},
+		{
 			MethodName: "ListFeed",
 			Handler:    _ThreadService_ListFeed_Handler,
+		},
+		{
+			MethodName: "ListFollowingFeed",
+			Handler:    _ThreadService_ListFollowingFeed_Handler,
 		},
 		{
 			MethodName: "DeleteThread",
@@ -266,6 +580,34 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCategories",
 			Handler:    _ThreadService_GetCategories_Handler,
+		},
+		{
+			MethodName: "LikeThread",
+			Handler:    _ThreadService_LikeThread_Handler,
+		},
+		{
+			MethodName: "UnlikeThread",
+			Handler:    _ThreadService_UnlikeThread_Handler,
+		},
+		{
+			MethodName: "RepostThread",
+			Handler:    _ThreadService_RepostThread_Handler,
+		},
+		{
+			MethodName: "UnrepostThread",
+			Handler:    _ThreadService_UnrepostThread_Handler,
+		},
+		{
+			MethodName: "BookmarkThread",
+			Handler:    _ThreadService_BookmarkThread_Handler,
+		},
+		{
+			MethodName: "UnbookmarkThread",
+			Handler:    _ThreadService_UnbookmarkThread_Handler,
+		},
+		{
+			MethodName: "ListBookmarks",
+			Handler:    _ThreadService_ListBookmarks_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

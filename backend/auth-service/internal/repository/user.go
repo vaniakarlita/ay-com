@@ -166,3 +166,42 @@ func (r *UserRepository) FindProfile(ctx context.Context, id string) (Profile, e
 	}
 	return p, nil
 }
+
+func (r *UserRepository) FindProfileByUsername(ctx context.Context, username string) (Profile, error) {
+	var p Profile
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, name, username, profile_picture_url
+		FROM users WHERE username = $1`, username,
+	).Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Profile{}, ErrNotFound
+	}
+	if err != nil {
+		return Profile{}, err
+	}
+	return p, nil
+}
+
+func (r *UserRepository) FindProfilesByIDs(ctx context.Context, ids []string) ([]Profile, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	rows, err := r.pool.Query(ctx, `
+		SELECT id, name, username, profile_picture_url
+		FROM users WHERE id = ANY($1)`, ids,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var profiles []Profile
+	for rows.Next() {
+		var p Profile
+		if err := rows.Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL); err != nil {
+			return nil, err
+		}
+		profiles = append(profiles, p)
+	}
+	return profiles, nil
+}

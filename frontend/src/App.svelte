@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Bookmarks from './lib/Bookmarks.svelte';
   import ForgotPassword from './lib/ForgotPassword.svelte';
   import Home from './lib/Home.svelte';
   import Landing from './lib/Landing.svelte';
@@ -7,6 +8,7 @@
   import Placeholder from './lib/Placeholder.svelte';
   import Register from './lib/Register.svelte';
   import ThemeToggle from './lib/ThemeToggle.svelte';
+  import ThreadDetail from './lib/ThreadDetail.svelte';
   import { navigate, path } from './lib/router';
   import { isLoggedIn } from './lib/session';
 
@@ -23,8 +25,12 @@
   };
   const guestPages = ['/', '/login', '/register', '/forgot-password'];
 
-  const current = $derived($path in memberPages || guestPages.includes($path) ? $path : '/');
-  const isMemberPage = $derived(current in memberPages);
+  const threadMatch = $derived($path.match(/^\/thread\/([a-zA-Z0-9_-]+)$/));
+  const isThreadPage = $derived(!!threadMatch);
+  const threadId = $derived(threadMatch ? threadMatch[1] : '');
+
+  const isMemberPage = $derived($path in memberPages || isThreadPage);
+  const current = $derived(isMemberPage ? $path : guestPages.includes($path) ? $path : '/');
 
   $effect(() => {
     if ($isLoggedIn && !isMemberPage) navigate('/home', true);
@@ -39,8 +45,12 @@
 {#if isMemberPage}
   {#if $isLoggedIn}
     <MemberLayout>
-      {#if current === '/home'}
+      {#if isThreadPage}
+        <ThreadDetail {threadId} />
+      {:else if current === '/home'}
         <Home />
+      {:else if current === '/bookmarks'}
+        <Bookmarks />
       {:else}
         <Placeholder title={memberPages[current]} />
       {/if}

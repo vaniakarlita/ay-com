@@ -120,6 +120,8 @@ type Thread struct {
 	LikedByMe        bool                   `protobuf:"varint,19,opt,name=liked_by_me,json=likedByMe,proto3" json:"liked_by_me,omitempty"`
 	RepostedByMe     bool                   `protobuf:"varint,20,opt,name=reposted_by_me,json=repostedByMe,proto3" json:"reposted_by_me,omitempty"`
 	BookmarkedByMe   bool                   `protobuf:"varint,21,opt,name=bookmarked_by_me,json=bookmarkedByMe,proto3" json:"bookmarked_by_me,omitempty"`
+	RepostedByName   string                 `protobuf:"bytes,22,opt,name=reposted_by_name,json=repostedByName,proto3" json:"reposted_by_name,omitempty"`
+	ParentId         string                 `protobuf:"bytes,23,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -301,6 +303,20 @@ func (x *Thread) GetBookmarkedByMe() bool {
 	return false
 }
 
+func (x *Thread) GetRepostedByName() string {
+	if x != nil {
+		return x.RepostedByName
+	}
+	return ""
+}
+
+func (x *Thread) GetParentId() string {
+	if x != nil {
+		return x.ParentId
+	}
+	return ""
+}
+
 type CreateThreadRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -314,6 +330,7 @@ type CreateThreadRequest struct {
 	CommunityId      string                 `protobuf:"bytes,9,opt,name=community_id,json=communityId,proto3" json:"community_id,omitempty"`
 	ScheduledAt      string                 `protobuf:"bytes,10,opt,name=scheduled_at,json=scheduledAt,proto3" json:"scheduled_at,omitempty"`
 	IsAd             bool                   `protobuf:"varint,11,opt,name=is_ad,json=isAd,proto3" json:"is_ad,omitempty"`
+	ParentId         string                 `protobuf:"bytes,12,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -423,6 +440,13 @@ func (x *CreateThreadRequest) GetIsAd() bool {
 		return x.IsAd
 	}
 	return false
+}
+
+func (x *CreateThreadRequest) GetParentId() string {
+	if x != nil {
+		return x.ParentId
+	}
+	return ""
 }
 
 type CreateThreadResponse struct {
@@ -565,10 +589,138 @@ func (x *GetThreadResponse) GetThread() *Thread {
 	return nil
 }
 
+type ListRepliesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ParentId      string                 `protobuf:"bytes,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	ViewerUserId  string                 `protobuf:"bytes,2,opt,name=viewer_user_id,json=viewerUserId,proto3" json:"viewer_user_id,omitempty"`
+	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        string                 `protobuf:"bytes,4,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRepliesRequest) Reset() {
+	*x = ListRepliesRequest{}
+	mi := &file_thread_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRepliesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRepliesRequest) ProtoMessage() {}
+
+func (x *ListRepliesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRepliesRequest.ProtoReflect.Descriptor instead.
+func (*ListRepliesRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ListRepliesRequest) GetParentId() string {
+	if x != nil {
+		return x.ParentId
+	}
+	return ""
+}
+
+func (x *ListRepliesRequest) GetViewerUserId() string {
+	if x != nil {
+		return x.ViewerUserId
+	}
+	return ""
+}
+
+func (x *ListRepliesRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListRepliesRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+type ListRepliesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Replies       []*Thread              `protobuf:"bytes,1,rep,name=replies,proto3" json:"replies,omitempty"`
+	NextCursor    string                 `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3" json:"next_cursor,omitempty"`
+	HasMore       bool                   `protobuf:"varint,3,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRepliesResponse) Reset() {
+	*x = ListRepliesResponse{}
+	mi := &file_thread_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRepliesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRepliesResponse) ProtoMessage() {}
+
+func (x *ListRepliesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRepliesResponse.ProtoReflect.Descriptor instead.
+func (*ListRepliesResponse) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ListRepliesResponse) GetReplies() []*Thread {
+	if x != nil {
+		return x.Replies
+	}
+	return nil
+}
+
+func (x *ListRepliesResponse) GetNextCursor() string {
+	if x != nil {
+		return x.NextCursor
+	}
+	return ""
+}
+
+func (x *ListRepliesResponse) GetHasMore() bool {
+	if x != nil {
+		return x.HasMore
+	}
+	return false
+}
+
 type ListFeedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ViewerUserId  string                 `protobuf:"bytes,1,opt,name=viewer_user_id,json=viewerUserId,proto3" json:"viewer_user_id,omitempty"`
-	FeedType      string                 `protobuf:"bytes,2,opt,name=feed_type,json=feedType,proto3" json:"feed_type,omitempty"` // "for-you" or "following"
+	FeedType      string                 `protobuf:"bytes,2,opt,name=feed_type,json=feedType,proto3" json:"feed_type,omitempty"`
 	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
 	Cursor        string                 `protobuf:"bytes,4,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -577,7 +729,7 @@ type ListFeedRequest struct {
 
 func (x *ListFeedRequest) Reset() {
 	*x = ListFeedRequest{}
-	mi := &file_thread_proto_msgTypes[6]
+	mi := &file_thread_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -589,7 +741,7 @@ func (x *ListFeedRequest) String() string {
 func (*ListFeedRequest) ProtoMessage() {}
 
 func (x *ListFeedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[6]
+	mi := &file_thread_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -602,7 +754,7 @@ func (x *ListFeedRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFeedRequest.ProtoReflect.Descriptor instead.
 func (*ListFeedRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{6}
+	return file_thread_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListFeedRequest) GetViewerUserId() string {
@@ -644,7 +796,7 @@ type ListFeedResponse struct {
 
 func (x *ListFeedResponse) Reset() {
 	*x = ListFeedResponse{}
-	mi := &file_thread_proto_msgTypes[7]
+	mi := &file_thread_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -656,7 +808,7 @@ func (x *ListFeedResponse) String() string {
 func (*ListFeedResponse) ProtoMessage() {}
 
 func (x *ListFeedResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[7]
+	mi := &file_thread_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -669,7 +821,7 @@ func (x *ListFeedResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFeedResponse.ProtoReflect.Descriptor instead.
 func (*ListFeedResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{7}
+	return file_thread_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListFeedResponse) GetThreads() []*Thread {
@@ -693,6 +845,74 @@ func (x *ListFeedResponse) GetHasMore() bool {
 	return false
 }
 
+type ListFollowingFeedRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ViewerUserId  string                 `protobuf:"bytes,1,opt,name=viewer_user_id,json=viewerUserId,proto3" json:"viewer_user_id,omitempty"`
+	AuthorUserIds []string               `protobuf:"bytes,2,rep,name=author_user_ids,json=authorUserIds,proto3" json:"author_user_ids,omitempty"`
+	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        string                 `protobuf:"bytes,4,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListFollowingFeedRequest) Reset() {
+	*x = ListFollowingFeedRequest{}
+	mi := &file_thread_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListFollowingFeedRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListFollowingFeedRequest) ProtoMessage() {}
+
+func (x *ListFollowingFeedRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListFollowingFeedRequest.ProtoReflect.Descriptor instead.
+func (*ListFollowingFeedRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ListFollowingFeedRequest) GetViewerUserId() string {
+	if x != nil {
+		return x.ViewerUserId
+	}
+	return ""
+}
+
+func (x *ListFollowingFeedRequest) GetAuthorUserIds() []string {
+	if x != nil {
+		return x.AuthorUserIds
+	}
+	return nil
+}
+
+func (x *ListFollowingFeedRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListFollowingFeedRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
 type DeleteThreadRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ThreadId      string                 `protobuf:"bytes,1,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
@@ -703,7 +923,7 @@ type DeleteThreadRequest struct {
 
 func (x *DeleteThreadRequest) Reset() {
 	*x = DeleteThreadRequest{}
-	mi := &file_thread_proto_msgTypes[8]
+	mi := &file_thread_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -715,7 +935,7 @@ func (x *DeleteThreadRequest) String() string {
 func (*DeleteThreadRequest) ProtoMessage() {}
 
 func (x *DeleteThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[8]
+	mi := &file_thread_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -728,7 +948,7 @@ func (x *DeleteThreadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteThreadRequest.ProtoReflect.Descriptor instead.
 func (*DeleteThreadRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{8}
+	return file_thread_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *DeleteThreadRequest) GetThreadId() string {
@@ -755,7 +975,7 @@ type DeleteThreadResponse struct {
 
 func (x *DeleteThreadResponse) Reset() {
 	*x = DeleteThreadResponse{}
-	mi := &file_thread_proto_msgTypes[9]
+	mi := &file_thread_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -767,7 +987,7 @@ func (x *DeleteThreadResponse) String() string {
 func (*DeleteThreadResponse) ProtoMessage() {}
 
 func (x *DeleteThreadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[9]
+	mi := &file_thread_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -780,7 +1000,7 @@ func (x *DeleteThreadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteThreadResponse.ProtoReflect.Descriptor instead.
 func (*DeleteThreadResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{9}
+	return file_thread_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *DeleteThreadResponse) GetSuccess() bool {
@@ -807,7 +1027,7 @@ type Category struct {
 
 func (x *Category) Reset() {
 	*x = Category{}
-	mi := &file_thread_proto_msgTypes[10]
+	mi := &file_thread_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -819,7 +1039,7 @@ func (x *Category) String() string {
 func (*Category) ProtoMessage() {}
 
 func (x *Category) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[10]
+	mi := &file_thread_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -832,7 +1052,7 @@ func (x *Category) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Category.ProtoReflect.Descriptor instead.
 func (*Category) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{10}
+	return file_thread_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *Category) GetId() string {
@@ -857,7 +1077,7 @@ type GetCategoriesRequest struct {
 
 func (x *GetCategoriesRequest) Reset() {
 	*x = GetCategoriesRequest{}
-	mi := &file_thread_proto_msgTypes[11]
+	mi := &file_thread_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -869,7 +1089,7 @@ func (x *GetCategoriesRequest) String() string {
 func (*GetCategoriesRequest) ProtoMessage() {}
 
 func (x *GetCategoriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[11]
+	mi := &file_thread_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -882,7 +1102,7 @@ func (x *GetCategoriesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCategoriesRequest.ProtoReflect.Descriptor instead.
 func (*GetCategoriesRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{11}
+	return file_thread_proto_rawDescGZIP(), []int{14}
 }
 
 type GetCategoriesResponse struct {
@@ -894,7 +1114,7 @@ type GetCategoriesResponse struct {
 
 func (x *GetCategoriesResponse) Reset() {
 	*x = GetCategoriesResponse{}
-	mi := &file_thread_proto_msgTypes[12]
+	mi := &file_thread_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -906,7 +1126,7 @@ func (x *GetCategoriesResponse) String() string {
 func (*GetCategoriesResponse) ProtoMessage() {}
 
 func (x *GetCategoriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[12]
+	mi := &file_thread_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -919,7 +1139,7 @@ func (x *GetCategoriesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCategoriesResponse.ProtoReflect.Descriptor instead.
 func (*GetCategoriesResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{12}
+	return file_thread_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetCategoriesResponse) GetCategories() []*Category {
@@ -927,6 +1147,286 @@ func (x *GetCategoriesResponse) GetCategories() []*Category {
 		return x.Categories
 	}
 	return nil
+}
+
+type InteractionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ThreadId      string                 `protobuf:"bytes,1,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InteractionRequest) Reset() {
+	*x = InteractionRequest{}
+	mi := &file_thread_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InteractionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InteractionRequest) ProtoMessage() {}
+
+func (x *InteractionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InteractionRequest.ProtoReflect.Descriptor instead.
+func (*InteractionRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *InteractionRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
+}
+
+func (x *InteractionRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *InteractionRequest) GetUserName() string {
+	if x != nil {
+		return x.UserName
+	}
+	return ""
+}
+
+type InteractionResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Success        bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	LikeCount      int32                  `protobuf:"varint,2,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
+	RepostCount    int32                  `protobuf:"varint,3,opt,name=repost_count,json=repostCount,proto3" json:"repost_count,omitempty"`
+	BookmarkCount  int32                  `protobuf:"varint,4,opt,name=bookmark_count,json=bookmarkCount,proto3" json:"bookmark_count,omitempty"`
+	LikedByMe      bool                   `protobuf:"varint,5,opt,name=liked_by_me,json=likedByMe,proto3" json:"liked_by_me,omitempty"`
+	RepostedByMe   bool                   `protobuf:"varint,6,opt,name=reposted_by_me,json=repostedByMe,proto3" json:"reposted_by_me,omitempty"`
+	BookmarkedByMe bool                   `protobuf:"varint,7,opt,name=bookmarked_by_me,json=bookmarkedByMe,proto3" json:"bookmarked_by_me,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *InteractionResponse) Reset() {
+	*x = InteractionResponse{}
+	mi := &file_thread_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InteractionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InteractionResponse) ProtoMessage() {}
+
+func (x *InteractionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InteractionResponse.ProtoReflect.Descriptor instead.
+func (*InteractionResponse) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *InteractionResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *InteractionResponse) GetLikeCount() int32 {
+	if x != nil {
+		return x.LikeCount
+	}
+	return 0
+}
+
+func (x *InteractionResponse) GetRepostCount() int32 {
+	if x != nil {
+		return x.RepostCount
+	}
+	return 0
+}
+
+func (x *InteractionResponse) GetBookmarkCount() int32 {
+	if x != nil {
+		return x.BookmarkCount
+	}
+	return 0
+}
+
+func (x *InteractionResponse) GetLikedByMe() bool {
+	if x != nil {
+		return x.LikedByMe
+	}
+	return false
+}
+
+func (x *InteractionResponse) GetRepostedByMe() bool {
+	if x != nil {
+		return x.RepostedByMe
+	}
+	return false
+}
+
+func (x *InteractionResponse) GetBookmarkedByMe() bool {
+	if x != nil {
+		return x.BookmarkedByMe
+	}
+	return false
+}
+
+type ListBookmarksRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Query         string                 `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
+	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        string                 `protobuf:"bytes,4,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBookmarksRequest) Reset() {
+	*x = ListBookmarksRequest{}
+	mi := &file_thread_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBookmarksRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBookmarksRequest) ProtoMessage() {}
+
+func (x *ListBookmarksRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBookmarksRequest.ProtoReflect.Descriptor instead.
+func (*ListBookmarksRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ListBookmarksRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *ListBookmarksRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *ListBookmarksRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListBookmarksRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+type ListBookmarksResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Threads       []*Thread              `protobuf:"bytes,1,rep,name=threads,proto3" json:"threads,omitempty"`
+	NextCursor    string                 `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3" json:"next_cursor,omitempty"`
+	HasMore       bool                   `protobuf:"varint,3,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBookmarksResponse) Reset() {
+	*x = ListBookmarksResponse{}
+	mi := &file_thread_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBookmarksResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBookmarksResponse) ProtoMessage() {}
+
+func (x *ListBookmarksResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBookmarksResponse.ProtoReflect.Descriptor instead.
+func (*ListBookmarksResponse) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ListBookmarksResponse) GetThreads() []*Thread {
+	if x != nil {
+		return x.Threads
+	}
+	return nil
+}
+
+func (x *ListBookmarksResponse) GetNextCursor() string {
+	if x != nil {
+		return x.NextCursor
+	}
+	return ""
+}
+
+func (x *ListBookmarksResponse) GetHasMore() bool {
+	if x != nil {
+		return x.HasMore
+	}
+	return false
 }
 
 var File_thread_proto protoreflect.FileDescriptor
@@ -941,7 +1441,7 @@ const file_thread_proto_rawDesc = "" +
 	"\n" +
 	"avatar_url\x18\x04 \x01(\tR\tavatarUrl\x12\x1f\n" +
 	"\vis_verified\x18\x05 \x01(\bR\n" +
-	"isVerified\"\xd5\x05\n" +
+	"isVerified\"\x9c\x06\n" +
 	"\x06Thread\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1f\n" +
@@ -970,7 +1470,9 @@ const file_thread_proto_rawDesc = "" +
 	"\x0ebookmark_count\x18\x12 \x01(\x05R\rbookmarkCount\x12\x1e\n" +
 	"\vliked_by_me\x18\x13 \x01(\bR\tlikedByMe\x12$\n" +
 	"\x0ereposted_by_me\x18\x14 \x01(\bR\frepostedByMe\x12(\n" +
-	"\x10bookmarked_by_me\x18\x15 \x01(\bR\x0ebookmarkedByMe\"\x92\x03\n" +
+	"\x10bookmarked_by_me\x18\x15 \x01(\bR\x0ebookmarkedByMe\x12(\n" +
+	"\x10reposted_by_name\x18\x16 \x01(\tR\x0erepostedByName\x12\x1b\n" +
+	"\tparent_id\x18\x17 \x01(\tR\bparentId\"\xaf\x03\n" +
 	"\x13CreateThreadRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1f\n" +
 	"\vauthor_name\x18\x02 \x01(\tR\n" +
@@ -986,14 +1488,25 @@ const file_thread_proto_rawDesc = "" +
 	"\fcommunity_id\x18\t \x01(\tR\vcommunityId\x12!\n" +
 	"\fscheduled_at\x18\n" +
 	" \x01(\tR\vscheduledAt\x12\x13\n" +
-	"\x05is_ad\x18\v \x01(\bR\x04isAd\">\n" +
+	"\x05is_ad\x18\v \x01(\bR\x04isAd\x12\x1b\n" +
+	"\tparent_id\x18\f \x01(\tR\bparentId\">\n" +
 	"\x14CreateThreadResponse\x12&\n" +
 	"\x06thread\x18\x01 \x01(\v2\x0e.thread.ThreadR\x06thread\"U\n" +
 	"\x10GetThreadRequest\x12\x1b\n" +
 	"\tthread_id\x18\x01 \x01(\tR\bthreadId\x12$\n" +
 	"\x0eviewer_user_id\x18\x02 \x01(\tR\fviewerUserId\";\n" +
 	"\x11GetThreadResponse\x12&\n" +
-	"\x06thread\x18\x01 \x01(\v2\x0e.thread.ThreadR\x06thread\"\x82\x01\n" +
+	"\x06thread\x18\x01 \x01(\v2\x0e.thread.ThreadR\x06thread\"\x85\x01\n" +
+	"\x12ListRepliesRequest\x12\x1b\n" +
+	"\tparent_id\x18\x01 \x01(\tR\bparentId\x12$\n" +
+	"\x0eviewer_user_id\x18\x02 \x01(\tR\fviewerUserId\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"{\n" +
+	"\x13ListRepliesResponse\x12(\n" +
+	"\areplies\x18\x01 \x03(\v2\x0e.thread.ThreadR\areplies\x12\x1f\n" +
+	"\vnext_cursor\x18\x02 \x01(\tR\n" +
+	"nextCursor\x12\x19\n" +
+	"\bhas_more\x18\x03 \x01(\bR\ahasMore\"\x82\x01\n" +
 	"\x0fListFeedRequest\x12$\n" +
 	"\x0eviewer_user_id\x18\x01 \x01(\tR\fviewerUserId\x12\x1b\n" +
 	"\tfeed_type\x18\x02 \x01(\tR\bfeedType\x12\x14\n" +
@@ -1003,7 +1516,12 @@ const file_thread_proto_rawDesc = "" +
 	"\athreads\x18\x01 \x03(\v2\x0e.thread.ThreadR\athreads\x12\x1f\n" +
 	"\vnext_cursor\x18\x02 \x01(\tR\n" +
 	"nextCursor\x12\x19\n" +
-	"\bhas_more\x18\x03 \x01(\bR\ahasMore\"K\n" +
+	"\bhas_more\x18\x03 \x01(\bR\ahasMore\"\x96\x01\n" +
+	"\x18ListFollowingFeedRequest\x12$\n" +
+	"\x0eviewer_user_id\x18\x01 \x01(\tR\fviewerUserId\x12&\n" +
+	"\x0fauthor_user_ids\x18\x02 \x03(\tR\rauthorUserIds\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"K\n" +
 	"\x13DeleteThreadRequest\x12\x1b\n" +
 	"\tthread_id\x18\x01 \x01(\tR\bthreadId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"J\n" +
@@ -1017,13 +1535,46 @@ const file_thread_proto_rawDesc = "" +
 	"\x15GetCategoriesResponse\x120\n" +
 	"\n" +
 	"categories\x18\x01 \x03(\v2\x10.thread.CategoryR\n" +
-	"categories2\xf4\x02\n" +
+	"categories\"g\n" +
+	"\x12InteractionRequest\x12\x1b\n" +
+	"\tthread_id\x18\x01 \x01(\tR\bthreadId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
+	"\tuser_name\x18\x03 \x01(\tR\buserName\"\x88\x02\n" +
+	"\x13InteractionResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1d\n" +
+	"\n" +
+	"like_count\x18\x02 \x01(\x05R\tlikeCount\x12!\n" +
+	"\frepost_count\x18\x03 \x01(\x05R\vrepostCount\x12%\n" +
+	"\x0ebookmark_count\x18\x04 \x01(\x05R\rbookmarkCount\x12\x1e\n" +
+	"\vliked_by_me\x18\x05 \x01(\bR\tlikedByMe\x12$\n" +
+	"\x0ereposted_by_me\x18\x06 \x01(\bR\frepostedByMe\x12(\n" +
+	"\x10bookmarked_by_me\x18\a \x01(\bR\x0ebookmarkedByMe\"s\n" +
+	"\x14ListBookmarksRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
+	"\x05query\x18\x02 \x01(\tR\x05query\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"}\n" +
+	"\x15ListBookmarksResponse\x12(\n" +
+	"\athreads\x18\x01 \x03(\v2\x0e.thread.ThreadR\athreads\x12\x1f\n" +
+	"\vnext_cursor\x18\x02 \x01(\tR\n" +
+	"nextCursor\x12\x19\n" +
+	"\bhas_more\x18\x03 \x01(\bR\ahasMore2\x97\b\n" +
 	"\rThreadService\x12I\n" +
 	"\fCreateThread\x12\x1b.thread.CreateThreadRequest\x1a\x1c.thread.CreateThreadResponse\x12@\n" +
-	"\tGetThread\x12\x18.thread.GetThreadRequest\x1a\x19.thread.GetThreadResponse\x12=\n" +
-	"\bListFeed\x12\x17.thread.ListFeedRequest\x1a\x18.thread.ListFeedResponse\x12I\n" +
+	"\tGetThread\x12\x18.thread.GetThreadRequest\x1a\x19.thread.GetThreadResponse\x12F\n" +
+	"\vListReplies\x12\x1a.thread.ListRepliesRequest\x1a\x1b.thread.ListRepliesResponse\x12=\n" +
+	"\bListFeed\x12\x17.thread.ListFeedRequest\x1a\x18.thread.ListFeedResponse\x12O\n" +
+	"\x11ListFollowingFeed\x12 .thread.ListFollowingFeedRequest\x1a\x18.thread.ListFeedResponse\x12I\n" +
 	"\fDeleteThread\x12\x1b.thread.DeleteThreadRequest\x1a\x1c.thread.DeleteThreadResponse\x12L\n" +
-	"\rGetCategories\x12\x1c.thread.GetCategoriesRequest\x1a\x1d.thread.GetCategoriesResponseB@Z>github.com/vaniakarlita/ay-com/backend/thread-service/threadpbb\x06proto3"
+	"\rGetCategories\x12\x1c.thread.GetCategoriesRequest\x1a\x1d.thread.GetCategoriesResponse\x12E\n" +
+	"\n" +
+	"LikeThread\x12\x1a.thread.InteractionRequest\x1a\x1b.thread.InteractionResponse\x12G\n" +
+	"\fUnlikeThread\x12\x1a.thread.InteractionRequest\x1a\x1b.thread.InteractionResponse\x12G\n" +
+	"\fRepostThread\x12\x1a.thread.InteractionRequest\x1a\x1b.thread.InteractionResponse\x12I\n" +
+	"\x0eUnrepostThread\x12\x1a.thread.InteractionRequest\x1a\x1b.thread.InteractionResponse\x12I\n" +
+	"\x0eBookmarkThread\x12\x1a.thread.InteractionRequest\x1a\x1b.thread.InteractionResponse\x12K\n" +
+	"\x10UnbookmarkThread\x12\x1a.thread.InteractionRequest\x1a\x1b.thread.InteractionResponse\x12L\n" +
+	"\rListBookmarks\x12\x1c.thread.ListBookmarksRequest\x1a\x1d.thread.ListBookmarksResponseB@Z>github.com/vaniakarlita/ay-com/backend/thread-service/threadpbb\x06proto3"
 
 var (
 	file_thread_proto_rawDescOnce sync.Once
@@ -1037,42 +1588,69 @@ func file_thread_proto_rawDescGZIP() []byte {
 	return file_thread_proto_rawDescData
 }
 
-var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_thread_proto_goTypes = []any{
-	(*ThreadAuthor)(nil),          // 0: thread.ThreadAuthor
-	(*Thread)(nil),                // 1: thread.Thread
-	(*CreateThreadRequest)(nil),   // 2: thread.CreateThreadRequest
-	(*CreateThreadResponse)(nil),  // 3: thread.CreateThreadResponse
-	(*GetThreadRequest)(nil),      // 4: thread.GetThreadRequest
-	(*GetThreadResponse)(nil),     // 5: thread.GetThreadResponse
-	(*ListFeedRequest)(nil),       // 6: thread.ListFeedRequest
-	(*ListFeedResponse)(nil),      // 7: thread.ListFeedResponse
-	(*DeleteThreadRequest)(nil),   // 8: thread.DeleteThreadRequest
-	(*DeleteThreadResponse)(nil),  // 9: thread.DeleteThreadResponse
-	(*Category)(nil),              // 10: thread.Category
-	(*GetCategoriesRequest)(nil),  // 11: thread.GetCategoriesRequest
-	(*GetCategoriesResponse)(nil), // 12: thread.GetCategoriesResponse
+	(*ThreadAuthor)(nil),             // 0: thread.ThreadAuthor
+	(*Thread)(nil),                   // 1: thread.Thread
+	(*CreateThreadRequest)(nil),      // 2: thread.CreateThreadRequest
+	(*CreateThreadResponse)(nil),     // 3: thread.CreateThreadResponse
+	(*GetThreadRequest)(nil),         // 4: thread.GetThreadRequest
+	(*GetThreadResponse)(nil),        // 5: thread.GetThreadResponse
+	(*ListRepliesRequest)(nil),       // 6: thread.ListRepliesRequest
+	(*ListRepliesResponse)(nil),      // 7: thread.ListRepliesResponse
+	(*ListFeedRequest)(nil),          // 8: thread.ListFeedRequest
+	(*ListFeedResponse)(nil),         // 9: thread.ListFeedResponse
+	(*ListFollowingFeedRequest)(nil), // 10: thread.ListFollowingFeedRequest
+	(*DeleteThreadRequest)(nil),      // 11: thread.DeleteThreadRequest
+	(*DeleteThreadResponse)(nil),     // 12: thread.DeleteThreadResponse
+	(*Category)(nil),                 // 13: thread.Category
+	(*GetCategoriesRequest)(nil),     // 14: thread.GetCategoriesRequest
+	(*GetCategoriesResponse)(nil),    // 15: thread.GetCategoriesResponse
+	(*InteractionRequest)(nil),       // 16: thread.InteractionRequest
+	(*InteractionResponse)(nil),      // 17: thread.InteractionResponse
+	(*ListBookmarksRequest)(nil),     // 18: thread.ListBookmarksRequest
+	(*ListBookmarksResponse)(nil),    // 19: thread.ListBookmarksResponse
 }
 var file_thread_proto_depIdxs = []int32{
 	1,  // 0: thread.CreateThreadResponse.thread:type_name -> thread.Thread
 	1,  // 1: thread.GetThreadResponse.thread:type_name -> thread.Thread
-	1,  // 2: thread.ListFeedResponse.threads:type_name -> thread.Thread
-	10, // 3: thread.GetCategoriesResponse.categories:type_name -> thread.Category
-	2,  // 4: thread.ThreadService.CreateThread:input_type -> thread.CreateThreadRequest
-	4,  // 5: thread.ThreadService.GetThread:input_type -> thread.GetThreadRequest
-	6,  // 6: thread.ThreadService.ListFeed:input_type -> thread.ListFeedRequest
-	8,  // 7: thread.ThreadService.DeleteThread:input_type -> thread.DeleteThreadRequest
-	11, // 8: thread.ThreadService.GetCategories:input_type -> thread.GetCategoriesRequest
-	3,  // 9: thread.ThreadService.CreateThread:output_type -> thread.CreateThreadResponse
-	5,  // 10: thread.ThreadService.GetThread:output_type -> thread.GetThreadResponse
-	7,  // 11: thread.ThreadService.ListFeed:output_type -> thread.ListFeedResponse
-	9,  // 12: thread.ThreadService.DeleteThread:output_type -> thread.DeleteThreadResponse
-	12, // 13: thread.ThreadService.GetCategories:output_type -> thread.GetCategoriesResponse
-	9,  // [9:14] is the sub-list for method output_type
-	4,  // [4:9] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	1,  // 2: thread.ListRepliesResponse.replies:type_name -> thread.Thread
+	1,  // 3: thread.ListFeedResponse.threads:type_name -> thread.Thread
+	13, // 4: thread.GetCategoriesResponse.categories:type_name -> thread.Category
+	1,  // 5: thread.ListBookmarksResponse.threads:type_name -> thread.Thread
+	2,  // 6: thread.ThreadService.CreateThread:input_type -> thread.CreateThreadRequest
+	4,  // 7: thread.ThreadService.GetThread:input_type -> thread.GetThreadRequest
+	6,  // 8: thread.ThreadService.ListReplies:input_type -> thread.ListRepliesRequest
+	8,  // 9: thread.ThreadService.ListFeed:input_type -> thread.ListFeedRequest
+	10, // 10: thread.ThreadService.ListFollowingFeed:input_type -> thread.ListFollowingFeedRequest
+	11, // 11: thread.ThreadService.DeleteThread:input_type -> thread.DeleteThreadRequest
+	14, // 12: thread.ThreadService.GetCategories:input_type -> thread.GetCategoriesRequest
+	16, // 13: thread.ThreadService.LikeThread:input_type -> thread.InteractionRequest
+	16, // 14: thread.ThreadService.UnlikeThread:input_type -> thread.InteractionRequest
+	16, // 15: thread.ThreadService.RepostThread:input_type -> thread.InteractionRequest
+	16, // 16: thread.ThreadService.UnrepostThread:input_type -> thread.InteractionRequest
+	16, // 17: thread.ThreadService.BookmarkThread:input_type -> thread.InteractionRequest
+	16, // 18: thread.ThreadService.UnbookmarkThread:input_type -> thread.InteractionRequest
+	18, // 19: thread.ThreadService.ListBookmarks:input_type -> thread.ListBookmarksRequest
+	3,  // 20: thread.ThreadService.CreateThread:output_type -> thread.CreateThreadResponse
+	5,  // 21: thread.ThreadService.GetThread:output_type -> thread.GetThreadResponse
+	7,  // 22: thread.ThreadService.ListReplies:output_type -> thread.ListRepliesResponse
+	9,  // 23: thread.ThreadService.ListFeed:output_type -> thread.ListFeedResponse
+	9,  // 24: thread.ThreadService.ListFollowingFeed:output_type -> thread.ListFeedResponse
+	12, // 25: thread.ThreadService.DeleteThread:output_type -> thread.DeleteThreadResponse
+	15, // 26: thread.ThreadService.GetCategories:output_type -> thread.GetCategoriesResponse
+	17, // 27: thread.ThreadService.LikeThread:output_type -> thread.InteractionResponse
+	17, // 28: thread.ThreadService.UnlikeThread:output_type -> thread.InteractionResponse
+	17, // 29: thread.ThreadService.RepostThread:output_type -> thread.InteractionResponse
+	17, // 30: thread.ThreadService.UnrepostThread:output_type -> thread.InteractionResponse
+	17, // 31: thread.ThreadService.BookmarkThread:output_type -> thread.InteractionResponse
+	17, // 32: thread.ThreadService.UnbookmarkThread:output_type -> thread.InteractionResponse
+	19, // 33: thread.ThreadService.ListBookmarks:output_type -> thread.ListBookmarksResponse
+	20, // [20:34] is the sub-list for method output_type
+	6,  // [6:20] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_thread_proto_init() }
@@ -1086,7 +1664,7 @@ func file_thread_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_thread_proto_rawDesc), len(file_thread_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

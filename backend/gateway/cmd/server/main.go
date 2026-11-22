@@ -15,6 +15,7 @@ import (
 
 	"github.com/vaniakarlita/ay-com/backend/gateway/authpb"
 	"github.com/vaniakarlita/ay-com/backend/gateway/threadpb"
+	"github.com/vaniakarlita/ay-com/backend/gateway/userpb"
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/config"
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/handler"
 	"github.com/vaniakarlita/ay-com/backend/gateway/internal/logger"
@@ -48,8 +49,16 @@ func main() {
 	}
 	defer threadConn.Close()
 
+	userConn, err := grpc.NewClient(cfg.UserAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Error("create user client failed", "error", err)
+		os.Exit(1)
+	}
+	defer userConn.Close()
+
 	authClient := authpb.NewAuthServiceClient(conn)
 	threadClient := threadpb.NewThreadServiceClient(threadConn)
+	userClient := userpb.NewUserServiceClient(userConn)
 
 	mux := http.NewServeMux()
 	authHandler := handler.NewAuthHandler(authClient, log)
@@ -60,8 +69,11 @@ func main() {
 	docs.Routes(mux)
 	handler.NewUploadHandler(storage.New(cfg.SupabaseURL, cfg.SupabaseKey, cfg.SupabaseBucket), log).Routes(mux)
 
-	threadHandler := handler.NewThreadHandler(threadClient, authClient, log)
+	threadHandler := handler.NewThreadHandler(threadClient, authClient, userClient, log)
 	threadHandler.Routes(mux, middleware.Auth(cfg.JWTAccessSecret))
+
+	userHandler := handler.NewUserHandler(userClient, authClient, log)
+	userHandler.Routes(mux, middleware.Auth(cfg.JWTAccessSecret))
 
 	var root http.Handler = mux
 	root = middleware.Logging(log)(root)

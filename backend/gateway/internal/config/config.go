@@ -12,6 +12,7 @@ type Config struct {
 	Port            string
 	AuthAddr        string
 	ThreadAddr      string
+	UserAddr        string
 	AllowedOrigin   string
 	LogLevel        string
 	JWTAccessSecret string
@@ -32,6 +33,7 @@ func Load() Config {
 		Port:            get("PORT", "8080"),
 		AuthAddr:        get("AUTH_SERVICE_ADDR", "localhost:50051"),
 		ThreadAddr:      get("THREAD_SERVICE_ADDR", "localhost:50052"),
+		UserAddr:        get("USER_SERVICE_ADDR", "localhost:50053"),
 		AllowedOrigin:   get("ALLOWED_ORIGIN", "http://localhost:5173"),
 		LogLevel:        get("LOG_LEVEL", defaultLevel),
 		JWTAccessSecret: get("JWT_ACCESS_SECRET", devAccessSecret),

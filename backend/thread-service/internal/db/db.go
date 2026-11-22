@@ -23,14 +23,18 @@ CREATE TABLE IF NOT EXISTS threads (
     community_id VARCHAR(100) NOT NULL DEFAULT '',
     community_name VARCHAR(255) NOT NULL DEFAULT '',
     is_ad BOOLEAN NOT NULL DEFAULT false,
+    parent_id UUID REFERENCES threads(id) ON DELETE CASCADE,
     scheduled_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE threads ADD COLUMN IF NOT EXISTS parent_id UUID REFERENCES threads(id) ON DELETE CASCADE;
+
 CREATE INDEX IF NOT EXISTS idx_threads_created_at ON threads(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_threads_user_id ON threads(user_id);
 CREATE INDEX IF NOT EXISTS idx_threads_is_ad ON threads(is_ad);
+CREATE INDEX IF NOT EXISTS idx_threads_parent_id ON threads(parent_id);
 
 CREATE TABLE IF NOT EXISTS categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -54,7 +58,34 @@ CREATE TABLE IF NOT EXISTS thread_hashtags (
     PRIMARY KEY (thread_id, hashtag)
 );
 
--- Seed default categories if empty
+CREATE TABLE IF NOT EXISTS likes (
+    user_id UUID NOT NULL,
+    thread_id UUID NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, thread_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_likes_thread_id ON likes(thread_id);
+
+CREATE TABLE IF NOT EXISTS reposts (
+    user_id UUID NOT NULL,
+    thread_id UUID NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, thread_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_reposts_thread_id ON reposts(thread_id);
+CREATE INDEX IF NOT EXISTS idx_reposts_created_at ON reposts(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS bookmarks (
+    user_id UUID NOT NULL,
+    thread_id UUID NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, thread_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_bookmarks_user_id ON bookmarks(user_id, created_at DESC);
+
 INSERT INTO categories (name) VALUES 
     ('Technology'),
     ('Gaming'),

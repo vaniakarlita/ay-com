@@ -25,7 +25,7 @@
     const currentCursor = reset ? '' : cursor;
 
     try {
-      const res = await threadApi.feed(currentCursor, 15);
+      const res = await threadApi.feed(currentCursor, 15, tab);
       if (reset) {
         threads = res.threads ?? [];
       } else {
@@ -57,9 +57,8 @@
     untrack(() => {
       if (current === 'for-you') {
         loadFeed(true);
-      } else {
-        threads = [];
-        hasMore = false;
+      } else if (current === 'following') {
+        loadFeed(true);
       }
     });
   });

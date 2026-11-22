@@ -16,6 +16,8 @@ service AuthService {
   rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
   rpc GoogleAuth(GoogleAuthRequest) returns (GoogleAuthResponse);
   rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+  rpc GetProfileByUsername(GetProfileByUsernameRequest) returns (GetProfileResponse);
+  rpc GetProfilesByIDs(GetProfilesByIDsRequest) returns (GetProfilesByIDsResponse);
 }
 
 message RegisterRequest {
@@ -129,4 +131,16 @@ message GetProfileResponse {
   string name = 2;
   string username = 3;
   string profile_picture_url = 4;
+}
+
+message GetProfileByUsernameRequest {
+  string username = 1;
+}
+
+message GetProfilesByIDsRequest {
+  repeated string user_ids = 1;
+}
+
+message GetProfilesByIDsResponse {
+  repeated GetProfileResponse profiles = 1;
 }

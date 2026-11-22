@@ -162,6 +162,8 @@ export type ThreadItem = {
   likedByMe: boolean;
   repostedByMe: boolean;
   bookmarkedByMe: boolean;
+  repostedByName?: string;
+  parentId?: string;
 };
 
 export type CategoryItem = {
@@ -181,15 +183,99 @@ export type CreateThreadPayload = {
   categories?: string[];
   communityId?: string;
   scheduledAt?: string;
+  parentId?: string;
+};
+
+export type RepliesResponse = {
+  replies: ThreadItem[];
+  nextCursor: string;
+  hasMore: boolean;
+};
+
+export type InteractionResponse = {
+  success: boolean;
+  likeCount: number;
+  repostCount: number;
+  bookmarkCount: number;
+  likedByMe: boolean;
+  repostedByMe: boolean;
+  bookmarkedByMe: boolean;
+};
+
+export type UserSuggestion = {
+  id: string;
+  name: string;
+  username: string;
+  profilePictureUrl: string;
+  followerCount: number;
+  isFollowing: boolean;
+};
+
+export type UserProfileResponse = {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  bio: string;
+  profilePictureUrl: string;
+  bannerUrl: string;
+  followerCount: number;
+  followingCount: number;
+  isFollowing: boolean;
+  isSelf: boolean;
+};
+
+export type FollowListResponse = {
+  users: Array<{
+    id: string;
+    name: string;
+    username: string;
+    profilePictureUrl: string;
+    isFollowing: boolean;
+  }>;
+  nextCursor: string;
+  hasMore: boolean;
+};
+
+export const userApi = {
+  follow: (id: string) =>
+    request<{ success: boolean; message: string }>(`/api/users/${id}/follow`, {
+      method: 'POST',
+      auth: true,
+    }),
+  unfollow: (id: string) =>
+    request<{ success: boolean; message: string }>(`/api/users/${id}/follow`, {
+      method: 'DELETE',
+      auth: true,
+    }),
+  getProfile: (username: string) =>
+    request<UserProfileResponse>(`/api/users/${username}`, { auth: true }),
+  getFollowers: (id: string, cursor = '', limit = 20) => {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (limit) params.set('limit', limit.toString());
+    const q = params.toString() ? `?${params.toString()}` : '';
+    return request<FollowListResponse>(`/api/users/${id}/followers${q}`, { auth: true });
+  },
+  getFollowing: (id: string, cursor = '', limit = 20) => {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (limit) params.set('limit', limit.toString());
+    const q = params.toString() ? `?${params.toString()}` : '';
+    return request<FollowListResponse>(`/api/users/${id}/following${q}`, { auth: true });
+  },
+  getSuggestions: () =>
+    request<UserSuggestion[]>('/api/users/suggestions', { auth: true }),
 };
 
 export const threadApi = {
   create: (body: CreateThreadPayload) =>
     request<ThreadItem>('/api/threads', { method: 'POST', body, auth: true }),
-  feed: (cursor = '', limit = 20) => {
+  feed: (cursor = '', limit = 20, type = 'for-you') => {
     const params = new URLSearchParams();
     if (cursor) params.set('cursor', cursor);
     if (limit) params.set('limit', limit.toString());
+    if (type) params.set('type', type);
     const q = params.toString() ? `?${params.toString()}` : '';
     return request<FeedResponse>(`/api/threads/feed${q}`, { auth: true });
   },
@@ -199,6 +285,35 @@ export const threadApi = {
       auth: true,
     }),
   categories: () => request<CategoryItem[]>('/api/categories'),
+  like: (id: string) =>
+    request<InteractionResponse>(`/api/threads/${id}/like`, { method: 'POST', auth: true }),
+  unlike: (id: string) =>
+    request<InteractionResponse>(`/api/threads/${id}/like`, { method: 'DELETE', auth: true }),
+  repost: (id: string) =>
+    request<InteractionResponse>(`/api/threads/${id}/repost`, { method: 'POST', auth: true }),
+  unrepost: (id: string) =>
+    request<InteractionResponse>(`/api/threads/${id}/repost`, { method: 'DELETE', auth: true }),
+  bookmark: (id: string) =>
+    request<InteractionResponse>(`/api/threads/${id}/bookmark`, { method: 'POST', auth: true }),
+  unbookmark: (id: string) =>
+    request<InteractionResponse>(`/api/threads/${id}/bookmark`, { method: 'DELETE', auth: true }),
+  bookmarks: (query = '', cursor = '', limit = 20) => {
+    const params = new URLSearchParams();
+    if (query) params.set('q', query);
+    if (cursor) params.set('cursor', cursor);
+    if (limit) params.set('limit', limit.toString());
+    const q = params.toString() ? `?${params.toString()}` : '';
+    return request<FeedResponse>(`/api/bookmarks${q}`, { auth: true });
+  },
+  getById: (id: string) =>
+    request<ThreadItem>(`/api/threads/${id}`, { auth: true }),
+  replies: (id: string, cursor = '', limit = 20) => {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (limit) params.set('limit', limit.toString());
+    const q = params.toString() ? `?${params.toString()}` : '';
+    return request<RepliesResponse>(`/api/threads/${id}/replies${q}`, { auth: true });
+  },
 };
 
 export async function uploadImage(file: File, kind: 'profile' | 'banner'): Promise<string> {

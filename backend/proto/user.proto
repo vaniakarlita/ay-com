@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "github.com/vaniakarlita/ay-com/backend/user-service/userpb";
+
+service UserService {
+  rpc Follow(FollowRequest) returns (FollowResponse);
+  rpc Unfollow(FollowRequest) returns (FollowResponse);
+  rpc GetFollowStats(GetFollowStatsRequest) returns (GetFollowStatsResponse);
+  rpc ListFollowingIDs(ListFollowingIDsRequest) returns (ListFollowingIDsResponse);
+  rpc ListFollowers(ListRelationRequest) returns (ListRelationResponse);
+  rpc ListFollowing(ListRelationRequest) returns (ListRelationResponse);
+  rpc SuggestAccounts(SuggestAccountsRequest) returns (SuggestAccountsResponse);
+}
+
+message FollowRequest {
+  string follower_id = 1;
+  string followee_id = 2;
+}
+
+message FollowResponse {
+  bool success = 1;
+  int32 follower_count = 2;
+  int32 following_count = 3;
+  bool is_following = 4;
+}
+
+message GetFollowStatsRequest {
+  string target_user_id = 1;
+  string viewer_user_id = 2;
+}
+
+message GetFollowStatsResponse {
+  string user_id = 1;
+  int32 follower_count = 2;
+  int32 following_count = 3;
+  bool is_following = 4;
+}
+
+message ListFollowingIDsRequest {
+  string user_id = 1;
+  int32 limit = 2;
+}
+
+message ListFollowingIDsResponse {
+  repeated string following_ids = 1;
+}
+
+message ListRelationRequest {
+  string user_id = 1;
+  string viewer_user_id = 2;
+  int32 limit = 3;
+  string cursor = 4;
+}
+
+message UserRelationItem {
+  string user_id = 1;
+  string created_at = 2;
+  bool is_following = 3;
+}
+
+message ListRelationResponse {
+  repeated UserRelationItem users = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+message SuggestAccountsRequest {
+  string user_id = 1;
+  int32 limit = 2;
+}
+
+message SuggestedAccountItem {
+  string user_id = 1;
+  int32 follower_count = 2;
+}
+
+message SuggestAccountsResponse {
+  repeated SuggestedAccountItem accounts = 1;
+}

@@ -8,15 +8,17 @@
   let {
     thread,
     onDelete,
+    onBookmarkRemoved,
   }: {
     thread: ThreadItem;
     onDelete?: (id: string) => void;
+    onBookmarkRemoved?: (id: string) => void;
   } = $props();
 
   let showMenu = $state(false);
   let isDeleting = $state(false);
+  let isInteracting = $state(false);
 
-  // Interaction local states for visual feedback
   let liked = $state(false);
   let likeCount = $state(0);
   let reposted = $state(false);
@@ -36,7 +38,6 @@
   const relativeTime = $derived(formatRelativeTime(thread.createdAt));
 
   function goToDetail(e: MouseEvent) {
-    // If clicking a button, link, or menu, don't trigger parent card click
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('a') || target.closest('.menu-dropdown')) {
       return;
@@ -49,21 +50,77 @@
     navigate(`/profile?u=${encodeURIComponent(thread.authorUsername)}`);
   }
 
-  function toggleLike(e: MouseEvent) {
+  async function toggleLike(e: MouseEvent) {
     e.stopPropagation();
+    if (isInteracting) return;
+    isInteracting = true;
+
+    const previousLiked = liked;
+    const previousCount = likeCount;
+
     liked = !liked;
     likeCount += liked ? 1 : -1;
+
+    try {
+      const res = previousLiked
+        ? await threadApi.unlike(thread.id)
+        : await threadApi.like(thread.id);
+      liked = res.likedByMe;
+      likeCount = res.likeCount;
+    } catch {
+      liked = previousLiked;
+      likeCount = previousCount;
+    } finally {
+      isInteracting = false;
+    }
   }
 
-  function toggleRepost(e: MouseEvent) {
+  async function toggleRepost(e: MouseEvent) {
     e.stopPropagation();
+    if (isInteracting) return;
+    isInteracting = true;
+
+    const previousReposted = reposted;
+    const previousCount = repostCount;
+
     reposted = !reposted;
     repostCount += reposted ? 1 : -1;
+
+    try {
+      const res = previousReposted
+        ? await threadApi.unrepost(thread.id)
+        : await threadApi.repost(thread.id);
+      reposted = res.repostedByMe;
+      repostCount = res.repostCount;
+    } catch {
+      reposted = previousReposted;
+      repostCount = previousCount;
+    } finally {
+      isInteracting = false;
+    }
   }
 
-  function toggleBookmark(e: MouseEvent) {
+  async function toggleBookmark(e: MouseEvent) {
     e.stopPropagation();
+    if (isInteracting) return;
+    isInteracting = true;
+
+    const previousBookmarked = bookmarked;
     bookmarked = !bookmarked;
+
+    try {
+      const res = previousBookmarked
+        ? await threadApi.unbookmark(thread.id)
+        : await threadApi.bookmark(thread.id);
+      bookmarked = res.bookmarkedByMe;
+      if (!bookmarked && onBookmarkRemoved) {
+        onBookmarkRemoved(thread.id);
+      }
+    } catch {
+      bookmarked = previousBookmarked;
+    } finally {
+      isInteracting = false;
+    }
   }
 
   function toggleMenu(e: MouseEvent) {
@@ -80,7 +137,7 @@
       await threadApi.delete(thread.id);
       showMenu = false;
       onDelete?.(thread.id);
-    } catch (err) {
+    } catch {
       alert('Failed to delete thread. Please try again.');
     } finally {
       isDeleting = false;
@@ -95,6 +152,18 @@
   class:is-ad={thread.isAd}
   onclick={goToDetail}
 >
+  {#if thread.repostedByName}
+    <div class="repost-header">
+      <svg viewBox="0 0 24 24" class="svg-icon xs">
+        <path d="M17 1l4 4-4 4" />
+        <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+        <path d="M7 23l-4-4 4-4" />
+        <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+      </svg>
+      <span>{thread.repostedByName} reposted</span>
+    </div>
+  {/if}
+
   {#if thread.isAd}
     <div class="ad-badge-header">
       <span class="ad-label">Sponsored</span>
@@ -102,7 +171,6 @@
   {/if}
 
   <div class="card-layout">
-    <!-- Avatar Column -->
     <button type="button" class="avatar-btn" onclick={goToProfile} title={thread.authorName}>
       {#if thread.authorAvatarUrl}
         <img src={thread.authorAvatarUrl} alt="" class="avatar" />
@@ -111,9 +179,7 @@
       {/if}
     </button>
 
-    <!-- Main Content Column -->
     <div class="content-col">
-      <!-- Header row -->
       <header class="header">
         <div class="author-info">
           <button type="button" class="name-btn" onclick={goToProfile}>
@@ -161,7 +227,6 @@
         {/if}
       </header>
 
-      <!-- Category Pills -->
       {#if thread.categories && thread.categories.length > 0}
         <div class="categories-row">
           {#each thread.categories as cat}
@@ -170,14 +235,11 @@
         </div>
       {/if}
 
-      <!-- Thread Content with Mentions & Hashtags -->
       <div class="body-text">
         <RichText text={thread.content} />
       </div>
 
-      <!-- Action Buttons Row -->
       <footer class="actions">
-        <!-- Reply -->
         <button type="button" class="action-btn reply" aria-label="Reply">
           <span class="icon-wrap">
             <svg viewBox="0 0 24 24" class="svg-icon">
@@ -187,7 +249,6 @@
           <span class="count">{thread.replyCount || ''}</span>
         </button>
 
-        <!-- Repost -->
         <button
           type="button"
           class="action-btn repost"
@@ -206,7 +267,6 @@
           <span class="count">{repostCount || ''}</span>
         </button>
 
-        <!-- Like -->
         <button
           type="button"
           class="action-btn like"
@@ -222,7 +282,6 @@
           <span class="count">{likeCount || ''}</span>
         </button>
 
-        <!-- Bookmark -->
         <button
           type="button"
           class="action-btn bookmark"
@@ -264,6 +323,17 @@
       background: rgba(29, 155, 240, 0.03);
       border-left: 3px solid var(--primary);
     }
+  }
+
+  .repost-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+    padding-left: 3.25rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
   }
 
   .ad-badge-header {
@@ -464,6 +534,11 @@
     &.sm {
       width: 16px;
       height: 16px;
+    }
+
+    &.xs {
+      width: 13px;
+      height: 13px;
     }
   }
 

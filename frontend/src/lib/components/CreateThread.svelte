@@ -8,10 +8,12 @@
     onCreated,
     placeholder = "What's happening?",
     autoFocus = false,
+    parentId,
   }: {
     onCreated?: (thread: ThreadItem) => void;
     placeholder?: string;
     autoFocus?: boolean;
+    parentId?: string;
   } = $props();
 
   let content = $state('');
@@ -68,6 +70,7 @@
         replyPermission,
         categories: selectedCategory ? [selectedCategory] : [],
         scheduledAt: scheduledAt || undefined,
+        parentId: parentId || undefined,
       });
 
       content = '';
