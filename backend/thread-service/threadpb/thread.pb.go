@@ -122,6 +122,8 @@ type Thread struct {
 	BookmarkedByMe   bool                   `protobuf:"varint,21,opt,name=bookmarked_by_me,json=bookmarkedByMe,proto3" json:"bookmarked_by_me,omitempty"`
 	RepostedByName   string                 `protobuf:"bytes,22,opt,name=reposted_by_name,json=repostedByName,proto3" json:"reposted_by_name,omitempty"`
 	ParentId         string                 `protobuf:"bytes,23,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	IsPinned         bool                   `protobuf:"varint,24,opt,name=is_pinned,json=isPinned,proto3" json:"is_pinned,omitempty"`
+	PinnedAt         string                 `protobuf:"bytes,25,opt,name=pinned_at,json=pinnedAt,proto3" json:"pinned_at,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -313,6 +315,20 @@ func (x *Thread) GetRepostedByName() string {
 func (x *Thread) GetParentId() string {
 	if x != nil {
 		return x.ParentId
+	}
+	return ""
+}
+
+func (x *Thread) GetIsPinned() bool {
+	if x != nil {
+		return x.IsPinned
+	}
+	return false
+}
+
+func (x *Thread) GetPinnedAt() string {
+	if x != nil {
+		return x.PinnedAt
 	}
 	return ""
 }
@@ -1497,6 +1513,118 @@ func (x *ListUserThreadsRequest) GetCursor() string {
 	return ""
 }
 
+type TogglePinRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ThreadId      string                 `protobuf:"bytes,1,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TogglePinRequest) Reset() {
+	*x = TogglePinRequest{}
+	mi := &file_thread_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TogglePinRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TogglePinRequest) ProtoMessage() {}
+
+func (x *TogglePinRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TogglePinRequest.ProtoReflect.Descriptor instead.
+func (*TogglePinRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *TogglePinRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
+}
+
+func (x *TogglePinRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type TogglePinResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	IsPinned      bool                   `protobuf:"varint,2,opt,name=is_pinned,json=isPinned,proto3" json:"is_pinned,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TogglePinResponse) Reset() {
+	*x = TogglePinResponse{}
+	mi := &file_thread_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TogglePinResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TogglePinResponse) ProtoMessage() {}
+
+func (x *TogglePinResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TogglePinResponse.ProtoReflect.Descriptor instead.
+func (*TogglePinResponse) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *TogglePinResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *TogglePinResponse) GetIsPinned() bool {
+	if x != nil {
+		return x.IsPinned
+	}
+	return false
+}
+
+func (x *TogglePinResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_thread_proto protoreflect.FileDescriptor
 
 const file_thread_proto_rawDesc = "" +
@@ -1509,7 +1637,7 @@ const file_thread_proto_rawDesc = "" +
 	"\n" +
 	"avatar_url\x18\x04 \x01(\tR\tavatarUrl\x12\x1f\n" +
 	"\vis_verified\x18\x05 \x01(\bR\n" +
-	"isVerified\"\x9c\x06\n" +
+	"isVerified\"\xd6\x06\n" +
 	"\x06Thread\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1f\n" +
@@ -1540,7 +1668,9 @@ const file_thread_proto_rawDesc = "" +
 	"\x0ereposted_by_me\x18\x14 \x01(\bR\frepostedByMe\x12(\n" +
 	"\x10bookmarked_by_me\x18\x15 \x01(\bR\x0ebookmarkedByMe\x12(\n" +
 	"\x10reposted_by_name\x18\x16 \x01(\tR\x0erepostedByName\x12\x1b\n" +
-	"\tparent_id\x18\x17 \x01(\tR\bparentId\"\xaf\x03\n" +
+	"\tparent_id\x18\x17 \x01(\tR\bparentId\x12\x1b\n" +
+	"\tis_pinned\x18\x18 \x01(\bR\bisPinned\x12\x1b\n" +
+	"\tpinned_at\x18\x19 \x01(\tR\bpinnedAt\"\xaf\x03\n" +
 	"\x13CreateThreadRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1f\n" +
 	"\vauthor_name\x18\x02 \x01(\tR\n" +
@@ -1631,7 +1761,14 @@ const file_thread_proto_rawDesc = "" +
 	"\x0eauthor_user_id\x18\x01 \x01(\tR\fauthorUserId\x12$\n" +
 	"\x0eviewer_user_id\x18\x02 \x01(\tR\fviewerUserId\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06cursor\x18\x04 \x01(\tR\x06cursor2\xe4\b\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"H\n" +
+	"\x10TogglePinRequest\x12\x1b\n" +
+	"\tthread_id\x18\x01 \x01(\tR\bthreadId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"d\n" +
+	"\x11TogglePinResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1b\n" +
+	"\tis_pinned\x18\x02 \x01(\bR\bisPinned\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage2\x89\v\n" +
 	"\rThreadService\x12I\n" +
 	"\fCreateThread\x12\x1b.thread.CreateThreadRequest\x1a\x1c.thread.CreateThreadResponse\x12@\n" +
 	"\tGetThread\x12\x18.thread.GetThreadRequest\x1a\x19.thread.GetThreadResponse\x12F\n" +
@@ -1648,7 +1785,11 @@ const file_thread_proto_rawDesc = "" +
 	"\x0eBookmarkThread\x12\x1a.thread.InteractionRequest\x1a\x1b.thread.InteractionResponse\x12K\n" +
 	"\x10UnbookmarkThread\x12\x1a.thread.InteractionRequest\x1a\x1b.thread.InteractionResponse\x12L\n" +
 	"\rListBookmarks\x12\x1c.thread.ListBookmarksRequest\x1a\x1d.thread.ListBookmarksResponse\x12K\n" +
-	"\x0fListUserThreads\x12\x1e.thread.ListUserThreadsRequest\x1a\x18.thread.ListFeedResponseB@Z>github.com/vaniakarlita/ay-com/backend/thread-service/threadpbb\x06proto3"
+	"\x0fListUserThreads\x12\x1e.thread.ListUserThreadsRequest\x1a\x18.thread.ListFeedResponse\x12K\n" +
+	"\x0fListUserReplies\x12\x1e.thread.ListUserThreadsRequest\x1a\x18.thread.ListFeedResponse\x12I\n" +
+	"\rListUserLikes\x12\x1e.thread.ListUserThreadsRequest\x1a\x18.thread.ListFeedResponse\x12I\n" +
+	"\rListUserMedia\x12\x1e.thread.ListUserThreadsRequest\x1a\x18.thread.ListFeedResponse\x12@\n" +
+	"\tTogglePin\x12\x18.thread.TogglePinRequest\x1a\x19.thread.TogglePinResponseB@Z>github.com/vaniakarlita/ay-com/backend/thread-service/threadpbb\x06proto3"
 
 var (
 	file_thread_proto_rawDescOnce sync.Once
@@ -1662,7 +1803,7 @@ func file_thread_proto_rawDescGZIP() []byte {
 	return file_thread_proto_rawDescData
 }
 
-var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_thread_proto_goTypes = []any{
 	(*ThreadAuthor)(nil),             // 0: thread.ThreadAuthor
 	(*Thread)(nil),                   // 1: thread.Thread
@@ -1685,6 +1826,8 @@ var file_thread_proto_goTypes = []any{
 	(*ListBookmarksRequest)(nil),     // 18: thread.ListBookmarksRequest
 	(*ListBookmarksResponse)(nil),    // 19: thread.ListBookmarksResponse
 	(*ListUserThreadsRequest)(nil),   // 20: thread.ListUserThreadsRequest
+	(*TogglePinRequest)(nil),         // 21: thread.TogglePinRequest
+	(*TogglePinResponse)(nil),        // 22: thread.TogglePinResponse
 }
 var file_thread_proto_depIdxs = []int32{
 	1,  // 0: thread.CreateThreadResponse.thread:type_name -> thread.Thread
@@ -1708,23 +1851,31 @@ var file_thread_proto_depIdxs = []int32{
 	16, // 18: thread.ThreadService.UnbookmarkThread:input_type -> thread.InteractionRequest
 	18, // 19: thread.ThreadService.ListBookmarks:input_type -> thread.ListBookmarksRequest
 	20, // 20: thread.ThreadService.ListUserThreads:input_type -> thread.ListUserThreadsRequest
-	3,  // 21: thread.ThreadService.CreateThread:output_type -> thread.CreateThreadResponse
-	5,  // 22: thread.ThreadService.GetThread:output_type -> thread.GetThreadResponse
-	7,  // 23: thread.ThreadService.ListReplies:output_type -> thread.ListRepliesResponse
-	9,  // 24: thread.ThreadService.ListFeed:output_type -> thread.ListFeedResponse
-	9,  // 25: thread.ThreadService.ListFollowingFeed:output_type -> thread.ListFeedResponse
-	12, // 26: thread.ThreadService.DeleteThread:output_type -> thread.DeleteThreadResponse
-	15, // 27: thread.ThreadService.GetCategories:output_type -> thread.GetCategoriesResponse
-	17, // 28: thread.ThreadService.LikeThread:output_type -> thread.InteractionResponse
-	17, // 29: thread.ThreadService.UnlikeThread:output_type -> thread.InteractionResponse
-	17, // 30: thread.ThreadService.RepostThread:output_type -> thread.InteractionResponse
-	17, // 31: thread.ThreadService.UnrepostThread:output_type -> thread.InteractionResponse
-	17, // 32: thread.ThreadService.BookmarkThread:output_type -> thread.InteractionResponse
-	17, // 33: thread.ThreadService.UnbookmarkThread:output_type -> thread.InteractionResponse
-	19, // 34: thread.ThreadService.ListBookmarks:output_type -> thread.ListBookmarksResponse
-	9,  // 35: thread.ThreadService.ListUserThreads:output_type -> thread.ListFeedResponse
-	21, // [21:36] is the sub-list for method output_type
-	6,  // [6:21] is the sub-list for method input_type
+	20, // 21: thread.ThreadService.ListUserReplies:input_type -> thread.ListUserThreadsRequest
+	20, // 22: thread.ThreadService.ListUserLikes:input_type -> thread.ListUserThreadsRequest
+	20, // 23: thread.ThreadService.ListUserMedia:input_type -> thread.ListUserThreadsRequest
+	21, // 24: thread.ThreadService.TogglePin:input_type -> thread.TogglePinRequest
+	3,  // 25: thread.ThreadService.CreateThread:output_type -> thread.CreateThreadResponse
+	5,  // 26: thread.ThreadService.GetThread:output_type -> thread.GetThreadResponse
+	7,  // 27: thread.ThreadService.ListReplies:output_type -> thread.ListRepliesResponse
+	9,  // 28: thread.ThreadService.ListFeed:output_type -> thread.ListFeedResponse
+	9,  // 29: thread.ThreadService.ListFollowingFeed:output_type -> thread.ListFeedResponse
+	12, // 30: thread.ThreadService.DeleteThread:output_type -> thread.DeleteThreadResponse
+	15, // 31: thread.ThreadService.GetCategories:output_type -> thread.GetCategoriesResponse
+	17, // 32: thread.ThreadService.LikeThread:output_type -> thread.InteractionResponse
+	17, // 33: thread.ThreadService.UnlikeThread:output_type -> thread.InteractionResponse
+	17, // 34: thread.ThreadService.RepostThread:output_type -> thread.InteractionResponse
+	17, // 35: thread.ThreadService.UnrepostThread:output_type -> thread.InteractionResponse
+	17, // 36: thread.ThreadService.BookmarkThread:output_type -> thread.InteractionResponse
+	17, // 37: thread.ThreadService.UnbookmarkThread:output_type -> thread.InteractionResponse
+	19, // 38: thread.ThreadService.ListBookmarks:output_type -> thread.ListBookmarksResponse
+	9,  // 39: thread.ThreadService.ListUserThreads:output_type -> thread.ListFeedResponse
+	9,  // 40: thread.ThreadService.ListUserReplies:output_type -> thread.ListFeedResponse
+	9,  // 41: thread.ThreadService.ListUserLikes:output_type -> thread.ListFeedResponse
+	9,  // 42: thread.ThreadService.ListUserMedia:output_type -> thread.ListFeedResponse
+	22, // 43: thread.ThreadService.TogglePin:output_type -> thread.TogglePinResponse
+	25, // [25:44] is the sub-list for method output_type
+	6,  // [6:25] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name
 	6,  // [6:6] is the sub-list for extension extendee
 	0,  // [0:6] is the sub-list for field type_name
@@ -1741,7 +1892,7 @@ func file_thread_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_thread_proto_rawDesc), len(file_thread_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   21,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

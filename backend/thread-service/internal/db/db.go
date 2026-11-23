@@ -24,18 +24,23 @@ CREATE TABLE IF NOT EXISTS threads (
     community_name VARCHAR(255) NOT NULL DEFAULT '',
     is_ad BOOLEAN NOT NULL DEFAULT false,
     parent_id UUID REFERENCES threads(id) ON DELETE CASCADE,
+    pinned_at TIMESTAMPTZ,
     scheduled_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE threads ADD COLUMN IF NOT EXISTS parent_id UUID REFERENCES threads(id) ON DELETE CASCADE;
+ALTER TABLE threads ADD COLUMN IF NOT EXISTS pinned_at TIMESTAMPTZ;
 
 CREATE INDEX IF NOT EXISTS idx_threads_created_at ON threads(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_threads_user_id ON threads(user_id);
 CREATE INDEX IF NOT EXISTS idx_threads_is_ad ON threads(is_ad);
 CREATE INDEX IF NOT EXISTS idx_threads_parent_id ON threads(parent_id);
 CREATE INDEX IF NOT EXISTS idx_threads_author_published ON threads(user_id, created_at DESC, id DESC) WHERE parent_id IS NULL;
+CREATE INDEX IF NOT EXISTS idx_threads_author_replies ON threads(user_id, created_at DESC, id DESC) WHERE parent_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_threads_user_pinned_post ON threads(user_id) WHERE pinned_at IS NOT NULL AND parent_id IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_threads_user_pinned_reply ON threads(user_id) WHERE pinned_at IS NOT NULL AND parent_id IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

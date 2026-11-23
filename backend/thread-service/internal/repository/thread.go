@@ -25,6 +25,7 @@ type ThreadModel struct {
 	ScheduledAt      *time.Time
 	CreatedAt        time.Time
 	ParentID         *string
+	PinnedAt         *time.Time
 	Categories       []string
 	LikeCount        int32
 	ReplyCount       int32
@@ -58,6 +59,9 @@ type ThreadRepository interface {
 	GetCountsAndStatus(ctx context.Context, threadID, userID string) (likes, reposts, bookmarks int32, isLiked, isReposted, isBookmarked bool, err error)
 	ListBookmarks(ctx context.Context, userID, query string, limit int, cursor time.Time) ([]*ThreadModel, error)
 	ListUserThreads(ctx context.Context, authorUserID, viewerUserID string, limit int, cursor time.Time) ([]*ThreadModel, error)
+	ListUserReplies(ctx context.Context, authorUserID, viewerUserID string, limit int, cursor time.Time) ([]*ThreadModel, error)
+	ListUserLikes(ctx context.Context, targetUserID, viewerUserID string, limit int, cursor time.Time) ([]*ThreadModel, error)
+	TogglePin(ctx context.Context, threadID, userID string) (bool, error)
 }
 
 type pgThreadRepo struct {
@@ -604,7 +608,7 @@ func (r *pgThreadRepo) ListUserThreads(ctx context.Context, authorUserID, viewer
 		SELECT 
 			t.id, t.user_id, t.author_name, t.author_username, t.author_avatar_url, t.author_is_verified,
 			t.content, t.reply_permission, t.community_id, t.community_name, t.is_ad, t.scheduled_at, t.created_at,
-			t.parent_id,
+			t.parent_id, t.pinned_at,
 			COALESCE(ARRAY_AGG(DISTINCT tc.category_name) FILTER (WHERE tc.category_name IS NOT NULL), '{}') as categories,
 			(SELECT COUNT(*)::int FROM likes WHERE thread_id = t.id) as like_count,
 			(SELECT COUNT(*)::int FROM threads WHERE parent_id = t.id) as reply_count,
@@ -623,7 +627,7 @@ func (r *pgThreadRepo) ListUserThreads(ctx context.Context, authorUserID, viewer
 	if cursor.IsZero() {
 		query := baseQuery + `
 			GROUP BY t.id
-			ORDER BY t.created_at DESC, t.id DESC
+			ORDER BY (t.pinned_at IS NOT NULL) DESC, t.created_at DESC, t.id DESC
 			LIMIT $3
 		`
 		rows, err = r.pool.Query(ctx, query, authorUserID, viewerUserID, limit)
@@ -631,7 +635,7 @@ func (r *pgThreadRepo) ListUserThreads(ctx context.Context, authorUserID, viewer
 		query := baseQuery + `
 			AND t.created_at < $3
 			GROUP BY t.id
-			ORDER BY t.created_at DESC, t.id DESC
+			ORDER BY (t.pinned_at IS NOT NULL) DESC, t.created_at DESC, t.id DESC
 			LIMIT $4
 		`
 		rows, err = r.pool.Query(ctx, query, authorUserID, viewerUserID, cursor, limit)
@@ -649,7 +653,7 @@ func (r *pgThreadRepo) ListUserThreads(ctx context.Context, authorUserID, viewer
 		if err := rows.Scan(
 			&t.ID, &t.UserID, &t.AuthorName, &t.AuthorUsername, &t.AuthorAvatarURL, &t.AuthorIsVerified,
 			&t.Content, &t.ReplyPermission, &t.CommunityID, &t.CommunityName, &t.IsAd, &t.ScheduledAt, &t.CreatedAt,
-			&parentUUID,
+			&parentUUID, &t.PinnedAt,
 			&t.Categories, &t.LikeCount, &t.ReplyCount, &t.RepostCount, &t.BookmarkCount, &t.LikedByMe, &t.RepostedByMe, &t.BookmarkedByMe,
 		); err != nil {
 			return nil, fmt.Errorf("scan user thread: %w", err)
@@ -659,4 +663,191 @@ func (r *pgThreadRepo) ListUserThreads(ctx context.Context, authorUserID, viewer
 	}
 
 	return threads, nil
+}
+
+func (r *pgThreadRepo) ListUserReplies(ctx context.Context, authorUserID, viewerUserID string, limit int, cursor time.Time) ([]*ThreadModel, error) {
+	if limit <= 0 || limit > 50 {
+		limit = 20
+	}
+
+	var rows pgx.Rows
+	var err error
+
+	baseQuery := `
+		SELECT 
+			t.id, t.user_id, t.author_name, t.author_username, t.author_avatar_url, t.author_is_verified,
+			t.content, t.reply_permission, t.community_id, t.community_name, t.is_ad, t.scheduled_at, t.created_at,
+			t.parent_id, t.pinned_at,
+			COALESCE(ARRAY_AGG(DISTINCT tc.category_name) FILTER (WHERE tc.category_name IS NOT NULL), '{}') as categories,
+			(SELECT COUNT(*)::int FROM likes WHERE thread_id = t.id) as like_count,
+			(SELECT COUNT(*)::int FROM threads WHERE parent_id = t.id) as reply_count,
+			(SELECT COUNT(*)::int FROM reposts WHERE thread_id = t.id) as repost_count,
+			(SELECT COUNT(*)::int FROM bookmarks WHERE thread_id = t.id) as bookmark_count,
+			CASE WHEN $2 = '' THEN false ELSE EXISTS (SELECT 1 FROM likes WHERE thread_id = t.id AND user_id = $2::uuid) END as liked_by_me,
+			CASE WHEN $2 = '' THEN false ELSE EXISTS (SELECT 1 FROM reposts WHERE thread_id = t.id AND user_id = $2::uuid) END as reposted_by_me,
+			CASE WHEN $2 = '' THEN false ELSE EXISTS (SELECT 1 FROM bookmarks WHERE thread_id = t.id AND user_id = $2::uuid) END as bookmarked_by_me
+		FROM threads t
+		LEFT JOIN thread_categories tc ON tc.thread_id = t.id
+		WHERE t.user_id = $1::uuid
+		  AND t.parent_id IS NOT NULL
+		  AND (t.scheduled_at IS NULL OR t.scheduled_at <= NOW())
+	`
+
+	if cursor.IsZero() {
+		query := baseQuery + `
+			GROUP BY t.id
+			ORDER BY (t.pinned_at IS NOT NULL) DESC, t.created_at DESC, t.id DESC
+			LIMIT $3
+		`
+		rows, err = r.pool.Query(ctx, query, authorUserID, viewerUserID, limit)
+	} else {
+		query := baseQuery + `
+			AND t.created_at < $3
+			GROUP BY t.id
+			ORDER BY (t.pinned_at IS NOT NULL) DESC, t.created_at DESC, t.id DESC
+			LIMIT $4
+		`
+		rows, err = r.pool.Query(ctx, query, authorUserID, viewerUserID, cursor, limit)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("query user replies: %w", err)
+	}
+	defer rows.Close()
+
+	var threads []*ThreadModel
+	for rows.Next() {
+		t := &ThreadModel{}
+		var parentUUID *string
+		if err := rows.Scan(
+			&t.ID, &t.UserID, &t.AuthorName, &t.AuthorUsername, &t.AuthorAvatarURL, &t.AuthorIsVerified,
+			&t.Content, &t.ReplyPermission, &t.CommunityID, &t.CommunityName, &t.IsAd, &t.ScheduledAt, &t.CreatedAt,
+			&parentUUID, &t.PinnedAt,
+			&t.Categories, &t.LikeCount, &t.ReplyCount, &t.RepostCount, &t.BookmarkCount, &t.LikedByMe, &t.RepostedByMe, &t.BookmarkedByMe,
+		); err != nil {
+			return nil, fmt.Errorf("scan user reply: %w", err)
+		}
+		t.ParentID = parentUUID
+		threads = append(threads, t)
+	}
+
+	return threads, nil
+}
+
+func (r *pgThreadRepo) ListUserLikes(ctx context.Context, targetUserID, viewerUserID string, limit int, cursor time.Time) ([]*ThreadModel, error) {
+	if limit <= 0 || limit > 50 {
+		limit = 20
+	}
+
+	var rows pgx.Rows
+	var err error
+
+	baseQuery := `
+		SELECT 
+			t.id, t.user_id, t.author_name, t.author_username, t.author_avatar_url, t.author_is_verified,
+			t.content, t.reply_permission, t.community_id, t.community_name, t.is_ad, t.scheduled_at, t.created_at,
+			t.parent_id, t.pinned_at,
+			COALESCE(ARRAY_AGG(DISTINCT tc.category_name) FILTER (WHERE tc.category_name IS NOT NULL), '{}') as categories,
+			(SELECT COUNT(*)::int FROM likes WHERE thread_id = t.id) as like_count,
+			(SELECT COUNT(*)::int FROM threads WHERE parent_id = t.id) as reply_count,
+			(SELECT COUNT(*)::int FROM reposts WHERE thread_id = t.id) as repost_count,
+			(SELECT COUNT(*)::int FROM bookmarks WHERE thread_id = t.id) as bookmark_count,
+			CASE WHEN $2 = '' THEN false ELSE EXISTS (SELECT 1 FROM likes WHERE thread_id = t.id AND user_id = $2::uuid) END as liked_by_me,
+			CASE WHEN $2 = '' THEN false ELSE EXISTS (SELECT 1 FROM reposts WHERE thread_id = t.id AND user_id = $2::uuid) END as reposted_by_me,
+			CASE WHEN $2 = '' THEN false ELSE EXISTS (SELECT 1 FROM bookmarks WHERE thread_id = t.id AND user_id = $2::uuid) END as bookmarked_by_me
+		FROM likes l
+		JOIN threads t ON t.id = l.thread_id
+		LEFT JOIN thread_categories tc ON tc.thread_id = t.id
+		WHERE l.user_id = $1::uuid
+		  AND (t.scheduled_at IS NULL OR t.scheduled_at <= NOW())
+	`
+
+	if cursor.IsZero() {
+		query := baseQuery + `
+			GROUP BY t.id, l.created_at
+			ORDER BY l.created_at DESC
+			LIMIT $3
+		`
+		rows, err = r.pool.Query(ctx, query, targetUserID, viewerUserID, limit)
+	} else {
+		query := baseQuery + `
+			AND l.created_at < $3
+			GROUP BY t.id, l.created_at
+			ORDER BY l.created_at DESC
+			LIMIT $4
+		`
+		rows, err = r.pool.Query(ctx, query, targetUserID, viewerUserID, cursor, limit)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("query user likes: %w", err)
+	}
+	defer rows.Close()
+
+	var threads []*ThreadModel
+	for rows.Next() {
+		t := &ThreadModel{}
+		var parentUUID *string
+		if err := rows.Scan(
+			&t.ID, &t.UserID, &t.AuthorName, &t.AuthorUsername, &t.AuthorAvatarURL, &t.AuthorIsVerified,
+			&t.Content, &t.ReplyPermission, &t.CommunityID, &t.CommunityName, &t.IsAd, &t.ScheduledAt, &t.CreatedAt,
+			&parentUUID, &t.PinnedAt,
+			&t.Categories, &t.LikeCount, &t.ReplyCount, &t.RepostCount, &t.BookmarkCount, &t.LikedByMe, &t.RepostedByMe, &t.BookmarkedByMe,
+		); err != nil {
+			return nil, fmt.Errorf("scan liked thread: %w", err)
+		}
+		t.ParentID = parentUUID
+		threads = append(threads, t)
+	}
+
+	return threads, nil
+}
+
+func (r *pgThreadRepo) TogglePin(ctx context.Context, threadID, userID string) (bool, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return false, fmt.Errorf("begin tx: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	var parentID *string
+	var pinnedAt *time.Time
+	err = tx.QueryRow(ctx, `
+		SELECT parent_id, pinned_at 
+		FROM threads 
+		WHERE id = $1::uuid AND user_id = $2::uuid
+	`, threadID, userID).Scan(&parentID, &pinnedAt)
+	if err != nil {
+		return false, fmt.Errorf("thread not found or unauthorized")
+	}
+
+	if pinnedAt != nil {
+		_, err = tx.Exec(ctx, `UPDATE threads SET pinned_at = NULL WHERE id = $1::uuid`, threadID)
+		if err != nil {
+			return false, fmt.Errorf("unpin failed: %w", err)
+		}
+		if err := tx.Commit(ctx); err != nil {
+			return false, err
+		}
+		return false, nil
+	}
+
+	if parentID == nil {
+		_, err = tx.Exec(ctx, `UPDATE threads SET pinned_at = NULL WHERE user_id = $1::uuid AND parent_id IS NULL`, userID)
+	} else {
+		_, err = tx.Exec(ctx, `UPDATE threads SET pinned_at = NULL WHERE user_id = $1::uuid AND parent_id IS NOT NULL`, userID)
+	}
+	if err != nil {
+		return false, fmt.Errorf("clear existing pin: %w", err)
+	}
+
+	_, err = tx.Exec(ctx, `UPDATE threads SET pinned_at = NOW() WHERE id = $1::uuid`, threadID)
+	if err != nil {
+		return false, fmt.Errorf("pin failed: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return false, err
+	}
+	return true, nil
 }

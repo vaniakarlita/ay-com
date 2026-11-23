@@ -9,14 +9,19 @@
     thread,
     onDelete,
     onBookmarkRemoved,
+    onPinToggled,
+    canPin = false,
   }: {
     thread: ThreadItem;
     onDelete?: (id: string) => void;
     onBookmarkRemoved?: (id: string) => void;
+    onPinToggled?: (id: string, isPinned: boolean) => void;
+    canPin?: boolean;
   } = $props();
 
   let showMenu = $state(false);
   let isDeleting = $state(false);
+  let isPinning = $state(false);
   let isInteracting = $state(false);
 
   let liked = $state(false);
@@ -143,6 +148,20 @@
       isDeleting = false;
     }
   }
+  async function handleTogglePin(e: MouseEvent) {
+    e.stopPropagation();
+    isPinning = true;
+    try {
+      const res = await threadApi.togglePin(thread.id);
+      thread.isPinned = res.isPinned;
+      showMenu = false;
+      onPinToggled?.(thread.id, res.isPinned);
+    } catch {
+      alert('Failed to update pin status. Please try again.');
+    } finally {
+      isPinning = false;
+    }
+  }
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -152,6 +171,15 @@
   class:is-ad={thread.isAd}
   onclick={goToDetail}
 >
+  {#if thread.isPinned}
+    <div class="pinned-header">
+      <svg viewBox="0 0 24 24" class="svg-icon xs">
+        <path fill="currentColor" d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
+      </svg>
+      <span>Pinned</span>
+    </div>
+  {/if}
+
   {#if thread.repostedByName}
     <div class="repost-header">
       <svg viewBox="0 0 24 24" class="svg-icon xs">
@@ -210,6 +238,20 @@
 
             {#if showMenu}
               <div class="menu-dropdown">
+                {#if canPin}
+                  <button
+                    type="button"
+                    class="menu-item"
+                    onclick={handleTogglePin}
+                    disabled={isPinning}
+                  >
+                    <svg viewBox="0 0 24 24" class="svg-icon sm">
+                      <path fill="currentColor" d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
+                    </svg>
+                    <span>{thread.isPinned ? 'Unpin from profile' : 'Pin to your profile'}</span>
+                  </button>
+                {/if}
+
                 <button
                   type="button"
                   class="menu-item delete"
@@ -323,6 +365,17 @@
       background: rgba(29, 155, 240, 0.03);
       border-left: 3px solid var(--primary);
     }
+  }
+
+  .pinned-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+    padding-left: 3.25rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
   }
 
   .repost-header {

@@ -58,6 +58,10 @@ func (h *ThreadHandler) Routes(mux *http.ServeMux, auth func(http.Handler) http.
 	mux.Handle("DELETE /api/threads/{id}/bookmark", auth(http.HandlerFunc(h.UnbookmarkThread)))
 	mux.Handle("GET /api/bookmarks", auth(http.HandlerFunc(h.ListBookmarks)))
 	mux.Handle("GET /api/users/{id}/threads", auth(http.HandlerFunc(h.ListUserThreads)))
+	mux.Handle("GET /api/users/{id}/replies", auth(http.HandlerFunc(h.ListUserReplies)))
+	mux.Handle("GET /api/users/{id}/likes", auth(http.HandlerFunc(h.ListUserLikes)))
+	mux.Handle("GET /api/users/{id}/media", auth(http.HandlerFunc(h.ListUserMedia)))
+	mux.Handle("POST /api/threads/{id}/pin", auth(http.HandlerFunc(h.TogglePin)))
 }
 
 func (h *ThreadHandler) CreateThread(w http.ResponseWriter, r *http.Request) {
@@ -473,4 +477,157 @@ func (h *ThreadHandler) ListUserThreads(w http.ResponseWriter, r *http.Request) 
 		"nextCursor": res.NextCursor,
 		"hasMore":    res.HasMore,
 	})
+}
+
+func (h *ThreadHandler) ListUserReplies(w http.ResponseWriter, r *http.Request) {
+	viewerID := middleware.UserID(r.Context())
+	authorID := r.PathValue("id")
+	if authorID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "User ID required"})
+		return
+	}
+
+	cursor := r.URL.Query().Get("cursor")
+	limitStr := r.URL.Query().Get("limit")
+
+	limit := 20
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 50 {
+			limit = l
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
+	defer cancel()
+
+	res, err := h.threadClient.ListUserReplies(ctx, &threadpb.ListUserThreadsRequest{
+		AuthorUserId: authorID,
+		ViewerUserId: viewerID,
+		Limit:        int32(limit),
+		Cursor:       cursor,
+	})
+	if err != nil {
+		h.log.Error("failed to list user replies", "error", err, "author_id", authorID)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fetch user replies"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"threads":    res.Threads,
+		"nextCursor": res.NextCursor,
+		"hasMore":    res.HasMore,
+	})
+}
+
+func (h *ThreadHandler) ListUserLikes(w http.ResponseWriter, r *http.Request) {
+	viewerID := middleware.UserID(r.Context())
+	targetUserID := r.PathValue("id")
+	if targetUserID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "User ID required"})
+		return
+	}
+
+	if viewerID != targetUserID {
+		writeJSON(w, http.StatusOK, map[string]any{
+			"threads":    []any{},
+			"nextCursor": "",
+			"hasMore":    false,
+		})
+		return
+	}
+
+	cursor := r.URL.Query().Get("cursor")
+	limitStr := r.URL.Query().Get("limit")
+
+	limit := 20
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 50 {
+			limit = l
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
+	defer cancel()
+
+	res, err := h.threadClient.ListUserLikes(ctx, &threadpb.ListUserThreadsRequest{
+		AuthorUserId: targetUserID,
+		ViewerUserId: viewerID,
+		Limit:        int32(limit),
+		Cursor:       cursor,
+	})
+	if err != nil {
+		h.log.Error("failed to list user likes", "error", err, "user_id", targetUserID)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fetch liked threads"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"threads":    res.Threads,
+		"nextCursor": res.NextCursor,
+		"hasMore":    res.HasMore,
+	})
+}
+
+func (h *ThreadHandler) ListUserMedia(w http.ResponseWriter, r *http.Request) {
+	viewerID := middleware.UserID(r.Context())
+	authorID := r.PathValue("id")
+	if authorID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "User ID required"})
+		return
+	}
+
+	cursor := r.URL.Query().Get("cursor")
+	limitStr := r.URL.Query().Get("limit")
+
+	limit := 20
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 50 {
+			limit = l
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
+	defer cancel()
+
+	res, err := h.threadClient.ListUserMedia(ctx, &threadpb.ListUserThreadsRequest{
+		AuthorUserId: authorID,
+		ViewerUserId: viewerID,
+		Limit:        int32(limit),
+		Cursor:       cursor,
+	})
+	if err != nil {
+		h.log.Error("failed to list user media", "error", err, "author_id", authorID)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fetch user media"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"threads":    res.Threads,
+		"nextCursor": res.NextCursor,
+		"hasMore":    res.HasMore,
+	})
+}
+
+func (h *ThreadHandler) TogglePin(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r.Context())
+	threadID := r.PathValue("id")
+	if threadID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Thread ID required"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
+	defer cancel()
+
+	res, err := h.threadClient.TogglePin(ctx, &threadpb.TogglePinRequest{
+		ThreadId: threadID,
+		UserId:   userID,
+	})
+	if err != nil {
+		h.log.Error("failed to toggle pin", "error", err, "thread_id", threadID, "user_id", userID)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Failed to toggle pin on thread"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, res)
 }

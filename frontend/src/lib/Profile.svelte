@@ -27,7 +27,7 @@
       const data = await userApi.getProfile(targetUsername);
       profile = data;
       isFollowing = data.isFollowing;
-      loadUserThreads(data.userId);
+      loadTabContent();
     } catch (err: any) {
       errorMsg = err.message || 'User not found';
     } finally {
@@ -35,15 +35,37 @@
     }
   }
 
-  async function loadUserThreads(userId: string) {
+  async function loadTabContent() {
+    if (!profile) return;
     threadsLoading = true;
     try {
-      const res = await threadApi.userThreads(userId);
-      threads = res.threads ?? [];
+      let res;
+      if (activeTab === 'posts') {
+        res = await threadApi.userThreads(profile.userId);
+      } else if (activeTab === 'replies') {
+        res = await threadApi.userReplies(profile.userId);
+      } else if (activeTab === 'likes') {
+        res = await threadApi.userLikes(profile.userId);
+      } else if (activeTab === 'media') {
+        res = await threadApi.userMedia(profile.userId);
+      }
+      threads = res?.threads ?? [];
     } catch {
       threads = [];
     } finally {
       threadsLoading = false;
+    }
+  }
+
+  function handleTabChange(tab: 'posts' | 'replies' | 'likes' | 'media') {
+    if (activeTab === tab) return;
+    activeTab = tab;
+    loadTabContent();
+  }
+
+  function handlePinToggled(threadId: string, isPinned: boolean) {
+    if (activeTab === 'posts' || activeTab === 'replies') {
+      loadTabContent();
     }
   }
 
@@ -167,7 +189,7 @@
           type="button"
           role="tab"
           class:active={activeTab === 'posts'}
-          onclick={() => (activeTab = 'posts')}
+          onclick={() => handleTabChange('posts')}
         >
           Posts
         </button>
@@ -175,7 +197,7 @@
           type="button"
           role="tab"
           class:active={activeTab === 'replies'}
-          onclick={() => (activeTab = 'replies')}
+          onclick={() => handleTabChange('replies')}
         >
           Replies
         </button>
@@ -184,7 +206,7 @@
             type="button"
             role="tab"
             class:active={activeTab === 'likes'}
-            onclick={() => (activeTab = 'likes')}
+            onclick={() => handleTabChange('likes')}
           >
             Likes
           </button>
@@ -193,7 +215,7 @@
           type="button"
           role="tab"
           class:active={activeTab === 'media'}
-          onclick={() => (activeTab = 'media')}
+          onclick={() => handleTabChange('media')}
         >
           Media
         </button>
@@ -201,22 +223,32 @@
     </header>
 
     <main class="profile-content">
-      {#if activeTab === 'posts'}
-        {#if threadsLoading}
+      {#if threadsLoading}
+        <div class="skeleton-wrap">
           <ThreadSkeleton />
-        {:else if threads.length === 0}
-          <div class="empty-state">
-            <p>No posts yet.</p>
-          </div>
-        {:else}
-          {#each threads as thread (thread.id)}
-            <ThreadCard {thread} onDelete={handleThreadDeleted} />
-          {/each}
-        {/if}
-      {:else}
-        <div class="empty-state">
-          <p>This tab will be available in the next update.</p>
+          <ThreadSkeleton />
         </div>
+      {:else if threads.length === 0}
+        <div class="empty-state">
+          {#if activeTab === 'posts'}
+            <p>No posts yet.</p>
+          {:else if activeTab === 'replies'}
+            <p>No replies yet.</p>
+          {:else if activeTab === 'likes'}
+            <p>No liked threads yet.</p>
+          {:else}
+            <p>No media yet.</p>
+          {/if}
+        </div>
+      {:else}
+        {#each threads as thread (thread.id)}
+          <ThreadCard
+            {thread}
+            canPin={isOwnProfile && (activeTab === 'posts' || activeTab === 'replies')}
+            onDelete={handleThreadDeleted}
+            onPinToggled={handlePinToggled}
+          />
+        {/each}
       {/if}
     </main>
   {/if}

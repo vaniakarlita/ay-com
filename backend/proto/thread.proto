@@ -21,6 +21,10 @@ service ThreadService {
   rpc UnbookmarkThread(InteractionRequest) returns (InteractionResponse);
   rpc ListBookmarks(ListBookmarksRequest) returns (ListBookmarksResponse);
   rpc ListUserThreads(ListUserThreadsRequest) returns (ListFeedResponse);
+  rpc ListUserReplies(ListUserThreadsRequest) returns (ListFeedResponse);
+  rpc ListUserLikes(ListUserThreadsRequest) returns (ListFeedResponse);
+  rpc ListUserMedia(ListUserThreadsRequest) returns (ListFeedResponse);
+  rpc TogglePin(TogglePinRequest) returns (TogglePinResponse);
 }
 
 message ThreadAuthor {
@@ -55,6 +59,8 @@ message Thread {
   bool bookmarked_by_me = 21;
   string reposted_by_name = 22;
   string parent_id = 23;
+  bool is_pinned = 24;
+  string pinned_at = 25;
 }
 
 message CreateThreadRequest {
@@ -173,4 +179,15 @@ message ListUserThreadsRequest {
   string viewer_user_id = 2;
   int32 limit = 3;
   string cursor = 4;
+}
+
+message TogglePinRequest {
+  string thread_id = 1;
+  string user_id = 2;
+}
+
+message TogglePinResponse {
+  bool success = 1;
+  bool is_pinned = 2;
+  string message = 3;
 }

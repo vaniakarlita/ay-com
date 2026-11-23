@@ -211,6 +211,111 @@ func (s *ThreadService) ListUserThreads(ctx context.Context, req *threadpb.ListU
 	}, nil
 }
 
+func (s *ThreadService) ListUserReplies(ctx context.Context, req *threadpb.ListUserThreadsRequest) (*threadpb.ListFeedResponse, error) {
+	if req.AuthorUserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "author_user_id is required")
+	}
+
+	limit := int(req.Limit)
+	if limit <= 0 {
+		limit = 20
+	}
+
+	var cursorTime time.Time
+	if req.Cursor != "" {
+		if t, err := time.Parse(time.RFC3339Nano, req.Cursor); err == nil {
+			cursorTime = t
+		}
+	}
+
+	threads, err := s.repo.ListUserReplies(ctx, req.AuthorUserId, req.ViewerUserId, limit, cursorTime)
+	if err != nil {
+		s.logger.Error("failed to list user replies", "error", err, "author_user_id", req.AuthorUserId)
+		return nil, status.Errorf(codes.Internal, "failed to list user replies: %v", err)
+	}
+
+	protoThreads := make([]*threadpb.Thread, len(threads))
+	var nextCursor string
+	for i, t := range threads {
+		protoThreads[i] = toProtoThread(t)
+		if i == len(threads)-1 {
+			nextCursor = t.CreatedAt.Format(time.RFC3339Nano)
+		}
+	}
+
+	return &threadpb.ListFeedResponse{
+		Threads:    protoThreads,
+		NextCursor: nextCursor,
+		HasMore:    len(threads) >= limit,
+	}, nil
+}
+
+func (s *ThreadService) ListUserLikes(ctx context.Context, req *threadpb.ListUserThreadsRequest) (*threadpb.ListFeedResponse, error) {
+	if req.AuthorUserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "author_user_id is required")
+	}
+
+	limit := int(req.Limit)
+	if limit <= 0 {
+		limit = 20
+	}
+
+	var cursorTime time.Time
+	if req.Cursor != "" {
+		if t, err := time.Parse(time.RFC3339Nano, req.Cursor); err == nil {
+			cursorTime = t
+		}
+	}
+
+	threads, err := s.repo.ListUserLikes(ctx, req.AuthorUserId, req.ViewerUserId, limit, cursorTime)
+	if err != nil {
+		s.logger.Error("failed to list user likes", "error", err, "author_user_id", req.AuthorUserId)
+		return nil, status.Errorf(codes.Internal, "failed to list user likes: %v", err)
+	}
+
+	protoThreads := make([]*threadpb.Thread, len(threads))
+	var nextCursor string
+	for i, t := range threads {
+		protoThreads[i] = toProtoThread(t)
+		if i == len(threads)-1 {
+			nextCursor = t.CreatedAt.Format(time.RFC3339Nano)
+		}
+	}
+
+	return &threadpb.ListFeedResponse{
+		Threads:    protoThreads,
+		NextCursor: nextCursor,
+		HasMore:    len(threads) >= limit,
+	}, nil
+}
+
+func (s *ThreadService) ListUserMedia(ctx context.Context, req *threadpb.ListUserThreadsRequest) (*threadpb.ListFeedResponse, error) {
+	return s.ListUserThreads(ctx, req)
+}
+
+func (s *ThreadService) TogglePin(ctx context.Context, req *threadpb.TogglePinRequest) (*threadpb.TogglePinResponse, error) {
+	if req.ThreadId == "" || req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "thread_id and user_id are required")
+	}
+
+	isPinned, err := s.repo.TogglePin(ctx, req.ThreadId, req.UserId)
+	if err != nil {
+		s.logger.Error("failed to toggle pin", "error", err, "thread_id", req.ThreadId, "user_id", req.UserId)
+		return nil, status.Errorf(codes.Internal, "failed to toggle pin: %v", err)
+	}
+
+	msg := "Thread pinned to profile"
+	if !isPinned {
+		msg = "Thread unpinned from profile"
+	}
+
+	return &threadpb.TogglePinResponse{
+		Success:  true,
+		IsPinned: isPinned,
+		Message:  msg,
+	}, nil
+}
+
 func (s *ThreadService) ListFollowingFeed(ctx context.Context, req *threadpb.ListFollowingFeedRequest) (*threadpb.ListFeedResponse, error) {
 	limit := int(req.Limit)
 	if limit <= 0 {
@@ -489,6 +594,13 @@ func toProtoThread(m *repository.ThreadModel) *threadpb.Thread {
 		parentIDStr = *m.ParentID
 	}
 
+	pinnedAtStr := ""
+	isPinned := false
+	if m.PinnedAt != nil && !m.PinnedAt.IsZero() {
+		isPinned = true
+		pinnedAtStr = m.PinnedAt.Format(time.RFC3339)
+	}
+
 	return &threadpb.Thread{
 		Id:               m.ID,
 		UserId:           m.UserID,
@@ -513,5 +625,7 @@ func toProtoThread(m *repository.ThreadModel) *threadpb.Thread {
 		BookmarkedByMe:   m.BookmarkedByMe,
 		RepostedByName:   m.RepostedByName,
 		ParentId:         parentIDStr,
+		IsPinned:         isPinned,
+		PinnedAt:         pinnedAtStr,
 	}
 }

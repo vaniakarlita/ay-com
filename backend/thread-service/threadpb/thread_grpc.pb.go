@@ -34,6 +34,10 @@ const (
 	ThreadService_UnbookmarkThread_FullMethodName  = "/thread.ThreadService/UnbookmarkThread"
 	ThreadService_ListBookmarks_FullMethodName     = "/thread.ThreadService/ListBookmarks"
 	ThreadService_ListUserThreads_FullMethodName   = "/thread.ThreadService/ListUserThreads"
+	ThreadService_ListUserReplies_FullMethodName   = "/thread.ThreadService/ListUserReplies"
+	ThreadService_ListUserLikes_FullMethodName     = "/thread.ThreadService/ListUserLikes"
+	ThreadService_ListUserMedia_FullMethodName     = "/thread.ThreadService/ListUserMedia"
+	ThreadService_TogglePin_FullMethodName         = "/thread.ThreadService/TogglePin"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -55,6 +59,10 @@ type ThreadServiceClient interface {
 	UnbookmarkThread(ctx context.Context, in *InteractionRequest, opts ...grpc.CallOption) (*InteractionResponse, error)
 	ListBookmarks(ctx context.Context, in *ListBookmarksRequest, opts ...grpc.CallOption) (*ListBookmarksResponse, error)
 	ListUserThreads(ctx context.Context, in *ListUserThreadsRequest, opts ...grpc.CallOption) (*ListFeedResponse, error)
+	ListUserReplies(ctx context.Context, in *ListUserThreadsRequest, opts ...grpc.CallOption) (*ListFeedResponse, error)
+	ListUserLikes(ctx context.Context, in *ListUserThreadsRequest, opts ...grpc.CallOption) (*ListFeedResponse, error)
+	ListUserMedia(ctx context.Context, in *ListUserThreadsRequest, opts ...grpc.CallOption) (*ListFeedResponse, error)
+	TogglePin(ctx context.Context, in *TogglePinRequest, opts ...grpc.CallOption) (*TogglePinResponse, error)
 }
 
 type threadServiceClient struct {
@@ -215,6 +223,46 @@ func (c *threadServiceClient) ListUserThreads(ctx context.Context, in *ListUserT
 	return out, nil
 }
 
+func (c *threadServiceClient) ListUserReplies(ctx context.Context, in *ListUserThreadsRequest, opts ...grpc.CallOption) (*ListFeedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListFeedResponse)
+	err := c.cc.Invoke(ctx, ThreadService_ListUserReplies_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) ListUserLikes(ctx context.Context, in *ListUserThreadsRequest, opts ...grpc.CallOption) (*ListFeedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListFeedResponse)
+	err := c.cc.Invoke(ctx, ThreadService_ListUserLikes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) ListUserMedia(ctx context.Context, in *ListUserThreadsRequest, opts ...grpc.CallOption) (*ListFeedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListFeedResponse)
+	err := c.cc.Invoke(ctx, ThreadService_ListUserMedia_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) TogglePin(ctx context.Context, in *TogglePinRequest, opts ...grpc.CallOption) (*TogglePinResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TogglePinResponse)
+	err := c.cc.Invoke(ctx, ThreadService_TogglePin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
@@ -234,6 +282,10 @@ type ThreadServiceServer interface {
 	UnbookmarkThread(context.Context, *InteractionRequest) (*InteractionResponse, error)
 	ListBookmarks(context.Context, *ListBookmarksRequest) (*ListBookmarksResponse, error)
 	ListUserThreads(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error)
+	ListUserReplies(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error)
+	ListUserLikes(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error)
+	ListUserMedia(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error)
+	TogglePin(context.Context, *TogglePinRequest) (*TogglePinResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -288,6 +340,18 @@ func (UnimplementedThreadServiceServer) ListBookmarks(context.Context, *ListBook
 }
 func (UnimplementedThreadServiceServer) ListUserThreads(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListUserThreads not implemented")
+}
+func (UnimplementedThreadServiceServer) ListUserReplies(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListUserReplies not implemented")
+}
+func (UnimplementedThreadServiceServer) ListUserLikes(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListUserLikes not implemented")
+}
+func (UnimplementedThreadServiceServer) ListUserMedia(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListUserMedia not implemented")
+}
+func (UnimplementedThreadServiceServer) TogglePin(context.Context, *TogglePinRequest) (*TogglePinResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TogglePin not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -580,6 +644,78 @@ func _ThreadService_ListUserThreads_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_ListUserReplies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUserThreadsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).ListUserReplies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_ListUserReplies_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).ListUserReplies(ctx, req.(*ListUserThreadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_ListUserLikes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUserThreadsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).ListUserLikes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_ListUserLikes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).ListUserLikes(ctx, req.(*ListUserThreadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_ListUserMedia_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUserThreadsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).ListUserMedia(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_ListUserMedia_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).ListUserMedia(ctx, req.(*ListUserThreadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_TogglePin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TogglePinRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).TogglePin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_TogglePin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).TogglePin(ctx, req.(*TogglePinRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -646,6 +782,22 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListUserThreads",
 			Handler:    _ThreadService_ListUserThreads_Handler,
+		},
+		{
+			MethodName: "ListUserReplies",
+			Handler:    _ThreadService_ListUserReplies_Handler,
+		},
+		{
+			MethodName: "ListUserLikes",
+			Handler:    _ThreadService_ListUserLikes_Handler,
+		},
+		{
+			MethodName: "ListUserMedia",
+			Handler:    _ThreadService_ListUserMedia_Handler,
+		},
+		{
+			MethodName: "TogglePin",
+			Handler:    _ThreadService_TogglePin_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

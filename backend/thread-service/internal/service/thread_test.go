@@ -30,6 +30,9 @@ type mockRepo struct {
 	listBookmarksFunc      func(ctx context.Context, userID, query string, limit int, cursor time.Time) ([]*repository.ThreadModel, error)
 	listRepliesFunc        func(ctx context.Context, parentID, viewerUserID string, limit int, cursor time.Time) ([]*repository.ThreadModel, error)
 	listUserThreadsFunc    func(ctx context.Context, authorUserID, viewerUserID string, limit int, cursor time.Time) ([]*repository.ThreadModel, error)
+	listUserRepliesFunc    func(ctx context.Context, authorUserID, viewerUserID string, limit int, cursor time.Time) ([]*repository.ThreadModel, error)
+	listUserLikesFunc      func(ctx context.Context, targetUserID, viewerUserID string, limit int, cursor time.Time) ([]*repository.ThreadModel, error)
+	togglePinFunc          func(ctx context.Context, threadID, userID string) (bool, error)
 }
 
 func (m *mockRepo) Create(ctx context.Context, t *repository.ThreadModel, hashtags []string) error {
@@ -114,6 +117,45 @@ func (m *mockRepo) ListUserThreads(ctx context.Context, authorUserID, viewerUser
 			CreatedAt:      time.Now(),
 		},
 	}, nil
+}
+
+func (m *mockRepo) ListUserReplies(ctx context.Context, authorUserID, viewerUserID string, limit int, cursor time.Time) ([]*repository.ThreadModel, error) {
+	if m.listUserRepliesFunc != nil {
+		return m.listUserRepliesFunc(ctx, authorUserID, viewerUserID, limit, cursor)
+	}
+	return []*repository.ThreadModel{
+		{
+			ID:             "r1",
+			UserID:         authorUserID,
+			AuthorName:     "Adrian",
+			AuthorUsername: "adrian",
+			Content:        "My reply thread",
+			CreatedAt:      time.Now(),
+		},
+	}, nil
+}
+
+func (m *mockRepo) ListUserLikes(ctx context.Context, targetUserID, viewerUserID string, limit int, cursor time.Time) ([]*repository.ThreadModel, error) {
+	if m.listUserLikesFunc != nil {
+		return m.listUserLikesFunc(ctx, targetUserID, viewerUserID, limit, cursor)
+	}
+	return []*repository.ThreadModel{
+		{
+			ID:             "l1",
+			UserID:         "other-user",
+			AuthorName:     "Alice",
+			AuthorUsername: "alice",
+			Content:        "A liked thread",
+			CreatedAt:      time.Now(),
+		},
+	}, nil
+}
+
+func (m *mockRepo) TogglePin(ctx context.Context, threadID, userID string) (bool, error) {
+	if m.togglePinFunc != nil {
+		return m.togglePinFunc(ctx, threadID, userID)
+	}
+	return true, nil
 }
 
 func (m *mockRepo) ListCategories(ctx context.Context) ([]repository.CategoryModel, error) {

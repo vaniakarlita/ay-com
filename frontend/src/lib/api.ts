@@ -164,6 +164,8 @@ export type ThreadItem = {
   bookmarkedByMe: boolean;
   repostedByName?: string;
   parentId?: string;
+  isPinned?: boolean;
+  pinnedAt?: string;
 };
 
 export type CategoryItem = {
@@ -320,6 +322,32 @@ export const threadApi = {
     const q = params.toString() ? `?${params.toString()}` : '';
     return request<FeedResponse>(`/api/users/${userId}/threads${q}`, { auth: true });
   },
+  userReplies: (userId: string, cursor = '', limit = 20) => {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (limit) params.set('limit', limit.toString());
+    const q = params.toString() ? `?${params.toString()}` : '';
+    return request<FeedResponse>(`/api/users/${userId}/replies${q}`, { auth: true });
+  },
+  userLikes: (userId: string, cursor = '', limit = 20) => {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (limit) params.set('limit', limit.toString());
+    const q = params.toString() ? `?${params.toString()}` : '';
+    return request<FeedResponse>(`/api/users/${userId}/likes${q}`, { auth: true });
+  },
+  userMedia: (userId: string, cursor = '', limit = 20) => {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (limit) params.set('limit', limit.toString());
+    const q = params.toString() ? `?${params.toString()}` : '';
+    return request<FeedResponse>(`/api/users/${userId}/media${q}`, { auth: true });
+  },
+  togglePin: (threadId: string) =>
+    request<{ success: boolean; isPinned: boolean; message: string }>(`/api/threads/${threadId}/pin`, {
+      method: 'POST',
+      auth: true,
+    }),
 };
 
 export async function uploadImage(file: File, kind: 'profile' | 'banner'): Promise<string> {

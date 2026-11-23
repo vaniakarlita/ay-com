@@ -536,6 +536,90 @@ paths:
       responses:
         "200":
           description: User threads list
+  /api/users/{id}/replies:
+    get:
+      tags: [Threads]
+      summary: List replies posted by a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User replies list
+  /api/users/{id}/likes:
+    get:
+      tags: [Threads]
+      summary: List threads liked by a user (viewer must be user)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User liked threads list
+  /api/users/{id}/media:
+    get:
+      tags: [Threads]
+      summary: List media threads posted by a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User media threads list
+  /api/threads/{id}/pin:
+    post:
+      tags: [Threads]
+      summary: Toggle pin thread to profile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thread pin toggled
   /api/users/suggestions:
     get:
       tags: [Users]
