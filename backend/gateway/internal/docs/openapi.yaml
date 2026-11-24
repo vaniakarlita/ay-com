@@ -804,6 +804,63 @@ paths:
       responses:
         "200":
           description: Following list
+  /api/users/me/blocked:
+    get:
+      tags: [Users]
+      summary: List accounts blocked by current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Blocked accounts list
+  /api/users/me/deactivate:
+    post:
+      tags: [Users]
+      summary: Deactivate current user account
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Account deactivated
+  /api/users/me/notifications:
+    get:
+      tags: [Users]
+      summary: Get notification preferences
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current notification preferences
+    put:
+      tags: [Users]
+      summary: Update notification preferences
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notifLike: { type: boolean }
+                notifRepost: { type: boolean }
+                notifFollow: { type: boolean }
+                notifMention: { type: boolean }
+                notifCommunity: { type: boolean }
+      responses:
+        "200":
+          description: Updated notification preferences
 components:
   securitySchemes:
     bearerAuth:

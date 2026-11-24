@@ -31,6 +31,7 @@ func (s *AuthService) GetProfile(ctx context.Context, req *authpb.GetProfileRequ
 		ProfilePictureUrl: p.ProfilePictureURL,
 		BannerUrl:         p.BannerURL,
 		Bio:               p.Bio,
+		IsPrivate:         p.IsPrivate,
 		CreatedAt:         p.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}, nil
 }
@@ -51,6 +52,7 @@ func (s *AuthService) GetProfileByUsername(ctx context.Context, req *authpb.GetP
 		ProfilePictureUrl: p.ProfilePictureURL,
 		BannerUrl:         p.BannerURL,
 		Bio:               p.Bio,
+		IsPrivate:         p.IsPrivate,
 		CreatedAt:         p.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}, nil
 }
@@ -68,6 +70,28 @@ func (s *AuthService) GetProfilesByIDs(ctx context.Context, req *authpb.GetProfi
 			Name:              p.Name,
 			Username:          p.Username,
 			ProfilePictureUrl: p.ProfilePictureURL,
+		})
+	}
+	return &authpb.GetProfilesByIDsResponse{Profiles: res}, nil
+}
+
+func (s *AuthService) GetActiveProfilesByIDs(ctx context.Context, req *authpb.GetProfilesByIDsRequest) (*authpb.GetProfilesByIDsResponse, error) {
+	list, err := s.users.FindActiveProfilesByIDs(ctx, req.UserIds)
+	if err != nil {
+		s.log.Error("find active profiles by ids failed", "error", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+	var res []*authpb.GetProfileResponse
+	for _, p := range list {
+		res = append(res, &authpb.GetProfileResponse{
+			UserId:            p.ID,
+			Name:              p.Name,
+			Username:          p.Username,
+			ProfilePictureUrl: p.ProfilePictureURL,
+			BannerUrl:         p.BannerURL,
+			Bio:               p.Bio,
+			IsPrivate:         p.IsPrivate,
+			CreatedAt:         p.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		})
 	}
 	return &authpb.GetProfilesByIDsResponse{Profiles: res}, nil
@@ -138,6 +162,10 @@ func (s *AuthService) UpdateProfile(ctx context.Context, req *authpb.UpdateProfi
 	if req.BannerUrl != nil {
 		burl := strings.TrimSpace(*req.BannerUrl)
 		params.BannerURL = &burl
+	}
+
+	if req.IsPrivate != nil {
+		params.IsPrivate = req.IsPrivate
 	}
 
 	var passwordChanged bool
@@ -219,6 +247,7 @@ func (s *AuthService) UpdateProfile(ctx context.Context, req *authpb.UpdateProfi
 			ProfilePictureUrl: updated.ProfilePictureURL,
 			BannerUrl:         updated.BannerURL,
 			Bio:               updated.Bio,
+			IsPrivate:         updated.IsPrivate,
 			CreatedAt:         updated.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		},
 	}
@@ -228,4 +257,46 @@ func (s *AuthService) UpdateProfile(ctx context.Context, req *authpb.UpdateProfi
 	}
 
 	return resp, nil
+}
+
+func (s *AuthService) DeactivateAccount(ctx context.Context, req *authpb.DeactivateAccountRequest) (*authpb.DeactivateAccountResponse, error) {
+	if req.UserId == "" || strings.TrimSpace(req.Password) == "" {
+		return nil, status.Error(codes.InvalidArgument, "user_id and password are required")
+	}
+
+	attempts, err := s.tokens.PasswordAttempts(ctx, req.UserId)
+	if err != nil {
+		s.log.Error("read password attempts failed", "error", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+	if attempts >= 5 {
+		return nil, status.Error(codes.ResourceExhausted, "too many failed password attempts; try again in 15 minutes")
+	}
+
+	cred, err := s.users.FindByID(ctx, req.UserId)
+	if errors.Is(err, repository.ErrNotFound) {
+		return nil, status.Error(codes.NotFound, "user not found")
+	}
+	if err != nil {
+		s.log.Error("find user failed", "error", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(cred.PasswordHash), []byte(req.Password)); err != nil {
+		s.tokens.AddPasswordAttempt(ctx, req.UserId, 15*time.Minute)
+		return nil, status.Error(codes.InvalidArgument, "incorrect password")
+	}
+
+	if err := s.users.Deactivate(ctx, req.UserId); err != nil {
+		s.log.Error("deactivate user failed", "error", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	_ = s.tokens.ClearPasswordAttempts(ctx, req.UserId)
+	_ = s.tokens.RevokeAllUserTokens(ctx, req.UserId)
+
+	return &authpb.DeactivateAccountResponse{
+		Success: true,
+		Message: "Account has been deactivated successfully",
+	}, nil
 }

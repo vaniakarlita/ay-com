@@ -22,6 +22,72 @@ type mockFollowRepo struct {
 	listFollowersFunc    func(ctx context.Context, targetUserID, viewerUserID string, limit int, cursor time.Time) ([]repository.RelationItem, error)
 	listFollowingFunc    func(ctx context.Context, targetUserID, viewerUserID string, limit int, cursor time.Time) ([]repository.RelationItem, error)
 	suggestAccountsFunc  func(ctx context.Context, userID string, limit int) ([]repository.SuggestedAccount, error)
+	blockFunc            func(ctx context.Context, blockerID, blockedID string) error
+	unblockFunc          func(ctx context.Context, blockerID, blockedID string) error
+	checkBlockFunc       func(ctx context.Context, userA, userB string) (bool, bool, error)
+	createReportFunc     func(ctx context.Context, reporterID, reportedID, reason, details string) error
+	listBlockedUsersFunc func(ctx context.Context, blockerID string, limit int, cursor time.Time) ([]repository.RelationItem, error)
+	getBlockedUserIDsFunc func(ctx context.Context, userID string) ([]string, error)
+	getNotifSettingsFunc func(ctx context.Context, userID string) (bool, bool, bool, bool, bool, error)
+	updateNotifSettingsFunc func(ctx context.Context, userID string, like, repost, follow, mention, comm bool) error
+}
+
+func (m *mockFollowRepo) Block(ctx context.Context, blockerID, blockedID string) error {
+	if m.blockFunc != nil {
+		return m.blockFunc(ctx, blockerID, blockedID)
+	}
+	return nil
+}
+
+func (m *mockFollowRepo) Unblock(ctx context.Context, blockerID, blockedID string) error {
+	if m.unblockFunc != nil {
+		return m.unblockFunc(ctx, blockerID, blockedID)
+	}
+	return nil
+}
+
+func (m *mockFollowRepo) CheckBlock(ctx context.Context, userA, userB string) (bool, bool, error) {
+	if m.checkBlockFunc != nil {
+		return m.checkBlockFunc(ctx, userA, userB)
+	}
+	return false, false, nil
+}
+
+func (m *mockFollowRepo) CreateReport(ctx context.Context, reporterID, reportedID, reason, details string) error {
+	if m.createReportFunc != nil {
+		return m.createReportFunc(ctx, reporterID, reportedID, reason, details)
+	}
+	return nil
+}
+
+func (m *mockFollowRepo) ListBlockedUsers(ctx context.Context, blockerID string, limit int, cursor time.Time) ([]repository.RelationItem, error) {
+	if m.listBlockedUsersFunc != nil {
+		return m.listBlockedUsersFunc(ctx, blockerID, limit, cursor)
+	}
+	return []repository.RelationItem{
+		{UserID: "u_blocked", CreatedAt: time.Now()},
+	}, nil
+}
+
+func (m *mockFollowRepo) GetBlockedUserIDs(ctx context.Context, userID string) ([]string, error) {
+	if m.getBlockedUserIDsFunc != nil {
+		return m.getBlockedUserIDsFunc(ctx, userID)
+	}
+	return []string{"u_blocked"}, nil
+}
+
+func (m *mockFollowRepo) GetNotificationSettings(ctx context.Context, userID string) (bool, bool, bool, bool, bool, error) {
+	if m.getNotifSettingsFunc != nil {
+		return m.getNotifSettingsFunc(ctx, userID)
+	}
+	return true, true, true, true, true, nil
+}
+
+func (m *mockFollowRepo) UpdateNotificationSettings(ctx context.Context, userID string, like, repost, follow, mention, comm bool) error {
+	if m.updateNotifSettingsFunc != nil {
+		return m.updateNotifSettingsFunc(ctx, userID, like, repost, follow, mention, comm)
+	}
+	return nil
 }
 
 func (m *mockFollowRepo) Follow(ctx context.Context, followerID, followeeID string) error {
@@ -162,4 +228,143 @@ func TestFollow_RepoError(t *testing.T) {
 		FolloweeId: "u2",
 	})
 	assert.Error(t, err)
+}
+
+func TestBlock_Success(t *testing.T) {
+	repo := &mockFollowRepo{}
+	svc := service.NewUserService(repo, nil, testLogger())
+
+	res, err := svc.BlockUser(context.Background(), &userpb.BlockRequest{
+		BlockerId: "u1",
+		BlockedId: "u2",
+	})
+	assert.NoError(t, err)
+	assert.True(t, res.Success)
+}
+
+func TestBlock_CannotBlockSelf(t *testing.T) {
+	repo := &mockFollowRepo{}
+	svc := service.NewUserService(repo, nil, testLogger())
+
+	_, err := svc.BlockUser(context.Background(), &userpb.BlockRequest{
+		BlockerId: "u1",
+		BlockedId: "u1",
+	})
+	assert.Error(t, err)
+}
+
+func TestUnblock_Success(t *testing.T) {
+	repo := &mockFollowRepo{}
+	svc := service.NewUserService(repo, nil, testLogger())
+
+	res, err := svc.UnblockUser(context.Background(), &userpb.BlockRequest{
+		BlockerId: "u1",
+		BlockedId: "u2",
+	})
+	assert.NoError(t, err)
+	assert.True(t, res.Success)
+}
+
+func TestCheckBlockStatus(t *testing.T) {
+	repo := &mockFollowRepo{
+		checkBlockFunc: func(ctx context.Context, userA, userB string) (bool, bool, error) {
+			return true, false, nil
+		},
+	}
+	svc := service.NewUserService(repo, nil, testLogger())
+
+	res, err := svc.CheckBlockStatus(context.Background(), &userpb.CheckBlockRequest{
+		UserA: "u1",
+		UserB: "u2",
+	})
+	assert.NoError(t, err)
+	assert.True(t, res.IsBlocking)
+	assert.False(t, res.IsBlockedBy)
+}
+
+func TestReportUser_Success(t *testing.T) {
+	repo := &mockFollowRepo{}
+	svc := service.NewUserService(repo, nil, testLogger())
+
+	res, err := svc.ReportUser(context.Background(), &userpb.ReportRequest{
+		ReporterId: "u1",
+		ReportedId: "u2",
+		Reason:     "Spam",
+	})
+	assert.NoError(t, err)
+	assert.True(t, res.Success)
+}
+
+func TestReportUser_Validation(t *testing.T) {
+	repo := &mockFollowRepo{}
+	svc := service.NewUserService(repo, nil, testLogger())
+
+	_, err := svc.ReportUser(context.Background(), &userpb.ReportRequest{
+		ReporterId: "u1",
+		ReportedId: "u1",
+		Reason:     "Spam",
+	})
+	assert.Error(t, err)
+
+	_, err = svc.ReportUser(context.Background(), &userpb.ReportRequest{
+		ReporterId: "u1",
+		ReportedId: "u2",
+		Reason:     "InvalidReason",
+	})
+	assert.Error(t, err)
+
+	_, err = svc.ReportUser(context.Background(), &userpb.ReportRequest{
+		ReporterId: "u1",
+		ReportedId: "u2",
+		Reason:     "Other",
+		Details:    "",
+	})
+	assert.Error(t, err)
+}
+
+func TestListBlockedUsers_Success(t *testing.T) {
+	repo := &mockFollowRepo{}
+	svc := service.NewUserService(repo, nil, testLogger())
+
+	res, err := svc.ListBlockedUsers(context.Background(), &userpb.ListRelationRequest{
+		UserId: "u1",
+	})
+	assert.NoError(t, err)
+	assert.Len(t, res.Users, 1)
+	assert.Equal(t, "u_blocked", res.Users[0].UserId)
+}
+
+func TestGetBlockedUserIDs_Success(t *testing.T) {
+	repo := &mockFollowRepo{}
+	svc := service.NewUserService(repo, nil, testLogger())
+
+	res, err := svc.GetBlockedUserIDs(context.Background(), &userpb.GetBlockedUserIDsRequest{
+		UserId: "u1",
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"u_blocked"}, res.BlockedUserIds)
+}
+
+func TestNotificationSettings_Success(t *testing.T) {
+	repo := &mockFollowRepo{}
+	svc := service.NewUserService(repo, nil, testLogger())
+
+	getRes, err := svc.GetNotificationSettings(context.Background(), &userpb.GetNotificationSettingsRequest{
+		UserId: "u1",
+	})
+	assert.NoError(t, err)
+	assert.True(t, getRes.NotifLike)
+	assert.True(t, getRes.NotifRepost)
+
+	upRes, err := svc.UpdateNotificationSettings(context.Background(), &userpb.UpdateNotificationSettingsRequest{
+		UserId:         "u1",
+		NotifLike:      false,
+		NotifRepost:    true,
+		NotifFollow:    true,
+		NotifMention:   true,
+		NotifCommunity: false,
+	})
+	assert.NoError(t, err)
+	assert.False(t, upRes.NotifLike)
+	assert.False(t, upRes.NotifCommunity)
 }

@@ -58,6 +58,14 @@ func (m *MockUserStore) FindProfilesByIDs(ctx context.Context, ids []string) ([]
 	return args.Get(0).([]repository.Profile), args.Error(1)
 }
 
+func (m *MockUserStore) FindActiveProfilesByIDs(ctx context.Context, ids []string) ([]repository.Profile, error) {
+	args := m.Called(ctx, ids)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]repository.Profile), args.Error(1)
+}
+
 func (m *MockUserStore) UpdatePassword(ctx context.Context, id, hash string) error {
 	return m.Called(ctx, id, hash).Error(0)
 }
@@ -65,6 +73,10 @@ func (m *MockUserStore) UpdatePassword(ctx context.Context, id, hash string) err
 func (m *MockUserStore) UpdateProfile(ctx context.Context, p repository.UpdateProfileParams) (repository.Profile, error) {
 	args := m.Called(ctx, p)
 	return args.Get(0).(repository.Profile), args.Error(1)
+}
+
+func (m *MockUserStore) Deactivate(ctx context.Context, id string) error {
+	return m.Called(ctx, id).Error(0)
 }
 
 type MockCodeStore struct{ mock.Mock }

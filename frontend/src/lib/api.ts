@@ -101,6 +101,7 @@ export type CurrentUser = {
   profilePictureUrl?: string;
   bannerUrl?: string;
   bio?: string;
+  isPrivate?: boolean;
   createdAt?: string;
   isVerified?: boolean;
 };
@@ -227,16 +228,20 @@ export type UserProfileResponse = {
   followerCount: number;
   followingCount: number;
   isFollowing: boolean;
+  isBlocking?: boolean;
+  isBlockedBy?: boolean;
+};
+
+export type FollowUserItem = {
+  userId: string;
+  name: string;
+  username: string;
+  profilePictureUrl: string;
+  isFollowing: boolean;
 };
 
 export type FollowListResponse = {
-  users: Array<{
-    id: string;
-    name: string;
-    username: string;
-    profilePictureUrl: string;
-    isFollowing: boolean;
-  }>;
+  users: FollowUserItem[];
   nextCursor: string;
   hasMore: boolean;
 };
@@ -279,6 +284,7 @@ export const userApi = {
     bio?: string;
     profilePictureUrl?: string;
     bannerUrl?: string;
+    isPrivate?: boolean;
     oldPassword?: string;
     newPassword?: string;
   }) =>
@@ -287,6 +293,61 @@ export const userApi = {
       accessToken?: string;
       refreshToken?: string;
     }>('/api/users/me', {
+      method: 'PUT',
+      body,
+      auth: true,
+    }),
+  block: (id: string) =>
+    request<{ success: boolean; message: string }>(`/api/users/${id}/block`, {
+      method: 'POST',
+      auth: true,
+    }),
+  unblock: (id: string) =>
+    request<{ success: boolean; message: string }>(`/api/users/${id}/block`, {
+      method: 'DELETE',
+      auth: true,
+    }),
+  report: (id: string, body: { reason: string; details?: string }) =>
+    request<{ success: boolean; message: string }>(`/api/users/${id}/report`, {
+      method: 'POST',
+      body,
+      auth: true,
+    }),
+  getBlockedUsers: (cursor = '', limit = 20) => {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (limit) params.set('limit', limit.toString());
+    const q = params.toString() ? `?${params.toString()}` : '';
+    return request<FollowListResponse>(`/api/users/me/blocked${q}`, { auth: true });
+  },
+  deactivate: (password: string) =>
+    request<{ success: boolean; message: string }>('/api/users/me/deactivate', {
+      method: 'POST',
+      body: { password },
+      auth: true,
+    }),
+  getNotificationSettings: () =>
+    request<{
+      notifLike: boolean;
+      notifRepost: boolean;
+      notifFollow: boolean;
+      notifMention: boolean;
+      notifCommunity: boolean;
+    }>('/api/users/me/notifications', { auth: true }),
+  updateNotificationSettings: (body: {
+    notifLike: boolean;
+    notifRepost: boolean;
+    notifFollow: boolean;
+    notifMention: boolean;
+    notifCommunity: boolean;
+  }) =>
+    request<{
+      notifLike: boolean;
+      notifRepost: boolean;
+      notifFollow: boolean;
+      notifMention: boolean;
+      notifCommunity: boolean;
+    }>('/api/users/me/notifications', {
       method: 'PUT',
       body,
       auth: true,

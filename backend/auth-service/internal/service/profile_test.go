@@ -140,3 +140,63 @@ func TestUpdateProfile(t *testing.T) {
 		requireCode(t, err, codes.ResourceExhausted)
 	})
 }
+
+func TestDeactivateAccount(t *testing.T) {
+	ctx := context.Background()
+
+	t.Run("success deactivates account and revokes tokens", func(t *testing.T) {
+		f := newFixture()
+		plain := "SecretPass123!"
+		hashed := hash(t, plain)
+
+		f.tokens.On("PasswordAttempts", mock.Anything, "u1").Return(int64(0), nil)
+		f.users.On("FindByID", mock.Anything, "u1").Return(repository.Credentials{
+			ID:           "u1",
+			PasswordHash: hashed,
+		}, nil)
+		f.users.On("Deactivate", mock.Anything, "u1").Return(nil)
+		f.tokens.On("ClearPasswordAttempts", mock.Anything, "u1").Return(nil)
+		f.tokens.On("RevokeAllUserTokens", mock.Anything, "u1").Return(nil)
+
+		res, err := f.svc.DeactivateAccount(ctx, &authpb.DeactivateAccountRequest{
+			UserId:   "u1",
+			Password: plain,
+		})
+
+		require.NoError(t, err)
+		assert.True(t, res.Success)
+		f.users.AssertExpectations(t)
+		f.tokens.AssertExpectations(t)
+	})
+
+	t.Run("wrong password increments attempt", func(t *testing.T) {
+		f := newFixture()
+		hashed := hash(t, "RealPassword123!")
+
+		f.tokens.On("PasswordAttempts", mock.Anything, "u1").Return(int64(0), nil)
+		f.users.On("FindByID", mock.Anything, "u1").Return(repository.Credentials{
+			ID:           "u1",
+			PasswordHash: hashed,
+		}, nil)
+		f.tokens.On("AddPasswordAttempt", mock.Anything, "u1", mock.Anything).Return(int64(1), nil)
+
+		_, err := f.svc.DeactivateAccount(ctx, &authpb.DeactivateAccountRequest{
+			UserId:   "u1",
+			Password: "WrongPassword!",
+		})
+
+		requireCode(t, err, codes.InvalidArgument)
+	})
+
+	t.Run("rate limited", func(t *testing.T) {
+		f := newFixture()
+		f.tokens.On("PasswordAttempts", mock.Anything, "u1").Return(int64(5), nil)
+
+		_, err := f.svc.DeactivateAccount(ctx, &authpb.DeactivateAccountRequest{
+			UserId:   "u1",
+			Password: "AnyPassword!",
+		})
+
+		requireCode(t, err, codes.ResourceExhausted)
+	})
+}

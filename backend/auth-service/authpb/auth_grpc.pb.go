@@ -19,20 +19,22 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Register_FullMethodName             = "/auth.AuthService/Register"
-	AuthService_VerifyEmail_FullMethodName          = "/auth.AuthService/VerifyEmail"
-	AuthService_ResendCode_FullMethodName           = "/auth.AuthService/ResendCode"
-	AuthService_Login_FullMethodName                = "/auth.AuthService/Login"
-	AuthService_RefreshToken_FullMethodName         = "/auth.AuthService/RefreshToken"
-	AuthService_Logout_FullMethodName               = "/auth.AuthService/Logout"
-	AuthService_GetSecurityQuestion_FullMethodName  = "/auth.AuthService/GetSecurityQuestion"
-	AuthService_VerifySecurityAnswer_FullMethodName = "/auth.AuthService/VerifySecurityAnswer"
-	AuthService_ResetPassword_FullMethodName        = "/auth.AuthService/ResetPassword"
-	AuthService_GoogleAuth_FullMethodName           = "/auth.AuthService/GoogleAuth"
-	AuthService_GetProfile_FullMethodName           = "/auth.AuthService/GetProfile"
-	AuthService_GetProfileByUsername_FullMethodName = "/auth.AuthService/GetProfileByUsername"
-	AuthService_GetProfilesByIDs_FullMethodName     = "/auth.AuthService/GetProfilesByIDs"
-	AuthService_UpdateProfile_FullMethodName        = "/auth.AuthService/UpdateProfile"
+	AuthService_Register_FullMethodName               = "/auth.AuthService/Register"
+	AuthService_VerifyEmail_FullMethodName            = "/auth.AuthService/VerifyEmail"
+	AuthService_ResendCode_FullMethodName             = "/auth.AuthService/ResendCode"
+	AuthService_Login_FullMethodName                  = "/auth.AuthService/Login"
+	AuthService_RefreshToken_FullMethodName           = "/auth.AuthService/RefreshToken"
+	AuthService_Logout_FullMethodName                 = "/auth.AuthService/Logout"
+	AuthService_GetSecurityQuestion_FullMethodName    = "/auth.AuthService/GetSecurityQuestion"
+	AuthService_VerifySecurityAnswer_FullMethodName   = "/auth.AuthService/VerifySecurityAnswer"
+	AuthService_ResetPassword_FullMethodName          = "/auth.AuthService/ResetPassword"
+	AuthService_GoogleAuth_FullMethodName             = "/auth.AuthService/GoogleAuth"
+	AuthService_GetProfile_FullMethodName             = "/auth.AuthService/GetProfile"
+	AuthService_GetProfileByUsername_FullMethodName   = "/auth.AuthService/GetProfileByUsername"
+	AuthService_GetProfilesByIDs_FullMethodName       = "/auth.AuthService/GetProfilesByIDs"
+	AuthService_GetActiveProfilesByIDs_FullMethodName = "/auth.AuthService/GetActiveProfilesByIDs"
+	AuthService_UpdateProfile_FullMethodName          = "/auth.AuthService/UpdateProfile"
+	AuthService_DeactivateAccount_FullMethodName      = "/auth.AuthService/DeactivateAccount"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -52,7 +54,9 @@ type AuthServiceClient interface {
 	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error)
 	GetProfileByUsername(ctx context.Context, in *GetProfileByUsernameRequest, opts ...grpc.CallOption) (*GetProfileResponse, error)
 	GetProfilesByIDs(ctx context.Context, in *GetProfilesByIDsRequest, opts ...grpc.CallOption) (*GetProfilesByIDsResponse, error)
+	GetActiveProfilesByIDs(ctx context.Context, in *GetProfilesByIDsRequest, opts ...grpc.CallOption) (*GetProfilesByIDsResponse, error)
 	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error)
+	DeactivateAccount(ctx context.Context, in *DeactivateAccountRequest, opts ...grpc.CallOption) (*DeactivateAccountResponse, error)
 }
 
 type authServiceClient struct {
@@ -193,10 +197,30 @@ func (c *authServiceClient) GetProfilesByIDs(ctx context.Context, in *GetProfile
 	return out, nil
 }
 
+func (c *authServiceClient) GetActiveProfilesByIDs(ctx context.Context, in *GetProfilesByIDsRequest, opts ...grpc.CallOption) (*GetProfilesByIDsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetProfilesByIDsResponse)
+	err := c.cc.Invoke(ctx, AuthService_GetActiveProfilesByIDs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *authServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateProfileResponse)
 	err := c.cc.Invoke(ctx, AuthService_UpdateProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) DeactivateAccount(ctx context.Context, in *DeactivateAccountRequest, opts ...grpc.CallOption) (*DeactivateAccountResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeactivateAccountResponse)
+	err := c.cc.Invoke(ctx, AuthService_DeactivateAccount_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +244,9 @@ type AuthServiceServer interface {
 	GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error)
 	GetProfileByUsername(context.Context, *GetProfileByUsernameRequest) (*GetProfileResponse, error)
 	GetProfilesByIDs(context.Context, *GetProfilesByIDsRequest) (*GetProfilesByIDsResponse, error)
+	GetActiveProfilesByIDs(context.Context, *GetProfilesByIDsRequest) (*GetProfilesByIDsResponse, error)
 	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error)
+	DeactivateAccount(context.Context, *DeactivateAccountRequest) (*DeactivateAccountResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -270,8 +296,14 @@ func (UnimplementedAuthServiceServer) GetProfileByUsername(context.Context, *Get
 func (UnimplementedAuthServiceServer) GetProfilesByIDs(context.Context, *GetProfilesByIDsRequest) (*GetProfilesByIDsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetProfilesByIDs not implemented")
 }
+func (UnimplementedAuthServiceServer) GetActiveProfilesByIDs(context.Context, *GetProfilesByIDsRequest) (*GetProfilesByIDsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetActiveProfilesByIDs not implemented")
+}
 func (UnimplementedAuthServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateProfile not implemented")
+}
+func (UnimplementedAuthServiceServer) DeactivateAccount(context.Context, *DeactivateAccountRequest) (*DeactivateAccountResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeactivateAccount not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -528,6 +560,24 @@ func _AuthService_GetProfilesByIDs_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_GetActiveProfilesByIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfilesByIDsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetActiveProfilesByIDs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GetActiveProfilesByIDs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetActiveProfilesByIDs(ctx, req.(*GetProfilesByIDsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AuthService_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateProfileRequest)
 	if err := dec(in); err != nil {
@@ -542,6 +592,24 @@ func _AuthService_UpdateProfile_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServiceServer).UpdateProfile(ctx, req.(*UpdateProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_DeactivateAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeactivateAccountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).DeactivateAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_DeactivateAccount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).DeactivateAccount(ctx, req.(*DeactivateAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -606,8 +674,16 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AuthService_GetProfilesByIDs_Handler,
 		},
 		{
+			MethodName: "GetActiveProfilesByIDs",
+			Handler:    _AuthService_GetActiveProfilesByIDs_Handler,
+		},
+		{
 			MethodName: "UpdateProfile",
 			Handler:    _AuthService_UpdateProfile_Handler,
+		},
+		{
+			MethodName: "DeactivateAccount",
+			Handler:    _AuthService_DeactivateAccount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

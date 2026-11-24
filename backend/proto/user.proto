@@ -12,6 +12,75 @@ service UserService {
   rpc ListFollowers(ListRelationRequest) returns (ListRelationResponse);
   rpc ListFollowing(ListRelationRequest) returns (ListRelationResponse);
   rpc SuggestAccounts(SuggestAccountsRequest) returns (SuggestAccountsResponse);
+  rpc BlockUser(BlockRequest) returns (BlockResponse);
+  rpc UnblockUser(BlockRequest) returns (BlockResponse);
+  rpc CheckBlockStatus(CheckBlockRequest) returns (CheckBlockResponse);
+  rpc ReportUser(ReportRequest) returns (ReportResponse);
+  rpc ListBlockedUsers(ListRelationRequest) returns (ListRelationResponse);
+  rpc GetBlockedUserIDs(GetBlockedUserIDsRequest) returns (GetBlockedUserIDsResponse);
+  rpc GetNotificationSettings(GetNotificationSettingsRequest) returns (NotificationSettingsResponse);
+  rpc UpdateNotificationSettings(UpdateNotificationSettingsRequest) returns (NotificationSettingsResponse);
+}
+
+message GetNotificationSettingsRequest {
+  string user_id = 1;
+}
+
+message NotificationSettingsResponse {
+  bool notif_like = 1;
+  bool notif_repost = 2;
+  bool notif_follow = 3;
+  bool notif_mention = 4;
+  bool notif_community = 5;
+}
+
+message UpdateNotificationSettingsRequest {
+  string user_id = 1;
+  bool notif_like = 2;
+  bool notif_repost = 3;
+  bool notif_follow = 4;
+  bool notif_mention = 5;
+  bool notif_community = 6;
+}
+
+message GetBlockedUserIDsRequest {
+  string user_id = 1;
+}
+
+message GetBlockedUserIDsResponse {
+  repeated string blocked_user_ids = 1;
+}
+
+message BlockRequest {
+  string blocker_id = 1;
+  string blocked_id = 2;
+}
+
+message BlockResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message CheckBlockRequest {
+  string user_a = 1;
+  string user_b = 2;
+}
+
+message CheckBlockResponse {
+  bool is_blocking = 1;
+  bool is_blocked_by = 2;
+}
+
+message ReportRequest {
+  string reporter_id = 1;
+  string reported_id = 2;
+  string reason = 3;
+  string details = 4;
+}
+
+message ReportResponse {
+  bool success = 1;
+  string message = 2;
 }
 
 message FollowRequest {

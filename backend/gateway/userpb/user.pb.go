@@ -21,6 +21,626 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type GetNotificationSettingsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetNotificationSettingsRequest) Reset() {
+	*x = GetNotificationSettingsRequest{}
+	mi := &file_user_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetNotificationSettingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetNotificationSettingsRequest) ProtoMessage() {}
+
+func (x *GetNotificationSettingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetNotificationSettingsRequest.ProtoReflect.Descriptor instead.
+func (*GetNotificationSettingsRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetNotificationSettingsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type NotificationSettingsResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	NotifLike      bool                   `protobuf:"varint,1,opt,name=notif_like,json=notifLike,proto3" json:"notif_like,omitempty"`
+	NotifRepost    bool                   `protobuf:"varint,2,opt,name=notif_repost,json=notifRepost,proto3" json:"notif_repost,omitempty"`
+	NotifFollow    bool                   `protobuf:"varint,3,opt,name=notif_follow,json=notifFollow,proto3" json:"notif_follow,omitempty"`
+	NotifMention   bool                   `protobuf:"varint,4,opt,name=notif_mention,json=notifMention,proto3" json:"notif_mention,omitempty"`
+	NotifCommunity bool                   `protobuf:"varint,5,opt,name=notif_community,json=notifCommunity,proto3" json:"notif_community,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *NotificationSettingsResponse) Reset() {
+	*x = NotificationSettingsResponse{}
+	mi := &file_user_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotificationSettingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotificationSettingsResponse) ProtoMessage() {}
+
+func (x *NotificationSettingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotificationSettingsResponse.ProtoReflect.Descriptor instead.
+func (*NotificationSettingsResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *NotificationSettingsResponse) GetNotifLike() bool {
+	if x != nil {
+		return x.NotifLike
+	}
+	return false
+}
+
+func (x *NotificationSettingsResponse) GetNotifRepost() bool {
+	if x != nil {
+		return x.NotifRepost
+	}
+	return false
+}
+
+func (x *NotificationSettingsResponse) GetNotifFollow() bool {
+	if x != nil {
+		return x.NotifFollow
+	}
+	return false
+}
+
+func (x *NotificationSettingsResponse) GetNotifMention() bool {
+	if x != nil {
+		return x.NotifMention
+	}
+	return false
+}
+
+func (x *NotificationSettingsResponse) GetNotifCommunity() bool {
+	if x != nil {
+		return x.NotifCommunity
+	}
+	return false
+}
+
+type UpdateNotificationSettingsRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	UserId         string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	NotifLike      bool                   `protobuf:"varint,2,opt,name=notif_like,json=notifLike,proto3" json:"notif_like,omitempty"`
+	NotifRepost    bool                   `protobuf:"varint,3,opt,name=notif_repost,json=notifRepost,proto3" json:"notif_repost,omitempty"`
+	NotifFollow    bool                   `protobuf:"varint,4,opt,name=notif_follow,json=notifFollow,proto3" json:"notif_follow,omitempty"`
+	NotifMention   bool                   `protobuf:"varint,5,opt,name=notif_mention,json=notifMention,proto3" json:"notif_mention,omitempty"`
+	NotifCommunity bool                   `protobuf:"varint,6,opt,name=notif_community,json=notifCommunity,proto3" json:"notif_community,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *UpdateNotificationSettingsRequest) Reset() {
+	*x = UpdateNotificationSettingsRequest{}
+	mi := &file_user_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateNotificationSettingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateNotificationSettingsRequest) ProtoMessage() {}
+
+func (x *UpdateNotificationSettingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateNotificationSettingsRequest.ProtoReflect.Descriptor instead.
+func (*UpdateNotificationSettingsRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UpdateNotificationSettingsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UpdateNotificationSettingsRequest) GetNotifLike() bool {
+	if x != nil {
+		return x.NotifLike
+	}
+	return false
+}
+
+func (x *UpdateNotificationSettingsRequest) GetNotifRepost() bool {
+	if x != nil {
+		return x.NotifRepost
+	}
+	return false
+}
+
+func (x *UpdateNotificationSettingsRequest) GetNotifFollow() bool {
+	if x != nil {
+		return x.NotifFollow
+	}
+	return false
+}
+
+func (x *UpdateNotificationSettingsRequest) GetNotifMention() bool {
+	if x != nil {
+		return x.NotifMention
+	}
+	return false
+}
+
+func (x *UpdateNotificationSettingsRequest) GetNotifCommunity() bool {
+	if x != nil {
+		return x.NotifCommunity
+	}
+	return false
+}
+
+type GetBlockedUserIDsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBlockedUserIDsRequest) Reset() {
+	*x = GetBlockedUserIDsRequest{}
+	mi := &file_user_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBlockedUserIDsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBlockedUserIDsRequest) ProtoMessage() {}
+
+func (x *GetBlockedUserIDsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBlockedUserIDsRequest.ProtoReflect.Descriptor instead.
+func (*GetBlockedUserIDsRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetBlockedUserIDsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetBlockedUserIDsResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	BlockedUserIds []string               `protobuf:"bytes,1,rep,name=blocked_user_ids,json=blockedUserIds,proto3" json:"blocked_user_ids,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GetBlockedUserIDsResponse) Reset() {
+	*x = GetBlockedUserIDsResponse{}
+	mi := &file_user_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBlockedUserIDsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBlockedUserIDsResponse) ProtoMessage() {}
+
+func (x *GetBlockedUserIDsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBlockedUserIDsResponse.ProtoReflect.Descriptor instead.
+func (*GetBlockedUserIDsResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetBlockedUserIDsResponse) GetBlockedUserIds() []string {
+	if x != nil {
+		return x.BlockedUserIds
+	}
+	return nil
+}
+
+type BlockRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BlockerId     string                 `protobuf:"bytes,1,opt,name=blocker_id,json=blockerId,proto3" json:"blocker_id,omitempty"`
+	BlockedId     string                 `protobuf:"bytes,2,opt,name=blocked_id,json=blockedId,proto3" json:"blocked_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BlockRequest) Reset() {
+	*x = BlockRequest{}
+	mi := &file_user_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BlockRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BlockRequest) ProtoMessage() {}
+
+func (x *BlockRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BlockRequest.ProtoReflect.Descriptor instead.
+func (*BlockRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *BlockRequest) GetBlockerId() string {
+	if x != nil {
+		return x.BlockerId
+	}
+	return ""
+}
+
+func (x *BlockRequest) GetBlockedId() string {
+	if x != nil {
+		return x.BlockedId
+	}
+	return ""
+}
+
+type BlockResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BlockResponse) Reset() {
+	*x = BlockResponse{}
+	mi := &file_user_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BlockResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BlockResponse) ProtoMessage() {}
+
+func (x *BlockResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BlockResponse.ProtoReflect.Descriptor instead.
+func (*BlockResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *BlockResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *BlockResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type CheckBlockRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserA         string                 `protobuf:"bytes,1,opt,name=user_a,json=userA,proto3" json:"user_a,omitempty"`
+	UserB         string                 `protobuf:"bytes,2,opt,name=user_b,json=userB,proto3" json:"user_b,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckBlockRequest) Reset() {
+	*x = CheckBlockRequest{}
+	mi := &file_user_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckBlockRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckBlockRequest) ProtoMessage() {}
+
+func (x *CheckBlockRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckBlockRequest.ProtoReflect.Descriptor instead.
+func (*CheckBlockRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CheckBlockRequest) GetUserA() string {
+	if x != nil {
+		return x.UserA
+	}
+	return ""
+}
+
+func (x *CheckBlockRequest) GetUserB() string {
+	if x != nil {
+		return x.UserB
+	}
+	return ""
+}
+
+type CheckBlockResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsBlocking    bool                   `protobuf:"varint,1,opt,name=is_blocking,json=isBlocking,proto3" json:"is_blocking,omitempty"`
+	IsBlockedBy   bool                   `protobuf:"varint,2,opt,name=is_blocked_by,json=isBlockedBy,proto3" json:"is_blocked_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckBlockResponse) Reset() {
+	*x = CheckBlockResponse{}
+	mi := &file_user_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckBlockResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckBlockResponse) ProtoMessage() {}
+
+func (x *CheckBlockResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckBlockResponse.ProtoReflect.Descriptor instead.
+func (*CheckBlockResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *CheckBlockResponse) GetIsBlocking() bool {
+	if x != nil {
+		return x.IsBlocking
+	}
+	return false
+}
+
+func (x *CheckBlockResponse) GetIsBlockedBy() bool {
+	if x != nil {
+		return x.IsBlockedBy
+	}
+	return false
+}
+
+type ReportRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ReporterId    string                 `protobuf:"bytes,1,opt,name=reporter_id,json=reporterId,proto3" json:"reporter_id,omitempty"`
+	ReportedId    string                 `protobuf:"bytes,2,opt,name=reported_id,json=reportedId,proto3" json:"reported_id,omitempty"`
+	Reason        string                 `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
+	Details       string                 `protobuf:"bytes,4,opt,name=details,proto3" json:"details,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReportRequest) Reset() {
+	*x = ReportRequest{}
+	mi := &file_user_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReportRequest) ProtoMessage() {}
+
+func (x *ReportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReportRequest.ProtoReflect.Descriptor instead.
+func (*ReportRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ReportRequest) GetReporterId() string {
+	if x != nil {
+		return x.ReporterId
+	}
+	return ""
+}
+
+func (x *ReportRequest) GetReportedId() string {
+	if x != nil {
+		return x.ReportedId
+	}
+	return ""
+}
+
+func (x *ReportRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *ReportRequest) GetDetails() string {
+	if x != nil {
+		return x.Details
+	}
+	return ""
+}
+
+type ReportResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReportResponse) Reset() {
+	*x = ReportResponse{}
+	mi := &file_user_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReportResponse) ProtoMessage() {}
+
+func (x *ReportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReportResponse.ProtoReflect.Descriptor instead.
+func (*ReportResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ReportResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ReportResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 type FollowRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FollowerId    string                 `protobuf:"bytes,1,opt,name=follower_id,json=followerId,proto3" json:"follower_id,omitempty"`
@@ -31,7 +651,7 @@ type FollowRequest struct {
 
 func (x *FollowRequest) Reset() {
 	*x = FollowRequest{}
-	mi := &file_user_proto_msgTypes[0]
+	mi := &file_user_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +663,7 @@ func (x *FollowRequest) String() string {
 func (*FollowRequest) ProtoMessage() {}
 
 func (x *FollowRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[0]
+	mi := &file_user_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +676,7 @@ func (x *FollowRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FollowRequest.ProtoReflect.Descriptor instead.
 func (*FollowRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{0}
+	return file_user_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *FollowRequest) GetFollowerId() string {
@@ -85,7 +705,7 @@ type FollowResponse struct {
 
 func (x *FollowResponse) Reset() {
 	*x = FollowResponse{}
-	mi := &file_user_proto_msgTypes[1]
+	mi := &file_user_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -97,7 +717,7 @@ func (x *FollowResponse) String() string {
 func (*FollowResponse) ProtoMessage() {}
 
 func (x *FollowResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[1]
+	mi := &file_user_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -110,7 +730,7 @@ func (x *FollowResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FollowResponse.ProtoReflect.Descriptor instead.
 func (*FollowResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{1}
+	return file_user_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *FollowResponse) GetSuccess() bool {
@@ -151,7 +771,7 @@ type GetFollowStatsRequest struct {
 
 func (x *GetFollowStatsRequest) Reset() {
 	*x = GetFollowStatsRequest{}
-	mi := &file_user_proto_msgTypes[2]
+	mi := &file_user_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -163,7 +783,7 @@ func (x *GetFollowStatsRequest) String() string {
 func (*GetFollowStatsRequest) ProtoMessage() {}
 
 func (x *GetFollowStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[2]
+	mi := &file_user_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -176,7 +796,7 @@ func (x *GetFollowStatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFollowStatsRequest.ProtoReflect.Descriptor instead.
 func (*GetFollowStatsRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{2}
+	return file_user_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetFollowStatsRequest) GetTargetUserId() string {
@@ -205,7 +825,7 @@ type GetFollowStatsResponse struct {
 
 func (x *GetFollowStatsResponse) Reset() {
 	*x = GetFollowStatsResponse{}
-	mi := &file_user_proto_msgTypes[3]
+	mi := &file_user_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -217,7 +837,7 @@ func (x *GetFollowStatsResponse) String() string {
 func (*GetFollowStatsResponse) ProtoMessage() {}
 
 func (x *GetFollowStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[3]
+	mi := &file_user_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -230,7 +850,7 @@ func (x *GetFollowStatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFollowStatsResponse.ProtoReflect.Descriptor instead.
 func (*GetFollowStatsResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{3}
+	return file_user_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetFollowStatsResponse) GetUserId() string {
@@ -271,7 +891,7 @@ type ListFollowingIDsRequest struct {
 
 func (x *ListFollowingIDsRequest) Reset() {
 	*x = ListFollowingIDsRequest{}
-	mi := &file_user_proto_msgTypes[4]
+	mi := &file_user_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -283,7 +903,7 @@ func (x *ListFollowingIDsRequest) String() string {
 func (*ListFollowingIDsRequest) ProtoMessage() {}
 
 func (x *ListFollowingIDsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[4]
+	mi := &file_user_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -296,7 +916,7 @@ func (x *ListFollowingIDsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFollowingIDsRequest.ProtoReflect.Descriptor instead.
 func (*ListFollowingIDsRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{4}
+	return file_user_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListFollowingIDsRequest) GetUserId() string {
@@ -322,7 +942,7 @@ type ListFollowingIDsResponse struct {
 
 func (x *ListFollowingIDsResponse) Reset() {
 	*x = ListFollowingIDsResponse{}
-	mi := &file_user_proto_msgTypes[5]
+	mi := &file_user_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -334,7 +954,7 @@ func (x *ListFollowingIDsResponse) String() string {
 func (*ListFollowingIDsResponse) ProtoMessage() {}
 
 func (x *ListFollowingIDsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[5]
+	mi := &file_user_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -347,7 +967,7 @@ func (x *ListFollowingIDsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFollowingIDsResponse.ProtoReflect.Descriptor instead.
 func (*ListFollowingIDsResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{5}
+	return file_user_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ListFollowingIDsResponse) GetFollowingIds() []string {
@@ -369,7 +989,7 @@ type ListRelationRequest struct {
 
 func (x *ListRelationRequest) Reset() {
 	*x = ListRelationRequest{}
-	mi := &file_user_proto_msgTypes[6]
+	mi := &file_user_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -381,7 +1001,7 @@ func (x *ListRelationRequest) String() string {
 func (*ListRelationRequest) ProtoMessage() {}
 
 func (x *ListRelationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[6]
+	mi := &file_user_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -394,7 +1014,7 @@ func (x *ListRelationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRelationRequest.ProtoReflect.Descriptor instead.
 func (*ListRelationRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{6}
+	return file_user_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ListRelationRequest) GetUserId() string {
@@ -436,7 +1056,7 @@ type UserRelationItem struct {
 
 func (x *UserRelationItem) Reset() {
 	*x = UserRelationItem{}
-	mi := &file_user_proto_msgTypes[7]
+	mi := &file_user_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -448,7 +1068,7 @@ func (x *UserRelationItem) String() string {
 func (*UserRelationItem) ProtoMessage() {}
 
 func (x *UserRelationItem) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[7]
+	mi := &file_user_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -461,7 +1081,7 @@ func (x *UserRelationItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserRelationItem.ProtoReflect.Descriptor instead.
 func (*UserRelationItem) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{7}
+	return file_user_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UserRelationItem) GetUserId() string {
@@ -496,7 +1116,7 @@ type ListRelationResponse struct {
 
 func (x *ListRelationResponse) Reset() {
 	*x = ListRelationResponse{}
-	mi := &file_user_proto_msgTypes[8]
+	mi := &file_user_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -508,7 +1128,7 @@ func (x *ListRelationResponse) String() string {
 func (*ListRelationResponse) ProtoMessage() {}
 
 func (x *ListRelationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[8]
+	mi := &file_user_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -521,7 +1141,7 @@ func (x *ListRelationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRelationResponse.ProtoReflect.Descriptor instead.
 func (*ListRelationResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{8}
+	return file_user_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListRelationResponse) GetUsers() []*UserRelationItem {
@@ -555,7 +1175,7 @@ type SuggestAccountsRequest struct {
 
 func (x *SuggestAccountsRequest) Reset() {
 	*x = SuggestAccountsRequest{}
-	mi := &file_user_proto_msgTypes[9]
+	mi := &file_user_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -567,7 +1187,7 @@ func (x *SuggestAccountsRequest) String() string {
 func (*SuggestAccountsRequest) ProtoMessage() {}
 
 func (x *SuggestAccountsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[9]
+	mi := &file_user_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -580,7 +1200,7 @@ func (x *SuggestAccountsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuggestAccountsRequest.ProtoReflect.Descriptor instead.
 func (*SuggestAccountsRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{9}
+	return file_user_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *SuggestAccountsRequest) GetUserId() string {
@@ -607,7 +1227,7 @@ type SuggestedAccountItem struct {
 
 func (x *SuggestedAccountItem) Reset() {
 	*x = SuggestedAccountItem{}
-	mi := &file_user_proto_msgTypes[10]
+	mi := &file_user_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -619,7 +1239,7 @@ func (x *SuggestedAccountItem) String() string {
 func (*SuggestedAccountItem) ProtoMessage() {}
 
 func (x *SuggestedAccountItem) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[10]
+	mi := &file_user_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -632,7 +1252,7 @@ func (x *SuggestedAccountItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuggestedAccountItem.ProtoReflect.Descriptor instead.
 func (*SuggestedAccountItem) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{10}
+	return file_user_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *SuggestedAccountItem) GetUserId() string {
@@ -658,7 +1278,7 @@ type SuggestAccountsResponse struct {
 
 func (x *SuggestAccountsResponse) Reset() {
 	*x = SuggestAccountsResponse{}
-	mi := &file_user_proto_msgTypes[11]
+	mi := &file_user_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -670,7 +1290,7 @@ func (x *SuggestAccountsResponse) String() string {
 func (*SuggestAccountsResponse) ProtoMessage() {}
 
 func (x *SuggestAccountsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[11]
+	mi := &file_user_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -683,7 +1303,7 @@ func (x *SuggestAccountsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuggestAccountsResponse.ProtoReflect.Descriptor instead.
 func (*SuggestAccountsResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{11}
+	return file_user_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *SuggestAccountsResponse) GetAccounts() []*SuggestedAccountItem {
@@ -698,7 +1318,53 @@ var File_user_proto protoreflect.FileDescriptor
 const file_user_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"user.proto\x12\x04user\"Q\n" +
+	"user.proto\x12\x04user\"9\n" +
+	"\x1eGetNotificationSettingsRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"\xd1\x01\n" +
+	"\x1cNotificationSettingsResponse\x12\x1d\n" +
+	"\n" +
+	"notif_like\x18\x01 \x01(\bR\tnotifLike\x12!\n" +
+	"\fnotif_repost\x18\x02 \x01(\bR\vnotifRepost\x12!\n" +
+	"\fnotif_follow\x18\x03 \x01(\bR\vnotifFollow\x12#\n" +
+	"\rnotif_mention\x18\x04 \x01(\bR\fnotifMention\x12'\n" +
+	"\x0fnotif_community\x18\x05 \x01(\bR\x0enotifCommunity\"\xef\x01\n" +
+	"!UpdateNotificationSettingsRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
+	"\n" +
+	"notif_like\x18\x02 \x01(\bR\tnotifLike\x12!\n" +
+	"\fnotif_repost\x18\x03 \x01(\bR\vnotifRepost\x12!\n" +
+	"\fnotif_follow\x18\x04 \x01(\bR\vnotifFollow\x12#\n" +
+	"\rnotif_mention\x18\x05 \x01(\bR\fnotifMention\x12'\n" +
+	"\x0fnotif_community\x18\x06 \x01(\bR\x0enotifCommunity\"3\n" +
+	"\x18GetBlockedUserIDsRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"E\n" +
+	"\x19GetBlockedUserIDsResponse\x12(\n" +
+	"\x10blocked_user_ids\x18\x01 \x03(\tR\x0eblockedUserIds\"L\n" +
+	"\fBlockRequest\x12\x1d\n" +
+	"\n" +
+	"blocker_id\x18\x01 \x01(\tR\tblockerId\x12\x1d\n" +
+	"\n" +
+	"blocked_id\x18\x02 \x01(\tR\tblockedId\"C\n" +
+	"\rBlockResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"A\n" +
+	"\x11CheckBlockRequest\x12\x15\n" +
+	"\x06user_a\x18\x01 \x01(\tR\x05userA\x12\x15\n" +
+	"\x06user_b\x18\x02 \x01(\tR\x05userB\"Y\n" +
+	"\x12CheckBlockResponse\x12\x1f\n" +
+	"\vis_blocking\x18\x01 \x01(\bR\n" +
+	"isBlocking\x12\"\n" +
+	"\ris_blocked_by\x18\x02 \x01(\bR\visBlockedBy\"\x83\x01\n" +
+	"\rReportRequest\x12\x1f\n" +
+	"\vreporter_id\x18\x01 \x01(\tR\n" +
+	"reporterId\x12\x1f\n" +
+	"\vreported_id\x18\x02 \x01(\tR\n" +
+	"reportedId\x12\x16\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\x12\x18\n" +
+	"\adetails\x18\x04 \x01(\tR\adetails\"D\n" +
+	"\x0eReportResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"Q\n" +
 	"\rFollowRequest\x12\x1f\n" +
 	"\vfollower_id\x18\x01 \x01(\tR\n" +
 	"followerId\x12\x1f\n" +
@@ -744,7 +1410,7 @@ const file_user_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12%\n" +
 	"\x0efollower_count\x18\x02 \x01(\x05R\rfollowerCount\"Q\n" +
 	"\x17SuggestAccountsResponse\x126\n" +
-	"\baccounts\x18\x01 \x03(\v2\x1a.user.SuggestedAccountItemR\baccounts2\xf9\x03\n" +
+	"\baccounts\x18\x01 \x03(\v2\x1a.user.SuggestedAccountItemR\baccounts2\xd8\b\n" +
 	"\vUserService\x123\n" +
 	"\x06Follow\x12\x13.user.FollowRequest\x1a\x14.user.FollowResponse\x125\n" +
 	"\bUnfollow\x12\x13.user.FollowRequest\x1a\x14.user.FollowResponse\x12K\n" +
@@ -752,7 +1418,16 @@ const file_user_proto_rawDesc = "" +
 	"\x10ListFollowingIDs\x12\x1d.user.ListFollowingIDsRequest\x1a\x1e.user.ListFollowingIDsResponse\x12F\n" +
 	"\rListFollowers\x12\x19.user.ListRelationRequest\x1a\x1a.user.ListRelationResponse\x12F\n" +
 	"\rListFollowing\x12\x19.user.ListRelationRequest\x1a\x1a.user.ListRelationResponse\x12N\n" +
-	"\x0fSuggestAccounts\x12\x1c.user.SuggestAccountsRequest\x1a\x1d.user.SuggestAccountsResponseB<Z:github.com/vaniakarlita/ay-com/backend/user-service/userpbb\x06proto3"
+	"\x0fSuggestAccounts\x12\x1c.user.SuggestAccountsRequest\x1a\x1d.user.SuggestAccountsResponse\x124\n" +
+	"\tBlockUser\x12\x12.user.BlockRequest\x1a\x13.user.BlockResponse\x126\n" +
+	"\vUnblockUser\x12\x12.user.BlockRequest\x1a\x13.user.BlockResponse\x12E\n" +
+	"\x10CheckBlockStatus\x12\x17.user.CheckBlockRequest\x1a\x18.user.CheckBlockResponse\x127\n" +
+	"\n" +
+	"ReportUser\x12\x13.user.ReportRequest\x1a\x14.user.ReportResponse\x12I\n" +
+	"\x10ListBlockedUsers\x12\x19.user.ListRelationRequest\x1a\x1a.user.ListRelationResponse\x12T\n" +
+	"\x11GetBlockedUserIDs\x12\x1e.user.GetBlockedUserIDsRequest\x1a\x1f.user.GetBlockedUserIDsResponse\x12c\n" +
+	"\x17GetNotificationSettings\x12$.user.GetNotificationSettingsRequest\x1a\".user.NotificationSettingsResponse\x12i\n" +
+	"\x1aUpdateNotificationSettings\x12'.user.UpdateNotificationSettingsRequest\x1a\".user.NotificationSettingsResponseB<Z:github.com/vaniakarlita/ay-com/backend/user-service/userpbb\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once
@@ -766,40 +1441,67 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_user_proto_goTypes = []any{
-	(*FollowRequest)(nil),            // 0: user.FollowRequest
-	(*FollowResponse)(nil),           // 1: user.FollowResponse
-	(*GetFollowStatsRequest)(nil),    // 2: user.GetFollowStatsRequest
-	(*GetFollowStatsResponse)(nil),   // 3: user.GetFollowStatsResponse
-	(*ListFollowingIDsRequest)(nil),  // 4: user.ListFollowingIDsRequest
-	(*ListFollowingIDsResponse)(nil), // 5: user.ListFollowingIDsResponse
-	(*ListRelationRequest)(nil),      // 6: user.ListRelationRequest
-	(*UserRelationItem)(nil),         // 7: user.UserRelationItem
-	(*ListRelationResponse)(nil),     // 8: user.ListRelationResponse
-	(*SuggestAccountsRequest)(nil),   // 9: user.SuggestAccountsRequest
-	(*SuggestedAccountItem)(nil),     // 10: user.SuggestedAccountItem
-	(*SuggestAccountsResponse)(nil),  // 11: user.SuggestAccountsResponse
+	(*GetNotificationSettingsRequest)(nil),    // 0: user.GetNotificationSettingsRequest
+	(*NotificationSettingsResponse)(nil),      // 1: user.NotificationSettingsResponse
+	(*UpdateNotificationSettingsRequest)(nil), // 2: user.UpdateNotificationSettingsRequest
+	(*GetBlockedUserIDsRequest)(nil),          // 3: user.GetBlockedUserIDsRequest
+	(*GetBlockedUserIDsResponse)(nil),         // 4: user.GetBlockedUserIDsResponse
+	(*BlockRequest)(nil),                      // 5: user.BlockRequest
+	(*BlockResponse)(nil),                     // 6: user.BlockResponse
+	(*CheckBlockRequest)(nil),                 // 7: user.CheckBlockRequest
+	(*CheckBlockResponse)(nil),                // 8: user.CheckBlockResponse
+	(*ReportRequest)(nil),                     // 9: user.ReportRequest
+	(*ReportResponse)(nil),                    // 10: user.ReportResponse
+	(*FollowRequest)(nil),                     // 11: user.FollowRequest
+	(*FollowResponse)(nil),                    // 12: user.FollowResponse
+	(*GetFollowStatsRequest)(nil),             // 13: user.GetFollowStatsRequest
+	(*GetFollowStatsResponse)(nil),            // 14: user.GetFollowStatsResponse
+	(*ListFollowingIDsRequest)(nil),           // 15: user.ListFollowingIDsRequest
+	(*ListFollowingIDsResponse)(nil),          // 16: user.ListFollowingIDsResponse
+	(*ListRelationRequest)(nil),               // 17: user.ListRelationRequest
+	(*UserRelationItem)(nil),                  // 18: user.UserRelationItem
+	(*ListRelationResponse)(nil),              // 19: user.ListRelationResponse
+	(*SuggestAccountsRequest)(nil),            // 20: user.SuggestAccountsRequest
+	(*SuggestedAccountItem)(nil),              // 21: user.SuggestedAccountItem
+	(*SuggestAccountsResponse)(nil),           // 22: user.SuggestAccountsResponse
 }
 var file_user_proto_depIdxs = []int32{
-	7,  // 0: user.ListRelationResponse.users:type_name -> user.UserRelationItem
-	10, // 1: user.SuggestAccountsResponse.accounts:type_name -> user.SuggestedAccountItem
-	0,  // 2: user.UserService.Follow:input_type -> user.FollowRequest
-	0,  // 3: user.UserService.Unfollow:input_type -> user.FollowRequest
-	2,  // 4: user.UserService.GetFollowStats:input_type -> user.GetFollowStatsRequest
-	4,  // 5: user.UserService.ListFollowingIDs:input_type -> user.ListFollowingIDsRequest
-	6,  // 6: user.UserService.ListFollowers:input_type -> user.ListRelationRequest
-	6,  // 7: user.UserService.ListFollowing:input_type -> user.ListRelationRequest
-	9,  // 8: user.UserService.SuggestAccounts:input_type -> user.SuggestAccountsRequest
-	1,  // 9: user.UserService.Follow:output_type -> user.FollowResponse
-	1,  // 10: user.UserService.Unfollow:output_type -> user.FollowResponse
-	3,  // 11: user.UserService.GetFollowStats:output_type -> user.GetFollowStatsResponse
-	5,  // 12: user.UserService.ListFollowingIDs:output_type -> user.ListFollowingIDsResponse
-	8,  // 13: user.UserService.ListFollowers:output_type -> user.ListRelationResponse
-	8,  // 14: user.UserService.ListFollowing:output_type -> user.ListRelationResponse
-	11, // 15: user.UserService.SuggestAccounts:output_type -> user.SuggestAccountsResponse
-	9,  // [9:16] is the sub-list for method output_type
-	2,  // [2:9] is the sub-list for method input_type
+	18, // 0: user.ListRelationResponse.users:type_name -> user.UserRelationItem
+	21, // 1: user.SuggestAccountsResponse.accounts:type_name -> user.SuggestedAccountItem
+	11, // 2: user.UserService.Follow:input_type -> user.FollowRequest
+	11, // 3: user.UserService.Unfollow:input_type -> user.FollowRequest
+	13, // 4: user.UserService.GetFollowStats:input_type -> user.GetFollowStatsRequest
+	15, // 5: user.UserService.ListFollowingIDs:input_type -> user.ListFollowingIDsRequest
+	17, // 6: user.UserService.ListFollowers:input_type -> user.ListRelationRequest
+	17, // 7: user.UserService.ListFollowing:input_type -> user.ListRelationRequest
+	20, // 8: user.UserService.SuggestAccounts:input_type -> user.SuggestAccountsRequest
+	5,  // 9: user.UserService.BlockUser:input_type -> user.BlockRequest
+	5,  // 10: user.UserService.UnblockUser:input_type -> user.BlockRequest
+	7,  // 11: user.UserService.CheckBlockStatus:input_type -> user.CheckBlockRequest
+	9,  // 12: user.UserService.ReportUser:input_type -> user.ReportRequest
+	17, // 13: user.UserService.ListBlockedUsers:input_type -> user.ListRelationRequest
+	3,  // 14: user.UserService.GetBlockedUserIDs:input_type -> user.GetBlockedUserIDsRequest
+	0,  // 15: user.UserService.GetNotificationSettings:input_type -> user.GetNotificationSettingsRequest
+	2,  // 16: user.UserService.UpdateNotificationSettings:input_type -> user.UpdateNotificationSettingsRequest
+	12, // 17: user.UserService.Follow:output_type -> user.FollowResponse
+	12, // 18: user.UserService.Unfollow:output_type -> user.FollowResponse
+	14, // 19: user.UserService.GetFollowStats:output_type -> user.GetFollowStatsResponse
+	16, // 20: user.UserService.ListFollowingIDs:output_type -> user.ListFollowingIDsResponse
+	19, // 21: user.UserService.ListFollowers:output_type -> user.ListRelationResponse
+	19, // 22: user.UserService.ListFollowing:output_type -> user.ListRelationResponse
+	22, // 23: user.UserService.SuggestAccounts:output_type -> user.SuggestAccountsResponse
+	6,  // 24: user.UserService.BlockUser:output_type -> user.BlockResponse
+	6,  // 25: user.UserService.UnblockUser:output_type -> user.BlockResponse
+	8,  // 26: user.UserService.CheckBlockStatus:output_type -> user.CheckBlockResponse
+	10, // 27: user.UserService.ReportUser:output_type -> user.ReportResponse
+	19, // 28: user.UserService.ListBlockedUsers:output_type -> user.ListRelationResponse
+	4,  // 29: user.UserService.GetBlockedUserIDs:output_type -> user.GetBlockedUserIDsResponse
+	1,  // 30: user.UserService.GetNotificationSettings:output_type -> user.NotificationSettingsResponse
+	1,  // 31: user.UserService.UpdateNotificationSettings:output_type -> user.NotificationSettingsResponse
+	17, // [17:32] is the sub-list for method output_type
+	2,  // [2:17] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
 	2,  // [2:2] is the sub-list for extension extendee
 	0,  // [0:2] is the sub-list for field type_name
@@ -816,7 +1518,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_proto_rawDesc), len(file_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

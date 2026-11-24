@@ -74,6 +74,7 @@ func main() {
 
 	userHandler := handler.NewUserHandler(userClient, authClient, log)
 	userHandler.Routes(mux, middleware.Auth(cfg.JWTAccessSecret))
+	userHandler.SettingsRoutes(mux, middleware.Auth(cfg.JWTAccessSecret))
 
 	var root http.Handler = mux
 	root = middleware.Logging(log)(root)

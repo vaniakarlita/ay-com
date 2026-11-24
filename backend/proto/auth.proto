@@ -18,7 +18,19 @@ service AuthService {
   rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
   rpc GetProfileByUsername(GetProfileByUsernameRequest) returns (GetProfileResponse);
   rpc GetProfilesByIDs(GetProfilesByIDsRequest) returns (GetProfilesByIDsResponse);
+  rpc GetActiveProfilesByIDs(GetProfilesByIDsRequest) returns (GetProfilesByIDsResponse);
   rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
+  rpc DeactivateAccount(DeactivateAccountRequest) returns (DeactivateAccountResponse);
+}
+
+message DeactivateAccountRequest {
+  string user_id = 1;
+  string password = 2;
+}
+
+message DeactivateAccountResponse {
+  bool success = 1;
+  string message = 2;
 }
 
 message RegisterRequest {
@@ -135,6 +147,7 @@ message GetProfileResponse {
   string banner_url = 5;
   string bio = 6;
   string created_at = 7;
+  bool is_private = 8;
 }
 
 message GetProfileByUsernameRequest {
@@ -159,8 +172,9 @@ message UpdateProfileRequest {
   optional string bio = 7;
   optional string profile_picture_url = 8;
   optional string banner_url = 9;
-  optional string old_password = 10;
-  optional string new_password = 11;
+  optional bool is_private = 10;
+  optional string old_password = 11;
+  optional string new_password = 12;
 }
 
 message UpdateProfileResponse {

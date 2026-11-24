@@ -180,8 +180,22 @@ func (h *ThreadHandler) ListFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var authorIDs []string
+	for _, t := range res.Threads {
+		authorIDs = append(authorIDs, t.UserId)
+	}
+
+	visibleMap, _ := h.FilterVisibleAuthorIDs(ctx, userID, authorIDs)
+
+	var filteredThreads []*threadpb.Thread
+	for _, t := range res.Threads {
+		if visibleMap[t.UserId] {
+			filteredThreads = append(filteredThreads, t)
+		}
+	}
+
 	writeJSON(w, http.StatusOK, map[string]any{
-		"threads":    res.Threads,
+		"threads":    filteredThreads,
 		"nextCursor": res.NextCursor,
 		"hasMore":    res.HasMore,
 	})
@@ -398,6 +412,16 @@ func (h *ThreadHandler) GetThread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	decision, err := h.CheckContentVisibility(ctx, userID, res.Thread.UserId)
+	if err != nil || !decision.Allowed {
+		if decision.Reason == "private" {
+			writeJSON(w, http.StatusForbidden, map[string]string{"error": "This account is private. Follow this account to see their posts."})
+			return
+		}
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Thread not found"})
+		return
+	}
+
 	writeJSON(w, http.StatusOK, res.Thread)
 }
 
@@ -422,6 +446,22 @@ func (h *ThreadHandler) ListReplies(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
 	defer cancel()
 
+	parentThread, pErr := h.threadClient.GetThread(ctx, &threadpb.GetThreadRequest{
+		ThreadId:     parentID,
+		ViewerUserId: userID,
+	})
+	if pErr == nil && parentThread != nil && parentThread.Thread != nil {
+		pDecision, _ := h.CheckContentVisibility(ctx, userID, parentThread.Thread.UserId)
+		if !pDecision.Allowed {
+			if pDecision.Reason == "private" {
+				writeJSON(w, http.StatusForbidden, map[string]string{"error": "This account is private. Follow this account to see their replies."})
+				return
+			}
+			writeJSON(w, http.StatusNotFound, map[string]string{"error": "Thread not found"})
+			return
+		}
+	}
+
 	res, err := h.threadClient.ListReplies(ctx, &threadpb.ListRepliesRequest{
 		ParentId:     parentID,
 		ViewerUserId: userID,
@@ -434,8 +474,21 @@ func (h *ThreadHandler) ListReplies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var replyAuthorIDs []string
+	for _, rep := range res.Replies {
+		replyAuthorIDs = append(replyAuthorIDs, rep.UserId)
+	}
+
+	visibleMap, _ := h.FilterVisibleAuthorIDs(ctx, userID, replyAuthorIDs)
+	var filteredReplies []*threadpb.Thread
+	for _, rep := range res.Replies {
+		if visibleMap[rep.UserId] {
+			filteredReplies = append(filteredReplies, rep)
+		}
+	}
+
 	writeJSON(w, http.StatusOK, map[string]any{
-		"replies":    res.Replies,
+		"replies":    filteredReplies,
 		"nextCursor": res.NextCursor,
 		"hasMore":    res.HasMore,
 	})
@@ -461,6 +514,16 @@ func (h *ThreadHandler) ListUserThreads(w http.ResponseWriter, r *http.Request) 
 
 	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
 	defer cancel()
+
+	decision, err := h.CheckContentVisibility(ctx, viewerID, authorID)
+	if err != nil || !decision.Allowed {
+		if decision.Reason == "private" {
+			writeJSON(w, http.StatusForbidden, map[string]string{"error": "This account is private. Follow this account to see their posts."})
+			return
+		}
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "User not found"})
+		return
+	}
 
 	res, err := h.threadClient.ListUserThreads(ctx, &threadpb.ListUserThreadsRequest{
 		AuthorUserId: authorID,
@@ -501,6 +564,16 @@ func (h *ThreadHandler) ListUserReplies(w http.ResponseWriter, r *http.Request) 
 
 	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
 	defer cancel()
+
+	decision, err := h.CheckContentVisibility(ctx, viewerID, authorID)
+	if err != nil || !decision.Allowed {
+		if decision.Reason == "private" {
+			writeJSON(w, http.StatusForbidden, map[string]string{"error": "This account is private. Follow this account to see their replies."})
+			return
+		}
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "User not found"})
+		return
+	}
 
 	res, err := h.threadClient.ListUserReplies(ctx, &threadpb.ListUserThreadsRequest{
 		AuthorUserId: authorID,
@@ -586,6 +659,16 @@ func (h *ThreadHandler) ListUserMedia(w http.ResponseWriter, r *http.Request) {
 
 	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
 	defer cancel()
+
+	decision, err := h.CheckContentVisibility(ctx, viewerID, authorID)
+	if err != nil || !decision.Allowed {
+		if decision.Reason == "private" {
+			writeJSON(w, http.StatusForbidden, map[string]string{"error": "This account is private. Follow this account to see their media."})
+			return
+		}
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "User not found"})
+		return
+	}
 
 	res, err := h.threadClient.ListUserMedia(ctx, &threadpb.ListUserThreadsRequest{
 		AuthorUserId: authorID,

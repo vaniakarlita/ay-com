@@ -10,6 +10,7 @@
   import ThemeToggle from './lib/ThemeToggle.svelte';
   import ThreadDetail from './lib/ThreadDetail.svelte';
   import Profile from './lib/Profile.svelte';
+  import Settings from './lib/Settings.svelte';
   import { navigate, path } from './lib/router';
   import { isLoggedIn } from './lib/session';
 
@@ -58,6 +59,8 @@
         <Home />
       {:else if current === '/bookmarks'}
         <Bookmarks />
+      {:else if current === '/settings'}
+        <Settings />
       {:else}
         <Placeholder title={memberPages[current]} />
       {/if}

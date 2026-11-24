@@ -36,6 +36,9 @@ func (h *UserHandler) Routes(mux *http.ServeMux, auth func(http.Handler) http.Ha
 	mux.Handle("GET /api/users/{username}", auth(http.HandlerFunc(h.GetProfileByUsername)))
 	mux.Handle("GET /api/users/{id}/followers", auth(http.HandlerFunc(h.GetFollowers)))
 	mux.Handle("GET /api/users/{id}/following", auth(http.HandlerFunc(h.GetFollowing)))
+	mux.Handle("POST /api/users/{id}/block", auth(http.HandlerFunc(h.BlockUser)))
+	mux.Handle("DELETE /api/users/{id}/block", auth(http.HandlerFunc(h.UnblockUser)))
+	mux.Handle("POST /api/users/{id}/report", auth(http.HandlerFunc(h.ReportUser)))
 }
 
 func (h *UserHandler) Follow(w http.ResponseWriter, r *http.Request) {
@@ -116,6 +119,36 @@ func (h *UserHandler) GetProfileByUsername(w http.ResponseWriter, r *http.Reques
 		isFollowing = stats.IsFollowing
 	}
 
+	var isBlocking, isBlockedBy bool
+	if viewerID != "" && viewerID != prof.UserId {
+		blkRes, _ := h.userClient.CheckBlockStatus(ctx, &userpb.CheckBlockRequest{
+			UserA: viewerID,
+			UserB: prof.UserId,
+		})
+		if blkRes != nil {
+			isBlocking = blkRes.IsBlocking
+			isBlockedBy = blkRes.IsBlockedBy
+		}
+	}
+
+	if isBlockedBy {
+		writeJSON(w, http.StatusOK, map[string]any{
+			"userId":            prof.UserId,
+			"name":              prof.Name,
+			"username":          prof.Username,
+			"profilePictureUrl": "",
+			"bannerUrl":         "",
+			"bio":               "",
+			"createdAt":         prof.CreatedAt,
+			"followerCount":     0,
+			"followingCount":    0,
+			"isFollowing":       false,
+			"isBlocking":        isBlocking,
+			"isBlockedBy":       true,
+		})
+		return
+	}
+
 	writeJSON(w, http.StatusOK, map[string]any{
 		"userId":            prof.UserId,
 		"name":              prof.Name,
@@ -127,6 +160,8 @@ func (h *UserHandler) GetProfileByUsername(w http.ResponseWriter, r *http.Reques
 		"followerCount":     followerCount,
 		"followingCount":    followingCount,
 		"isFollowing":       isFollowing,
+		"isBlocking":        isBlocking,
+		"isBlockedBy":       false,
 	})
 }
 
@@ -146,6 +181,20 @@ func (h *UserHandler) GetFollowers(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
 	defer cancel()
 
+	if targetID != viewerID {
+		tProf, err := h.authClient.GetProfile(ctx, &authpb.GetProfileRequest{UserId: targetID})
+		if err == nil && tProf != nil && tProf.IsPrivate {
+			stats, sErr := h.userClient.GetFollowStats(ctx, &userpb.GetFollowStatsRequest{
+				TargetUserId: targetID,
+				ViewerUserId: viewerID,
+			})
+			if sErr != nil || !stats.IsFollowing {
+				writeJSON(w, http.StatusForbidden, map[string]string{"error": "This account is private. Follow this account to see their followers."})
+				return
+			}
+		}
+	}
+
 	relRes, err := h.userClient.ListFollowers(ctx, &userpb.ListRelationRequest{
 		UserId:       targetID,
 		ViewerUserId: viewerID,
@@ -164,7 +213,7 @@ func (h *UserHandler) GetFollowers(w http.ResponseWriter, r *http.Request) {
 
 	profilesMap := make(map[string]*authpb.GetProfileResponse)
 	if len(userIDs) > 0 {
-		if pRes, err := h.authClient.GetProfilesByIDs(ctx, &authpb.GetProfilesByIDsRequest{UserIds: userIDs}); err == nil {
+		if pRes, err := h.authClient.GetActiveProfilesByIDs(ctx, &authpb.GetProfilesByIDsRequest{UserIds: userIDs}); err == nil {
 			for _, p := range pRes.Profiles {
 				profilesMap[p.UserId] = p
 			}
@@ -174,19 +223,14 @@ func (h *UserHandler) GetFollowers(w http.ResponseWriter, r *http.Request) {
 	var items []map[string]any
 	for _, it := range relRes.Users {
 		p := profilesMap[it.UserId]
-		name := "User"
-		uname := "user"
-		avatar := ""
-		if p != nil {
-			name = p.Name
-			uname = p.Username
-			avatar = p.ProfilePictureUrl
+		if p == nil {
+			continue
 		}
 		items = append(items, map[string]any{
 			"userId":            it.UserId,
-			"name":              name,
-			"username":          uname,
-			"profilePictureUrl": avatar,
+			"name":              p.Name,
+			"username":          p.Username,
+			"profilePictureUrl": p.ProfilePictureUrl,
 			"isFollowing":       it.IsFollowing,
 		})
 	}
@@ -214,6 +258,20 @@ func (h *UserHandler) GetFollowing(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
 	defer cancel()
 
+	if targetID != viewerID {
+		tProf, err := h.authClient.GetProfile(ctx, &authpb.GetProfileRequest{UserId: targetID})
+		if err == nil && tProf != nil && tProf.IsPrivate {
+			stats, sErr := h.userClient.GetFollowStats(ctx, &userpb.GetFollowStatsRequest{
+				TargetUserId: targetID,
+				ViewerUserId: viewerID,
+			})
+			if sErr != nil || !stats.IsFollowing {
+				writeJSON(w, http.StatusForbidden, map[string]string{"error": "This account is private. Follow this account to see who they follow."})
+				return
+			}
+		}
+	}
+
 	relRes, err := h.userClient.ListFollowing(ctx, &userpb.ListRelationRequest{
 		UserId:       targetID,
 		ViewerUserId: viewerID,
@@ -232,7 +290,7 @@ func (h *UserHandler) GetFollowing(w http.ResponseWriter, r *http.Request) {
 
 	profilesMap := make(map[string]*authpb.GetProfileResponse)
 	if len(userIDs) > 0 {
-		if pRes, err := h.authClient.GetProfilesByIDs(ctx, &authpb.GetProfilesByIDsRequest{UserIds: userIDs}); err == nil {
+		if pRes, err := h.authClient.GetActiveProfilesByIDs(ctx, &authpb.GetProfilesByIDsRequest{UserIds: userIDs}); err == nil {
 			for _, p := range pRes.Profiles {
 				profilesMap[p.UserId] = p
 			}
@@ -242,19 +300,14 @@ func (h *UserHandler) GetFollowing(w http.ResponseWriter, r *http.Request) {
 	var items []map[string]any
 	for _, it := range relRes.Users {
 		p := profilesMap[it.UserId]
-		name := "User"
-		uname := "user"
-		avatar := ""
-		if p != nil {
-			name = p.Name
-			uname = p.Username
-			avatar = p.ProfilePictureUrl
+		if p == nil {
+			continue
 		}
 		items = append(items, map[string]any{
 			"userId":            it.UserId,
-			"name":              name,
-			"username":          uname,
-			"profilePictureUrl": avatar,
+			"name":              p.Name,
+			"username":          p.Username,
+			"profilePictureUrl": p.ProfilePictureUrl,
 			"isFollowing":       it.IsFollowing,
 		})
 	}
@@ -317,4 +370,121 @@ func (h *UserHandler) GetSuggestions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, items)
+}
+
+type ReportRequestPayload struct {
+	Reason  string `json:"reason"`
+	Details string `json:"details"`
+}
+
+func (h *UserHandler) BlockUser(w http.ResponseWriter, r *http.Request) {
+	blockerID := middleware.UserID(r.Context())
+	blockedID := r.PathValue("id")
+	if blockedID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "User ID required"})
+		return
+	}
+	if blockerID == blockedID {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Cannot block yourself"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
+	defer cancel()
+
+	_, err := h.authClient.GetProfile(ctx, &authpb.GetProfileRequest{UserId: blockedID})
+	if err != nil {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "User not found"})
+		return
+	}
+
+	res, err := h.userClient.BlockUser(ctx, &userpb.BlockRequest{
+		BlockerId: blockerID,
+		BlockedId: blockedID,
+	})
+	if err != nil {
+		h.log.Error("block user failed", "error", err, "blocker", blockerID, "blocked", blockedID)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to block user"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, res)
+}
+
+func (h *UserHandler) UnblockUser(w http.ResponseWriter, r *http.Request) {
+	blockerID := middleware.UserID(r.Context())
+	blockedID := r.PathValue("id")
+	if blockedID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "User ID required"})
+		return
+	}
+	if blockerID == blockedID {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Cannot unblock yourself"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
+	defer cancel()
+
+	res, err := h.userClient.UnblockUser(ctx, &userpb.BlockRequest{
+		BlockerId: blockerID,
+		BlockedId: blockedID,
+	})
+	if err != nil {
+		h.log.Error("unblock user failed", "error", err, "blocker", blockerID, "blocked", blockedID)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to unblock user"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, res)
+}
+
+func (h *UserHandler) ReportUser(w http.ResponseWriter, r *http.Request) {
+	reporterID := middleware.UserID(r.Context())
+	reportedID := r.PathValue("id")
+	if reportedID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "User ID required"})
+		return
+	}
+	if reporterID == reportedID {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Cannot report yourself"})
+		return
+	}
+
+	var req ReportRequestPayload
+	if !decode(w, r, &req) {
+		return
+	}
+
+	if req.Reason == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Report reason is required"})
+		return
+	}
+	if req.Reason == "Other" && req.Details == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Please provide details for reason Other"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
+	defer cancel()
+
+	_, err := h.authClient.GetProfile(ctx, &authpb.GetProfileRequest{UserId: reportedID})
+	if err != nil {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "User not found"})
+		return
+	}
+
+	res, err := h.userClient.ReportUser(ctx, &userpb.ReportRequest{
+		ReporterId: reporterID,
+		ReportedId: reportedID,
+		Reason:     req.Reason,
+		Details:    req.Details,
+	})
+	if err != nil {
+		h.log.Error("report user failed", "error", err, "reporter", reporterID, "reported", reportedID)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Failed to submit report or report already pending"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, res)
 }

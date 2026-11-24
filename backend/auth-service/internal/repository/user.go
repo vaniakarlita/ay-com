@@ -148,6 +148,11 @@ func (r *UserRepository) UpdatePassword(ctx context.Context, id, hash string) er
 	return err
 }
 
+func (r *UserRepository) Deactivate(ctx context.Context, id string) error {
+	_, err := r.pool.Exec(ctx, `UPDATE users SET is_deactivated = TRUE WHERE id = $1`, id)
+	return err
+}
+
 type UpdateProfileParams struct {
 	UserID            string
 	Name              *string
@@ -158,6 +163,7 @@ type UpdateProfileParams struct {
 	Bio               *string
 	ProfilePictureURL *string
 	BannerURL         *string
+	IsPrivate         *bool
 	PasswordHash      *string
 }
 
@@ -212,6 +218,11 @@ func (r *UserRepository) UpdateProfile(ctx context.Context, p UpdateProfileParam
 		args = append(args, *p.BannerURL)
 		argIdx++
 	}
+	if p.IsPrivate != nil {
+		sets = append(sets, fmt.Sprintf("is_private = $%d", argIdx))
+		args = append(args, *p.IsPrivate)
+		argIdx++
+	}
 	if p.PasswordHash != nil {
 		sets = append(sets, fmt.Sprintf("password_hash = $%d", argIdx))
 		args = append(args, *p.PasswordHash)
@@ -238,9 +249,9 @@ func (r *UserRepository) UpdateProfile(ctx context.Context, p UpdateProfileParam
 
 	var res Profile
 	err = tx.QueryRow(ctx, `
-		SELECT id, name, username, profile_picture_url, banner_url, bio, created_at
+		SELECT id, name, username, profile_picture_url, banner_url, bio, is_private, created_at
 		FROM users WHERE id = $1`, p.UserID,
-	).Scan(&res.ID, &res.Name, &res.Username, &res.ProfilePictureURL, &res.BannerURL, &res.Bio, &res.CreatedAt)
+	).Scan(&res.ID, &res.Name, &res.Username, &res.ProfilePictureURL, &res.BannerURL, &res.Bio, &res.IsPrivate, &res.CreatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Profile{}, ErrNotFound
 	}
@@ -262,15 +273,16 @@ type Profile struct {
 	ProfilePictureURL string
 	BannerURL         string
 	Bio               string
+	IsPrivate         bool
 	CreatedAt         time.Time
 }
 
 func (r *UserRepository) FindProfile(ctx context.Context, id string) (Profile, error) {
 	var p Profile
 	err := r.pool.QueryRow(ctx, `
-		SELECT id, name, username, profile_picture_url, banner_url, bio, created_at
+		SELECT id, name, username, profile_picture_url, banner_url, bio, is_private, created_at
 		FROM users WHERE id = $1`, id,
-	).Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL, &p.BannerURL, &p.Bio, &p.CreatedAt)
+	).Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL, &p.BannerURL, &p.Bio, &p.IsPrivate, &p.CreatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Profile{}, ErrNotFound
 	}
@@ -283,10 +295,10 @@ func (r *UserRepository) FindProfile(ctx context.Context, id string) (Profile, e
 func (r *UserRepository) FindProfileByUsername(ctx context.Context, username string) (Profile, error) {
 	var p Profile
 	err := r.pool.QueryRow(ctx, `
-		SELECT id, name, username, profile_picture_url, banner_url, bio, created_at
+		SELECT id, name, username, profile_picture_url, banner_url, bio, is_private, created_at
 		FROM users 
 		WHERE username = $1 AND is_banned = FALSE AND is_deactivated = FALSE`, username,
-	).Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL, &p.BannerURL, &p.Bio, &p.CreatedAt)
+	).Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL, &p.BannerURL, &p.Bio, &p.IsPrivate, &p.CreatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Profile{}, ErrNotFound
 	}
@@ -301,7 +313,7 @@ func (r *UserRepository) FindProfilesByIDs(ctx context.Context, ids []string) ([
 		return nil, nil
 	}
 	rows, err := r.pool.Query(ctx, `
-		SELECT id, name, username, profile_picture_url, banner_url, bio, created_at
+		SELECT id, name, username, profile_picture_url, banner_url, bio, is_private, created_at
 		FROM users WHERE id = ANY($1)`, ids,
 	)
 	if err != nil {
@@ -312,7 +324,32 @@ func (r *UserRepository) FindProfilesByIDs(ctx context.Context, ids []string) ([
 	var profiles []Profile
 	for rows.Next() {
 		var p Profile
-		if err := rows.Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL, &p.BannerURL, &p.Bio, &p.CreatedAt); err != nil {
+		if err := rows.Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL, &p.BannerURL, &p.Bio, &p.IsPrivate, &p.CreatedAt); err != nil {
+			return nil, err
+		}
+		profiles = append(profiles, p)
+	}
+	return profiles, nil
+}
+
+func (r *UserRepository) FindActiveProfilesByIDs(ctx context.Context, ids []string) ([]Profile, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	rows, err := r.pool.Query(ctx, `
+		SELECT id, name, username, profile_picture_url, banner_url, bio, is_private, created_at
+		FROM users 
+		WHERE id = ANY($1) AND is_banned = FALSE AND is_deactivated = FALSE`, ids,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var profiles []Profile
+	for rows.Next() {
+		var p Profile
+		if err := rows.Scan(&p.ID, &p.Name, &p.Username, &p.ProfilePictureURL, &p.BannerURL, &p.Bio, &p.IsPrivate, &p.CreatedAt); err != nil {
 			return nil, err
 		}
 		profiles = append(profiles, p)
