@@ -1565,6 +1565,58 @@ func (x *TogglePinRequest) GetUserId() string {
 	return ""
 }
 
+type PinThreadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ThreadId      string                 `protobuf:"bytes,1,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PinThreadRequest) Reset() {
+	*x = PinThreadRequest{}
+	mi := &file_thread_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PinThreadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PinThreadRequest) ProtoMessage() {}
+
+func (x *PinThreadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PinThreadRequest.ProtoReflect.Descriptor instead.
+func (*PinThreadRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *PinThreadRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
+}
+
+func (x *PinThreadRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
 type TogglePinResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
@@ -1576,7 +1628,7 @@ type TogglePinResponse struct {
 
 func (x *TogglePinResponse) Reset() {
 	*x = TogglePinResponse{}
-	mi := &file_thread_proto_msgTypes[22]
+	mi := &file_thread_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1588,7 +1640,7 @@ func (x *TogglePinResponse) String() string {
 func (*TogglePinResponse) ProtoMessage() {}
 
 func (x *TogglePinResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[22]
+	mi := &file_thread_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1601,7 +1653,7 @@ func (x *TogglePinResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TogglePinResponse.ProtoReflect.Descriptor instead.
 func (*TogglePinResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{22}
+	return file_thread_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *TogglePinResponse) GetSuccess() bool {
@@ -1764,11 +1816,14 @@ const file_thread_proto_rawDesc = "" +
 	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"H\n" +
 	"\x10TogglePinRequest\x12\x1b\n" +
 	"\tthread_id\x18\x01 \x01(\tR\bthreadId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"H\n" +
+	"\x10PinThreadRequest\x12\x1b\n" +
+	"\tthread_id\x18\x01 \x01(\tR\bthreadId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"d\n" +
 	"\x11TogglePinResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1b\n" +
 	"\tis_pinned\x18\x02 \x01(\bR\bisPinned\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage2\x89\v\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage2\x8f\f\n" +
 	"\rThreadService\x12I\n" +
 	"\fCreateThread\x12\x1b.thread.CreateThreadRequest\x1a\x1c.thread.CreateThreadResponse\x12@\n" +
 	"\tGetThread\x12\x18.thread.GetThreadRequest\x1a\x19.thread.GetThreadResponse\x12F\n" +
@@ -1789,7 +1844,9 @@ const file_thread_proto_rawDesc = "" +
 	"\x0fListUserReplies\x12\x1e.thread.ListUserThreadsRequest\x1a\x18.thread.ListFeedResponse\x12I\n" +
 	"\rListUserLikes\x12\x1e.thread.ListUserThreadsRequest\x1a\x18.thread.ListFeedResponse\x12I\n" +
 	"\rListUserMedia\x12\x1e.thread.ListUserThreadsRequest\x1a\x18.thread.ListFeedResponse\x12@\n" +
-	"\tTogglePin\x12\x18.thread.TogglePinRequest\x1a\x19.thread.TogglePinResponseB@Z>github.com/vaniakarlita/ay-com/backend/thread-service/threadpbb\x06proto3"
+	"\tTogglePin\x12\x18.thread.TogglePinRequest\x1a\x19.thread.TogglePinResponse\x12@\n" +
+	"\tPinThread\x12\x18.thread.PinThreadRequest\x1a\x19.thread.TogglePinResponse\x12B\n" +
+	"\vUnpinThread\x12\x18.thread.PinThreadRequest\x1a\x19.thread.TogglePinResponseB@Z>github.com/vaniakarlita/ay-com/backend/thread-service/threadpbb\x06proto3"
 
 var (
 	file_thread_proto_rawDescOnce sync.Once
@@ -1803,7 +1860,7 @@ func file_thread_proto_rawDescGZIP() []byte {
 	return file_thread_proto_rawDescData
 }
 
-var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_thread_proto_goTypes = []any{
 	(*ThreadAuthor)(nil),             // 0: thread.ThreadAuthor
 	(*Thread)(nil),                   // 1: thread.Thread
@@ -1827,7 +1884,8 @@ var file_thread_proto_goTypes = []any{
 	(*ListBookmarksResponse)(nil),    // 19: thread.ListBookmarksResponse
 	(*ListUserThreadsRequest)(nil),   // 20: thread.ListUserThreadsRequest
 	(*TogglePinRequest)(nil),         // 21: thread.TogglePinRequest
-	(*TogglePinResponse)(nil),        // 22: thread.TogglePinResponse
+	(*PinThreadRequest)(nil),         // 22: thread.PinThreadRequest
+	(*TogglePinResponse)(nil),        // 23: thread.TogglePinResponse
 }
 var file_thread_proto_depIdxs = []int32{
 	1,  // 0: thread.CreateThreadResponse.thread:type_name -> thread.Thread
@@ -1855,27 +1913,31 @@ var file_thread_proto_depIdxs = []int32{
 	20, // 22: thread.ThreadService.ListUserLikes:input_type -> thread.ListUserThreadsRequest
 	20, // 23: thread.ThreadService.ListUserMedia:input_type -> thread.ListUserThreadsRequest
 	21, // 24: thread.ThreadService.TogglePin:input_type -> thread.TogglePinRequest
-	3,  // 25: thread.ThreadService.CreateThread:output_type -> thread.CreateThreadResponse
-	5,  // 26: thread.ThreadService.GetThread:output_type -> thread.GetThreadResponse
-	7,  // 27: thread.ThreadService.ListReplies:output_type -> thread.ListRepliesResponse
-	9,  // 28: thread.ThreadService.ListFeed:output_type -> thread.ListFeedResponse
-	9,  // 29: thread.ThreadService.ListFollowingFeed:output_type -> thread.ListFeedResponse
-	12, // 30: thread.ThreadService.DeleteThread:output_type -> thread.DeleteThreadResponse
-	15, // 31: thread.ThreadService.GetCategories:output_type -> thread.GetCategoriesResponse
-	17, // 32: thread.ThreadService.LikeThread:output_type -> thread.InteractionResponse
-	17, // 33: thread.ThreadService.UnlikeThread:output_type -> thread.InteractionResponse
-	17, // 34: thread.ThreadService.RepostThread:output_type -> thread.InteractionResponse
-	17, // 35: thread.ThreadService.UnrepostThread:output_type -> thread.InteractionResponse
-	17, // 36: thread.ThreadService.BookmarkThread:output_type -> thread.InteractionResponse
-	17, // 37: thread.ThreadService.UnbookmarkThread:output_type -> thread.InteractionResponse
-	19, // 38: thread.ThreadService.ListBookmarks:output_type -> thread.ListBookmarksResponse
-	9,  // 39: thread.ThreadService.ListUserThreads:output_type -> thread.ListFeedResponse
-	9,  // 40: thread.ThreadService.ListUserReplies:output_type -> thread.ListFeedResponse
-	9,  // 41: thread.ThreadService.ListUserLikes:output_type -> thread.ListFeedResponse
-	9,  // 42: thread.ThreadService.ListUserMedia:output_type -> thread.ListFeedResponse
-	22, // 43: thread.ThreadService.TogglePin:output_type -> thread.TogglePinResponse
-	25, // [25:44] is the sub-list for method output_type
-	6,  // [6:25] is the sub-list for method input_type
+	22, // 25: thread.ThreadService.PinThread:input_type -> thread.PinThreadRequest
+	22, // 26: thread.ThreadService.UnpinThread:input_type -> thread.PinThreadRequest
+	3,  // 27: thread.ThreadService.CreateThread:output_type -> thread.CreateThreadResponse
+	5,  // 28: thread.ThreadService.GetThread:output_type -> thread.GetThreadResponse
+	7,  // 29: thread.ThreadService.ListReplies:output_type -> thread.ListRepliesResponse
+	9,  // 30: thread.ThreadService.ListFeed:output_type -> thread.ListFeedResponse
+	9,  // 31: thread.ThreadService.ListFollowingFeed:output_type -> thread.ListFeedResponse
+	12, // 32: thread.ThreadService.DeleteThread:output_type -> thread.DeleteThreadResponse
+	15, // 33: thread.ThreadService.GetCategories:output_type -> thread.GetCategoriesResponse
+	17, // 34: thread.ThreadService.LikeThread:output_type -> thread.InteractionResponse
+	17, // 35: thread.ThreadService.UnlikeThread:output_type -> thread.InteractionResponse
+	17, // 36: thread.ThreadService.RepostThread:output_type -> thread.InteractionResponse
+	17, // 37: thread.ThreadService.UnrepostThread:output_type -> thread.InteractionResponse
+	17, // 38: thread.ThreadService.BookmarkThread:output_type -> thread.InteractionResponse
+	17, // 39: thread.ThreadService.UnbookmarkThread:output_type -> thread.InteractionResponse
+	19, // 40: thread.ThreadService.ListBookmarks:output_type -> thread.ListBookmarksResponse
+	9,  // 41: thread.ThreadService.ListUserThreads:output_type -> thread.ListFeedResponse
+	9,  // 42: thread.ThreadService.ListUserReplies:output_type -> thread.ListFeedResponse
+	9,  // 43: thread.ThreadService.ListUserLikes:output_type -> thread.ListFeedResponse
+	9,  // 44: thread.ThreadService.ListUserMedia:output_type -> thread.ListFeedResponse
+	23, // 45: thread.ThreadService.TogglePin:output_type -> thread.TogglePinResponse
+	23, // 46: thread.ThreadService.PinThread:output_type -> thread.TogglePinResponse
+	23, // 47: thread.ThreadService.UnpinThread:output_type -> thread.TogglePinResponse
+	27, // [27:48] is the sub-list for method output_type
+	6,  // [6:27] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name
 	6,  // [6:6] is the sub-list for extension extendee
 	0,  // [0:6] is the sub-list for field type_name
@@ -1892,7 +1954,7 @@ func file_thread_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_thread_proto_rawDesc), len(file_thread_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   23,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

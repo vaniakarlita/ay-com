@@ -61,6 +61,8 @@ func (h *ThreadHandler) Routes(mux *http.ServeMux, auth func(http.Handler) http.
 	mux.Handle("GET /api/users/{id}/replies", auth(http.HandlerFunc(h.ListUserReplies)))
 	mux.Handle("GET /api/users/{id}/likes", auth(http.HandlerFunc(h.ListUserLikes)))
 	mux.Handle("GET /api/users/{id}/media", auth(http.HandlerFunc(h.ListUserMedia)))
+	mux.Handle("PUT /api/threads/{id}/pin", auth(http.HandlerFunc(h.PinThread)))
+	mux.Handle("DELETE /api/threads/{id}/pin", auth(http.HandlerFunc(h.UnpinThread)))
 	mux.Handle("POST /api/threads/{id}/pin", auth(http.HandlerFunc(h.TogglePin)))
 }
 
@@ -528,11 +530,7 @@ func (h *ThreadHandler) ListUserLikes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if viewerID != targetUserID {
-		writeJSON(w, http.StatusOK, map[string]any{
-			"threads":    []any{},
-			"nextCursor": "",
-			"hasMore":    false,
-		})
+		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You are not authorized to view this user's likes"})
 		return
 	}
 
@@ -626,6 +624,54 @@ func (h *ThreadHandler) TogglePin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.log.Error("failed to toggle pin", "error", err, "thread_id", threadID, "user_id", userID)
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Failed to toggle pin on thread"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, res)
+}
+
+func (h *ThreadHandler) PinThread(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r.Context())
+	threadID := r.PathValue("id")
+	if threadID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Thread ID required"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
+	defer cancel()
+
+	res, err := h.threadClient.PinThread(ctx, &threadpb.PinThreadRequest{
+		ThreadId: threadID,
+		UserId:   userID,
+	})
+	if err != nil {
+		h.log.Error("failed to pin thread", "error", err, "thread_id", threadID, "user_id", userID)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Failed to pin thread"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, res)
+}
+
+func (h *ThreadHandler) UnpinThread(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r.Context())
+	threadID := r.PathValue("id")
+	if threadID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Thread ID required"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), requestTimeout)
+	defer cancel()
+
+	res, err := h.threadClient.UnpinThread(ctx, &threadpb.PinThreadRequest{
+		ThreadId: threadID,
+		UserId:   userID,
+	})
+	if err != nil {
+		h.log.Error("failed to unpin thread", "error", err, "thread_id", threadID, "user_id", userID)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Failed to unpin thread"})
 		return
 	}
 

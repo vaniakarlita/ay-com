@@ -25,6 +25,8 @@ service ThreadService {
   rpc ListUserLikes(ListUserThreadsRequest) returns (ListFeedResponse);
   rpc ListUserMedia(ListUserThreadsRequest) returns (ListFeedResponse);
   rpc TogglePin(TogglePinRequest) returns (TogglePinResponse);
+  rpc PinThread(PinThreadRequest) returns (TogglePinResponse);
+  rpc UnpinThread(PinThreadRequest) returns (TogglePinResponse);
 }
 
 message ThreadAuthor {
@@ -182,6 +184,11 @@ message ListUserThreadsRequest {
 }
 
 message TogglePinRequest {
+  string thread_id = 1;
+  string user_id = 2;
+}
+
+message PinThreadRequest {
   string thread_id = 1;
   string user_id = 2;
 }

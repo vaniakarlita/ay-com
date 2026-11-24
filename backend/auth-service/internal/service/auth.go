@@ -33,6 +33,7 @@ type UserStore interface {
 	FindProfile(ctx context.Context, id string) (repository.Profile, error)
 	FindProfileByUsername(ctx context.Context, username string) (repository.Profile, error)
 	FindProfilesByIDs(ctx context.Context, ids []string) ([]repository.Profile, error)
+	UpdateProfile(ctx context.Context, p repository.UpdateProfileParams) (repository.Profile, error)
 }
 
 type CodeStore interface {

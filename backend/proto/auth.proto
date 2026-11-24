@@ -18,6 +18,7 @@ service AuthService {
   rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
   rpc GetProfileByUsername(GetProfileByUsernameRequest) returns (GetProfileResponse);
   rpc GetProfilesByIDs(GetProfilesByIDsRequest) returns (GetProfilesByIDsResponse);
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
 }
 
 message RegisterRequest {
@@ -146,4 +147,24 @@ message GetProfilesByIDsRequest {
 
 message GetProfilesByIDsResponse {
   repeated GetProfileResponse profiles = 1;
+}
+
+message UpdateProfileRequest {
+  string user_id = 1;
+  optional string name = 2;
+  optional string username = 3;
+  optional string email = 4;
+  optional string gender = 5;
+  optional string date_of_birth = 6;
+  optional string bio = 7;
+  optional string profile_picture_url = 8;
+  optional string banner_url = 9;
+  optional string old_password = 10;
+  optional string new_password = 11;
+}
+
+message UpdateProfileResponse {
+  GetProfileResponse profile = 1;
+  optional string new_access_token = 2;
+  optional string new_refresh_token = 3;
 }

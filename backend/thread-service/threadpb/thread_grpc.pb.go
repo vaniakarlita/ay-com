@@ -38,6 +38,8 @@ const (
 	ThreadService_ListUserLikes_FullMethodName     = "/thread.ThreadService/ListUserLikes"
 	ThreadService_ListUserMedia_FullMethodName     = "/thread.ThreadService/ListUserMedia"
 	ThreadService_TogglePin_FullMethodName         = "/thread.ThreadService/TogglePin"
+	ThreadService_PinThread_FullMethodName         = "/thread.ThreadService/PinThread"
+	ThreadService_UnpinThread_FullMethodName       = "/thread.ThreadService/UnpinThread"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -63,6 +65,8 @@ type ThreadServiceClient interface {
 	ListUserLikes(ctx context.Context, in *ListUserThreadsRequest, opts ...grpc.CallOption) (*ListFeedResponse, error)
 	ListUserMedia(ctx context.Context, in *ListUserThreadsRequest, opts ...grpc.CallOption) (*ListFeedResponse, error)
 	TogglePin(ctx context.Context, in *TogglePinRequest, opts ...grpc.CallOption) (*TogglePinResponse, error)
+	PinThread(ctx context.Context, in *PinThreadRequest, opts ...grpc.CallOption) (*TogglePinResponse, error)
+	UnpinThread(ctx context.Context, in *PinThreadRequest, opts ...grpc.CallOption) (*TogglePinResponse, error)
 }
 
 type threadServiceClient struct {
@@ -263,6 +267,26 @@ func (c *threadServiceClient) TogglePin(ctx context.Context, in *TogglePinReques
 	return out, nil
 }
 
+func (c *threadServiceClient) PinThread(ctx context.Context, in *PinThreadRequest, opts ...grpc.CallOption) (*TogglePinResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TogglePinResponse)
+	err := c.cc.Invoke(ctx, ThreadService_PinThread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) UnpinThread(ctx context.Context, in *PinThreadRequest, opts ...grpc.CallOption) (*TogglePinResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TogglePinResponse)
+	err := c.cc.Invoke(ctx, ThreadService_UnpinThread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
@@ -286,6 +310,8 @@ type ThreadServiceServer interface {
 	ListUserLikes(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error)
 	ListUserMedia(context.Context, *ListUserThreadsRequest) (*ListFeedResponse, error)
 	TogglePin(context.Context, *TogglePinRequest) (*TogglePinResponse, error)
+	PinThread(context.Context, *PinThreadRequest) (*TogglePinResponse, error)
+	UnpinThread(context.Context, *PinThreadRequest) (*TogglePinResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -352,6 +378,12 @@ func (UnimplementedThreadServiceServer) ListUserMedia(context.Context, *ListUser
 }
 func (UnimplementedThreadServiceServer) TogglePin(context.Context, *TogglePinRequest) (*TogglePinResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TogglePin not implemented")
+}
+func (UnimplementedThreadServiceServer) PinThread(context.Context, *PinThreadRequest) (*TogglePinResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PinThread not implemented")
+}
+func (UnimplementedThreadServiceServer) UnpinThread(context.Context, *PinThreadRequest) (*TogglePinResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UnpinThread not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -716,6 +748,42 @@ func _ThreadService_TogglePin_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_PinThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinThreadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).PinThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_PinThread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).PinThread(ctx, req.(*PinThreadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_UnpinThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinThreadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).UnpinThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_UnpinThread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).UnpinThread(ctx, req.(*PinThreadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -798,6 +866,14 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TogglePin",
 			Handler:    _ThreadService_TogglePin_Handler,
+		},
+		{
+			MethodName: "PinThread",
+			Handler:    _ThreadService_PinThread_Handler,
+		},
+		{
+			MethodName: "UnpinThread",
+			Handler:    _ThreadService_UnpinThread_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

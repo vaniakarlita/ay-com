@@ -18,8 +18,8 @@ var SecurityQuestions = []string{
 }
 
 var (
-	usernameRe = regexp.MustCompile(`^[a-zA-Z0-9_]{3,15}$`)
-	emailRe    = regexp.MustCompile(`^[^\s@]+@[^\s@.]+\.com$`)
+	UsernameRe = regexp.MustCompile(`^[a-zA-Z0-9_]{3,15}$`)
+	EmailRe    = regexp.MustCompile(`^[^\s@]+@[^\s@.]+\.com$`)
 )
 
 type Registration struct {
@@ -39,10 +39,10 @@ func (r Registration) Validate(now time.Time) error {
 	if err := ValidateName(r.Name); err != nil {
 		return err
 	}
-	if !usernameRe.MatchString(r.Username) {
+	if !UsernameRe.MatchString(r.Username) {
 		return errors.New("username must be 3-15 characters: letters, numbers, or underscore")
 	}
-	if !emailRe.MatchString(r.Email) {
+	if !EmailRe.MatchString(r.Email) {
 		return errors.New("email must match [name]@[domain].com")
 	}
 	if err := ValidatePassword(r.Password); err != nil {

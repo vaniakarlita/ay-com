@@ -62,6 +62,11 @@ func (m *MockUserStore) UpdatePassword(ctx context.Context, id, hash string) err
 	return m.Called(ctx, id, hash).Error(0)
 }
 
+func (m *MockUserStore) UpdateProfile(ctx context.Context, p repository.UpdateProfileParams) (repository.Profile, error) {
+	args := m.Called(ctx, p)
+	return args.Get(0).(repository.Profile), args.Error(1)
+}
+
 type MockCodeStore struct{ mock.Mock }
 
 func (m *MockCodeStore) Save(ctx context.Context, email, code string, ttl time.Duration) error {
@@ -123,6 +128,24 @@ func (m *MockTokenStore) Attempts(ctx context.Context, email string) (int64, err
 
 func (m *MockTokenStore) ClearAttempts(ctx context.Context, email string) error {
 	return m.Called(ctx, email).Error(0)
+}
+
+func (m *MockTokenStore) RevokeAllUserTokens(ctx context.Context, userID string) error {
+	return m.Called(ctx, userID).Error(0)
+}
+
+func (m *MockTokenStore) AddPasswordAttempt(ctx context.Context, userID string, window time.Duration) (int64, error) {
+	args := m.Called(ctx, userID, window)
+	return args.Get(0).(int64), args.Error(1)
+}
+
+func (m *MockTokenStore) PasswordAttempts(ctx context.Context, userID string) (int64, error) {
+	args := m.Called(ctx, userID)
+	return args.Get(0).(int64), args.Error(1)
+}
+
+func (m *MockTokenStore) ClearPasswordAttempts(ctx context.Context, userID string) error {
+	return m.Called(ctx, userID).Error(0)
 }
 
 type MockTokenIssuer struct{ mock.Mock }

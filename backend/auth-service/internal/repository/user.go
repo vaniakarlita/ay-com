@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -144,6 +146,113 @@ func (r *UserRepository) FindRecovery(ctx context.Context, email string) (Recove
 func (r *UserRepository) UpdatePassword(ctx context.Context, id, hash string) error {
 	_, err := r.pool.Exec(ctx, `UPDATE users SET password_hash = $1 WHERE id = $2`, hash, id)
 	return err
+}
+
+type UpdateProfileParams struct {
+	UserID            string
+	Name              *string
+	Username          *string
+	Email             *string
+	Gender            *string
+	DateOfBirth       *string
+	Bio               *string
+	ProfilePictureURL *string
+	BannerURL         *string
+	PasswordHash      *string
+}
+
+func (r *UserRepository) UpdateProfile(ctx context.Context, p UpdateProfileParams) (Profile, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return Profile{}, err
+	}
+	defer tx.Rollback(ctx)
+
+	sets := []string{}
+	args := []any{}
+	argIdx := 1
+
+	if p.Name != nil {
+		sets = append(sets, fmt.Sprintf("name = $%d", argIdx))
+		args = append(args, *p.Name)
+		argIdx++
+	}
+	if p.Username != nil {
+		sets = append(sets, fmt.Sprintf("username = $%d", argIdx))
+		args = append(args, *p.Username)
+		argIdx++
+	}
+	if p.Email != nil {
+		sets = append(sets, fmt.Sprintf("email = $%d", argIdx))
+		args = append(args, *p.Email)
+		argIdx++
+	}
+	if p.Gender != nil {
+		sets = append(sets, fmt.Sprintf("gender = $%d", argIdx))
+		args = append(args, *p.Gender)
+		argIdx++
+	}
+	if p.DateOfBirth != nil {
+		sets = append(sets, fmt.Sprintf("date_of_birth = $%d", argIdx))
+		args = append(args, *p.DateOfBirth)
+		argIdx++
+	}
+	if p.Bio != nil {
+		sets = append(sets, fmt.Sprintf("bio = $%d", argIdx))
+		args = append(args, *p.Bio)
+		argIdx++
+	}
+	if p.ProfilePictureURL != nil {
+		sets = append(sets, fmt.Sprintf("profile_picture_url = $%d", argIdx))
+		args = append(args, *p.ProfilePictureURL)
+		argIdx++
+	}
+	if p.BannerURL != nil {
+		sets = append(sets, fmt.Sprintf("banner_url = $%d", argIdx))
+		args = append(args, *p.BannerURL)
+		argIdx++
+	}
+	if p.PasswordHash != nil {
+		sets = append(sets, fmt.Sprintf("password_hash = $%d", argIdx))
+		args = append(args, *p.PasswordHash)
+		argIdx++
+	}
+
+	if len(sets) > 0 {
+		query := fmt.Sprintf("UPDATE users SET %s WHERE id = $%d", strings.Join(sets, ", "), argIdx)
+		args = append(args, p.UserID)
+		_, err = tx.Exec(ctx, query, args...)
+		if err != nil {
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+				switch pgErr.ConstraintName {
+				case "users_email_key":
+					return Profile{}, ErrEmailTaken
+				case "users_username_key":
+					return Profile{}, ErrUsernameTaken
+				}
+			}
+			return Profile{}, err
+		}
+	}
+
+	var res Profile
+	err = tx.QueryRow(ctx, `
+		SELECT id, name, username, profile_picture_url, banner_url, bio, created_at
+		FROM users WHERE id = $1`, p.UserID,
+	).Scan(&res.ID, &res.Name, &res.Username, &res.ProfilePictureURL, &res.BannerURL, &res.Bio, &res.CreatedAt)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Profile{}, ErrNotFound
+	}
+	if err != nil {
+		return Profile{}, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return Profile{}, err
+	}
+
+	return res, nil
 }
 
 type Profile struct {

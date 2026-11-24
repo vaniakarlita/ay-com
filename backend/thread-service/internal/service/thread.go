@@ -316,6 +316,42 @@ func (s *ThreadService) TogglePin(ctx context.Context, req *threadpb.TogglePinRe
 	}, nil
 }
 
+func (s *ThreadService) PinThread(ctx context.Context, req *threadpb.PinThreadRequest) (*threadpb.TogglePinResponse, error) {
+	if req.ThreadId == "" || req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "thread_id and user_id are required")
+	}
+
+	isPinned, err := s.repo.SetPin(ctx, req.ThreadId, req.UserId, true)
+	if err != nil {
+		s.logger.Error("failed to pin thread", "error", err, "thread_id", req.ThreadId, "user_id", req.UserId)
+		return nil, status.Errorf(codes.Internal, "failed to pin thread: %v", err)
+	}
+
+	return &threadpb.TogglePinResponse{
+		Success:  true,
+		IsPinned: isPinned,
+		Message:  "Thread pinned to profile",
+	}, nil
+}
+
+func (s *ThreadService) UnpinThread(ctx context.Context, req *threadpb.PinThreadRequest) (*threadpb.TogglePinResponse, error) {
+	if req.ThreadId == "" || req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "thread_id and user_id are required")
+	}
+
+	isPinned, err := s.repo.SetPin(ctx, req.ThreadId, req.UserId, false)
+	if err != nil {
+		s.logger.Error("failed to unpin thread", "error", err, "thread_id", req.ThreadId, "user_id", req.UserId)
+		return nil, status.Errorf(codes.Internal, "failed to unpin thread: %v", err)
+	}
+
+	return &threadpb.TogglePinResponse{
+		Success:  true,
+		IsPinned: isPinned,
+		Message:  "Thread unpinned from profile",
+	}, nil
+}
+
 func (s *ThreadService) ListFollowingFeed(ctx context.Context, req *threadpb.ListFollowingFeedRequest) (*threadpb.ListFeedResponse, error) {
 	limit := int(req.Limit)
 	if limit <= 0 {

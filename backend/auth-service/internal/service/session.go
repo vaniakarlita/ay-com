@@ -22,6 +22,10 @@ type TokenStore interface {
 	AddAttempt(ctx context.Context, email string, window time.Duration) (int64, error)
 	Attempts(ctx context.Context, email string) (int64, error)
 	ClearAttempts(ctx context.Context, email string) error
+	RevokeAllUserTokens(ctx context.Context, userID string) error
+	AddPasswordAttempt(ctx context.Context, userID string, window time.Duration) (int64, error)
+	PasswordAttempts(ctx context.Context, userID string) (int64, error)
+	ClearPasswordAttempts(ctx context.Context, userID string) error
 }
 
 type TokenIssuer interface {

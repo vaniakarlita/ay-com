@@ -99,6 +99,9 @@ export type CurrentUser = {
   name?: string;
   username?: string;
   profilePictureUrl?: string;
+  bannerUrl?: string;
+  bio?: string;
+  createdAt?: string;
   isVerified?: boolean;
 };
 
@@ -267,6 +270,27 @@ export const userApi = {
   },
   getSuggestions: () =>
     request<UserSuggestion[]>('/api/users/suggestions', { auth: true }),
+  updateProfile: (body: {
+    name?: string;
+    username?: string;
+    email?: string;
+    gender?: string;
+    dateOfBirth?: string;
+    bio?: string;
+    profilePictureUrl?: string;
+    bannerUrl?: string;
+    oldPassword?: string;
+    newPassword?: string;
+  }) =>
+    request<{
+      user: CurrentUser;
+      accessToken?: string;
+      refreshToken?: string;
+    }>('/api/users/me', {
+      method: 'PUT',
+      body,
+      auth: true,
+    }),
 };
 
 export const threadApi = {
@@ -346,6 +370,16 @@ export const threadApi = {
   togglePin: (threadId: string) =>
     request<{ success: boolean; isPinned: boolean; message: string }>(`/api/threads/${threadId}/pin`, {
       method: 'POST',
+      auth: true,
+    }),
+  pin: (threadId: string) =>
+    request<{ success: boolean; isPinned: boolean; message: string }>(`/api/threads/${threadId}/pin`, {
+      method: 'PUT',
+      auth: true,
+    }),
+  unpin: (threadId: string) =>
+    request<{ success: boolean; isPinned: boolean; message: string }>(`/api/threads/${threadId}/pin`, {
+      method: 'DELETE',
       auth: true,
     }),
 };

@@ -82,3 +82,51 @@ func (s *RedisStore) Attempts(ctx context.Context, email string) (int64, error) 
 func (s *RedisStore) ClearAttempts(ctx context.Context, email string) error {
 	return s.rdb.Del(ctx, attemptKey(email)).Err()
 }
+
+func (s *RedisStore) RevokeAllUserTokens(ctx context.Context, userID string) error {
+	pattern := "refresh:" + userID + ":*"
+	var cursor uint64
+	for {
+		keys, nextCursor, err := s.rdb.Scan(ctx, cursor, pattern, 100).Result()
+		if err != nil {
+			return err
+		}
+		if len(keys) > 0 {
+			if err := s.rdb.Del(ctx, keys...).Err(); err != nil {
+				return err
+			}
+		}
+		cursor = nextCursor
+		if cursor == 0 {
+			break
+		}
+	}
+	return nil
+}
+
+func passwordAttemptKey(userID string) string {
+	return "pwd-attempts:" + userID
+}
+
+func (s *RedisStore) AddPasswordAttempt(ctx context.Context, userID string, window time.Duration) (int64, error) {
+	n, err := s.rdb.Incr(ctx, passwordAttemptKey(userID)).Result()
+	if err != nil {
+		return 0, err
+	}
+	if n == 1 {
+		s.rdb.Expire(ctx, passwordAttemptKey(userID), window)
+	}
+	return n, nil
+}
+
+func (s *RedisStore) PasswordAttempts(ctx context.Context, userID string) (int64, error) {
+	n, err := s.rdb.Get(ctx, passwordAttemptKey(userID)).Int64()
+	if errors.Is(err, redis.Nil) {
+		return 0, nil
+	}
+	return n, err
+}
+
+func (s *RedisStore) ClearPasswordAttempts(ctx context.Context, userID string) error {
+	return s.rdb.Del(ctx, passwordAttemptKey(userID)).Err()
+}

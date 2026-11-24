@@ -214,8 +214,79 @@ paths:
                   userId:
                     type: string
                     format: uuid
+                  name:
+                    type: string
+                  username:
+                    type: string
+                  profilePictureUrl:
+                    type: string
+                  bannerUrl:
+                    type: string
+                  bio:
+                    type: string
+                  createdAt:
+                    type: string
         "401":
           $ref: "#/components/responses/Unauthorized"
+  /api/users/me:
+    put:
+      tags: [Session]
+      summary: Update the signed-in user profile or password
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                gender:
+                  type: string
+                  enum: [male, female]
+                dateOfBirth:
+                  type: string
+                  format: date
+                bio:
+                  type: string
+                profilePictureUrl:
+                  type: string
+                bannerUrl:
+                  type: string
+                oldPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        "200":
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: Username or email is already taken
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /api/auth/forgot/question:
     post:
       tags: [Password recovery]
@@ -606,6 +677,34 @@ paths:
         "200":
           description: User media threads list
   /api/threads/{id}/pin:
+    put:
+      tags: [Threads]
+      summary: Pin thread to profile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thread pinned to profile
+    delete:
+      tags: [Threads]
+      summary: Unpin thread from profile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thread unpinned from profile
     post:
       tags: [Threads]
       summary: Toggle pin thread to profile

@@ -152,7 +152,9 @@
     e.stopPropagation();
     isPinning = true;
     try {
-      const res = await threadApi.togglePin(thread.id);
+      const res = thread.isPinned
+        ? await threadApi.unpin(thread.id)
+        : await threadApi.pin(thread.id);
       thread.isPinned = res.isPinned;
       showMenu = false;
       onPinToggled?.(thread.id, res.isPinned);

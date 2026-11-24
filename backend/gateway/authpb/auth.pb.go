@@ -1345,6 +1345,190 @@ func (x *GetProfilesByIDsResponse) GetProfiles() []*GetProfileResponse {
 	return nil
 }
 
+type UpdateProfileRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	UserId            string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Name              *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	Username          *string                `protobuf:"bytes,3,opt,name=username,proto3,oneof" json:"username,omitempty"`
+	Email             *string                `protobuf:"bytes,4,opt,name=email,proto3,oneof" json:"email,omitempty"`
+	Gender            *string                `protobuf:"bytes,5,opt,name=gender,proto3,oneof" json:"gender,omitempty"`
+	DateOfBirth       *string                `protobuf:"bytes,6,opt,name=date_of_birth,json=dateOfBirth,proto3,oneof" json:"date_of_birth,omitempty"`
+	Bio               *string                `protobuf:"bytes,7,opt,name=bio,proto3,oneof" json:"bio,omitempty"`
+	ProfilePictureUrl *string                `protobuf:"bytes,8,opt,name=profile_picture_url,json=profilePictureUrl,proto3,oneof" json:"profile_picture_url,omitempty"`
+	BannerUrl         *string                `protobuf:"bytes,9,opt,name=banner_url,json=bannerUrl,proto3,oneof" json:"banner_url,omitempty"`
+	OldPassword       *string                `protobuf:"bytes,10,opt,name=old_password,json=oldPassword,proto3,oneof" json:"old_password,omitempty"`
+	NewPassword       *string                `protobuf:"bytes,11,opt,name=new_password,json=newPassword,proto3,oneof" json:"new_password,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *UpdateProfileRequest) Reset() {
+	*x = UpdateProfileRequest{}
+	mi := &file_auth_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProfileRequest) ProtoMessage() {}
+
+func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProfileRequest.ProtoReflect.Descriptor instead.
+func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *UpdateProfileRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetUsername() string {
+	if x != nil && x.Username != nil {
+		return *x.Username
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetEmail() string {
+	if x != nil && x.Email != nil {
+		return *x.Email
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetGender() string {
+	if x != nil && x.Gender != nil {
+		return *x.Gender
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetDateOfBirth() string {
+	if x != nil && x.DateOfBirth != nil {
+		return *x.DateOfBirth
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetBio() string {
+	if x != nil && x.Bio != nil {
+		return *x.Bio
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetProfilePictureUrl() string {
+	if x != nil && x.ProfilePictureUrl != nil {
+		return *x.ProfilePictureUrl
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetBannerUrl() string {
+	if x != nil && x.BannerUrl != nil {
+		return *x.BannerUrl
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetOldPassword() string {
+	if x != nil && x.OldPassword != nil {
+		return *x.OldPassword
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetNewPassword() string {
+	if x != nil && x.NewPassword != nil {
+		return *x.NewPassword
+	}
+	return ""
+}
+
+type UpdateProfileResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Profile         *GetProfileResponse    `protobuf:"bytes,1,opt,name=profile,proto3" json:"profile,omitempty"`
+	NewAccessToken  *string                `protobuf:"bytes,2,opt,name=new_access_token,json=newAccessToken,proto3,oneof" json:"new_access_token,omitempty"`
+	NewRefreshToken *string                `protobuf:"bytes,3,opt,name=new_refresh_token,json=newRefreshToken,proto3,oneof" json:"new_refresh_token,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *UpdateProfileResponse) Reset() {
+	*x = UpdateProfileResponse{}
+	mi := &file_auth_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProfileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProfileResponse) ProtoMessage() {}
+
+func (x *UpdateProfileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProfileResponse.ProtoReflect.Descriptor instead.
+func (*UpdateProfileResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *UpdateProfileResponse) GetProfile() *GetProfileResponse {
+	if x != nil {
+		return x.Profile
+	}
+	return nil
+}
+
+func (x *UpdateProfileResponse) GetNewAccessToken() string {
+	if x != nil && x.NewAccessToken != nil {
+		return *x.NewAccessToken
+	}
+	return ""
+}
+
+func (x *UpdateProfileResponse) GetNewRefreshToken() string {
+	if x != nil && x.NewRefreshToken != nil {
+		return *x.NewRefreshToken
+	}
+	return ""
+}
+
 var File_auth_proto protoreflect.FileDescriptor
 
 const file_auth_proto_rawDesc = "" +
@@ -1438,7 +1622,37 @@ const file_auth_proto_rawDesc = "" +
 	"\x17GetProfilesByIDsRequest\x12\x19\n" +
 	"\buser_ids\x18\x01 \x03(\tR\auserIds\"P\n" +
 	"\x18GetProfilesByIDsResponse\x124\n" +
-	"\bprofiles\x18\x01 \x03(\v2\x18.auth.GetProfileResponseR\bprofiles2\xaa\a\n" +
+	"\bprofiles\x18\x01 \x03(\v2\x18.auth.GetProfileResponseR\bprofiles\"\x98\x04\n" +
+	"\x14UpdateProfileRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1f\n" +
+	"\busername\x18\x03 \x01(\tH\x01R\busername\x88\x01\x01\x12\x19\n" +
+	"\x05email\x18\x04 \x01(\tH\x02R\x05email\x88\x01\x01\x12\x1b\n" +
+	"\x06gender\x18\x05 \x01(\tH\x03R\x06gender\x88\x01\x01\x12'\n" +
+	"\rdate_of_birth\x18\x06 \x01(\tH\x04R\vdateOfBirth\x88\x01\x01\x12\x15\n" +
+	"\x03bio\x18\a \x01(\tH\x05R\x03bio\x88\x01\x01\x123\n" +
+	"\x13profile_picture_url\x18\b \x01(\tH\x06R\x11profilePictureUrl\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"banner_url\x18\t \x01(\tH\aR\tbannerUrl\x88\x01\x01\x12&\n" +
+	"\fold_password\x18\n" +
+	" \x01(\tH\bR\voldPassword\x88\x01\x01\x12&\n" +
+	"\fnew_password\x18\v \x01(\tH\tR\vnewPassword\x88\x01\x01B\a\n" +
+	"\x05_nameB\v\n" +
+	"\t_usernameB\b\n" +
+	"\x06_emailB\t\n" +
+	"\a_genderB\x10\n" +
+	"\x0e_date_of_birthB\x06\n" +
+	"\x04_bioB\x16\n" +
+	"\x14_profile_picture_urlB\r\n" +
+	"\v_banner_urlB\x0f\n" +
+	"\r_old_passwordB\x0f\n" +
+	"\r_new_password\"\xd6\x01\n" +
+	"\x15UpdateProfileResponse\x122\n" +
+	"\aprofile\x18\x01 \x01(\v2\x18.auth.GetProfileResponseR\aprofile\x12-\n" +
+	"\x10new_access_token\x18\x02 \x01(\tH\x00R\x0enewAccessToken\x88\x01\x01\x12/\n" +
+	"\x11new_refresh_token\x18\x03 \x01(\tH\x01R\x0fnewRefreshToken\x88\x01\x01B\x13\n" +
+	"\x11_new_access_tokenB\x14\n" +
+	"\x12_new_refresh_token2\xf4\a\n" +
 	"\vAuthService\x129\n" +
 	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x12B\n" +
 	"\vVerifyEmail\x12\x18.auth.VerifyEmailRequest\x1a\x19.auth.VerifyEmailResponse\x12?\n" +
@@ -1455,7 +1669,8 @@ const file_auth_proto_rawDesc = "" +
 	"\n" +
 	"GetProfile\x12\x17.auth.GetProfileRequest\x1a\x18.auth.GetProfileResponse\x12S\n" +
 	"\x14GetProfileByUsername\x12!.auth.GetProfileByUsernameRequest\x1a\x18.auth.GetProfileResponse\x12Q\n" +
-	"\x10GetProfilesByIDs\x12\x1d.auth.GetProfilesByIDsRequest\x1a\x1e.auth.GetProfilesByIDsResponseB<Z:github.com/vaniakarlita/ay-com/backend/auth-service/authpbb\x06proto3"
+	"\x10GetProfilesByIDs\x12\x1d.auth.GetProfilesByIDsRequest\x1a\x1e.auth.GetProfilesByIDsResponse\x12H\n" +
+	"\rUpdateProfile\x12\x1a.auth.UpdateProfileRequest\x1a\x1b.auth.UpdateProfileResponseB<Z:github.com/vaniakarlita/ay-com/backend/auth-service/authpbb\x06proto3"
 
 var (
 	file_auth_proto_rawDescOnce sync.Once
@@ -1469,7 +1684,7 @@ func file_auth_proto_rawDescGZIP() []byte {
 	return file_auth_proto_rawDescData
 }
 
-var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_auth_proto_goTypes = []any{
 	(*RegisterRequest)(nil),              // 0: auth.RegisterRequest
 	(*RegisterResponse)(nil),             // 1: auth.RegisterResponse
@@ -1496,40 +1711,45 @@ var file_auth_proto_goTypes = []any{
 	(*GetProfileByUsernameRequest)(nil),  // 22: auth.GetProfileByUsernameRequest
 	(*GetProfilesByIDsRequest)(nil),      // 23: auth.GetProfilesByIDsRequest
 	(*GetProfilesByIDsResponse)(nil),     // 24: auth.GetProfilesByIDsResponse
+	(*UpdateProfileRequest)(nil),         // 25: auth.UpdateProfileRequest
+	(*UpdateProfileResponse)(nil),        // 26: auth.UpdateProfileResponse
 }
 var file_auth_proto_depIdxs = []int32{
 	21, // 0: auth.GetProfilesByIDsResponse.profiles:type_name -> auth.GetProfileResponse
-	0,  // 1: auth.AuthService.Register:input_type -> auth.RegisterRequest
-	2,  // 2: auth.AuthService.VerifyEmail:input_type -> auth.VerifyEmailRequest
-	4,  // 3: auth.AuthService.ResendCode:input_type -> auth.ResendCodeRequest
-	6,  // 4: auth.AuthService.Login:input_type -> auth.LoginRequest
-	8,  // 5: auth.AuthService.RefreshToken:input_type -> auth.RefreshTokenRequest
-	10, // 6: auth.AuthService.Logout:input_type -> auth.LogoutRequest
-	12, // 7: auth.AuthService.GetSecurityQuestion:input_type -> auth.GetSecurityQuestionRequest
-	14, // 8: auth.AuthService.VerifySecurityAnswer:input_type -> auth.VerifySecurityAnswerRequest
-	16, // 9: auth.AuthService.ResetPassword:input_type -> auth.ResetPasswordRequest
-	18, // 10: auth.AuthService.GoogleAuth:input_type -> auth.GoogleAuthRequest
-	20, // 11: auth.AuthService.GetProfile:input_type -> auth.GetProfileRequest
-	22, // 12: auth.AuthService.GetProfileByUsername:input_type -> auth.GetProfileByUsernameRequest
-	23, // 13: auth.AuthService.GetProfilesByIDs:input_type -> auth.GetProfilesByIDsRequest
-	1,  // 14: auth.AuthService.Register:output_type -> auth.RegisterResponse
-	3,  // 15: auth.AuthService.VerifyEmail:output_type -> auth.VerifyEmailResponse
-	5,  // 16: auth.AuthService.ResendCode:output_type -> auth.ResendCodeResponse
-	7,  // 17: auth.AuthService.Login:output_type -> auth.LoginResponse
-	9,  // 18: auth.AuthService.RefreshToken:output_type -> auth.RefreshTokenResponse
-	11, // 19: auth.AuthService.Logout:output_type -> auth.LogoutResponse
-	13, // 20: auth.AuthService.GetSecurityQuestion:output_type -> auth.GetSecurityQuestionResponse
-	15, // 21: auth.AuthService.VerifySecurityAnswer:output_type -> auth.VerifySecurityAnswerResponse
-	17, // 22: auth.AuthService.ResetPassword:output_type -> auth.ResetPasswordResponse
-	19, // 23: auth.AuthService.GoogleAuth:output_type -> auth.GoogleAuthResponse
-	21, // 24: auth.AuthService.GetProfile:output_type -> auth.GetProfileResponse
-	21, // 25: auth.AuthService.GetProfileByUsername:output_type -> auth.GetProfileResponse
-	24, // 26: auth.AuthService.GetProfilesByIDs:output_type -> auth.GetProfilesByIDsResponse
-	14, // [14:27] is the sub-list for method output_type
-	1,  // [1:14] is the sub-list for method input_type
-	1,  // [1:1] is the sub-list for extension type_name
-	1,  // [1:1] is the sub-list for extension extendee
-	0,  // [0:1] is the sub-list for field type_name
+	21, // 1: auth.UpdateProfileResponse.profile:type_name -> auth.GetProfileResponse
+	0,  // 2: auth.AuthService.Register:input_type -> auth.RegisterRequest
+	2,  // 3: auth.AuthService.VerifyEmail:input_type -> auth.VerifyEmailRequest
+	4,  // 4: auth.AuthService.ResendCode:input_type -> auth.ResendCodeRequest
+	6,  // 5: auth.AuthService.Login:input_type -> auth.LoginRequest
+	8,  // 6: auth.AuthService.RefreshToken:input_type -> auth.RefreshTokenRequest
+	10, // 7: auth.AuthService.Logout:input_type -> auth.LogoutRequest
+	12, // 8: auth.AuthService.GetSecurityQuestion:input_type -> auth.GetSecurityQuestionRequest
+	14, // 9: auth.AuthService.VerifySecurityAnswer:input_type -> auth.VerifySecurityAnswerRequest
+	16, // 10: auth.AuthService.ResetPassword:input_type -> auth.ResetPasswordRequest
+	18, // 11: auth.AuthService.GoogleAuth:input_type -> auth.GoogleAuthRequest
+	20, // 12: auth.AuthService.GetProfile:input_type -> auth.GetProfileRequest
+	22, // 13: auth.AuthService.GetProfileByUsername:input_type -> auth.GetProfileByUsernameRequest
+	23, // 14: auth.AuthService.GetProfilesByIDs:input_type -> auth.GetProfilesByIDsRequest
+	25, // 15: auth.AuthService.UpdateProfile:input_type -> auth.UpdateProfileRequest
+	1,  // 16: auth.AuthService.Register:output_type -> auth.RegisterResponse
+	3,  // 17: auth.AuthService.VerifyEmail:output_type -> auth.VerifyEmailResponse
+	5,  // 18: auth.AuthService.ResendCode:output_type -> auth.ResendCodeResponse
+	7,  // 19: auth.AuthService.Login:output_type -> auth.LoginResponse
+	9,  // 20: auth.AuthService.RefreshToken:output_type -> auth.RefreshTokenResponse
+	11, // 21: auth.AuthService.Logout:output_type -> auth.LogoutResponse
+	13, // 22: auth.AuthService.GetSecurityQuestion:output_type -> auth.GetSecurityQuestionResponse
+	15, // 23: auth.AuthService.VerifySecurityAnswer:output_type -> auth.VerifySecurityAnswerResponse
+	17, // 24: auth.AuthService.ResetPassword:output_type -> auth.ResetPasswordResponse
+	19, // 25: auth.AuthService.GoogleAuth:output_type -> auth.GoogleAuthResponse
+	21, // 26: auth.AuthService.GetProfile:output_type -> auth.GetProfileResponse
+	21, // 27: auth.AuthService.GetProfileByUsername:output_type -> auth.GetProfileResponse
+	24, // 28: auth.AuthService.GetProfilesByIDs:output_type -> auth.GetProfilesByIDsResponse
+	26, // 29: auth.AuthService.UpdateProfile:output_type -> auth.UpdateProfileResponse
+	16, // [16:30] is the sub-list for method output_type
+	2,  // [2:16] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_auth_proto_init() }
@@ -1537,13 +1757,15 @@ func file_auth_proto_init() {
 	if File_auth_proto != nil {
 		return
 	}
+	file_auth_proto_msgTypes[25].OneofWrappers = []any{}
+	file_auth_proto_msgTypes[26].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_proto_rawDesc), len(file_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   25,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

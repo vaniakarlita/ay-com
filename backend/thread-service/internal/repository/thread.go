@@ -62,6 +62,7 @@ type ThreadRepository interface {
 	ListUserReplies(ctx context.Context, authorUserID, viewerUserID string, limit int, cursor time.Time) ([]*ThreadModel, error)
 	ListUserLikes(ctx context.Context, targetUserID, viewerUserID string, limit int, cursor time.Time) ([]*ThreadModel, error)
 	TogglePin(ctx context.Context, threadID, userID string) (bool, error)
+	SetPin(ctx context.Context, threadID, userID string, pin bool) (bool, error)
 }
 
 type pgThreadRepo struct {
@@ -601,9 +602,6 @@ func (r *pgThreadRepo) ListUserThreads(ctx context.Context, authorUserID, viewer
 		limit = 20
 	}
 
-	var rows pgx.Rows
-	var err error
-
 	baseQuery := `
 		SELECT 
 			t.id, t.user_id, t.author_name, t.author_username, t.author_avatar_url, t.author_is_verified,
@@ -624,29 +622,75 @@ func (r *pgThreadRepo) ListUserThreads(ctx context.Context, authorUserID, viewer
 		  AND (t.scheduled_at IS NULL OR t.scheduled_at <= NOW())
 	`
 
+	var threads []*ThreadModel
+
 	if cursor.IsZero() {
-		query := baseQuery + `
+		pinnedQuery := baseQuery + `
+			AND t.pinned_at IS NOT NULL
 			GROUP BY t.id
-			ORDER BY (t.pinned_at IS NOT NULL) DESC, t.created_at DESC, t.id DESC
+			ORDER BY t.pinned_at DESC
+			LIMIT 1
+		`
+		pinnedRows, err := r.pool.Query(ctx, pinnedQuery, authorUserID, viewerUserID)
+		if err == nil {
+			defer pinnedRows.Close()
+			if pinnedRows.Next() {
+				p := &ThreadModel{}
+				var parentUUID *string
+				if err := pinnedRows.Scan(
+					&p.ID, &p.UserID, &p.AuthorName, &p.AuthorUsername, &p.AuthorAvatarURL, &p.AuthorIsVerified,
+					&p.Content, &p.ReplyPermission, &p.CommunityID, &p.CommunityName, &p.IsAd, &p.ScheduledAt, &p.CreatedAt,
+					&parentUUID, &p.PinnedAt,
+					&p.Categories, &p.LikeCount, &p.ReplyCount, &p.RepostCount, &p.BookmarkCount, &p.LikedByMe, &p.RepostedByMe, &p.BookmarkedByMe,
+				); err == nil {
+					p.ParentID = parentUUID
+					threads = append(threads, p)
+				}
+			}
+		}
+
+		unpinnedQuery := baseQuery + `
+			AND t.pinned_at IS NULL
+			GROUP BY t.id
+			ORDER BY t.created_at DESC, t.id DESC
 			LIMIT $3
 		`
-		rows, err = r.pool.Query(ctx, query, authorUserID, viewerUserID, limit)
-	} else {
-		query := baseQuery + `
-			AND t.created_at < $3
-			GROUP BY t.id
-			ORDER BY (t.pinned_at IS NOT NULL) DESC, t.created_at DESC, t.id DESC
-			LIMIT $4
-		`
-		rows, err = r.pool.Query(ctx, query, authorUserID, viewerUserID, cursor, limit)
+		rows, err := r.pool.Query(ctx, unpinnedQuery, authorUserID, viewerUserID, limit)
+		if err != nil {
+			return nil, fmt.Errorf("query user threads: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			t := &ThreadModel{}
+			var parentUUID *string
+			if err := rows.Scan(
+				&t.ID, &t.UserID, &t.AuthorName, &t.AuthorUsername, &t.AuthorAvatarURL, &t.AuthorIsVerified,
+				&t.Content, &t.ReplyPermission, &t.CommunityID, &t.CommunityName, &t.IsAd, &t.ScheduledAt, &t.CreatedAt,
+				&parentUUID, &t.PinnedAt,
+				&t.Categories, &t.LikeCount, &t.ReplyCount, &t.RepostCount, &t.BookmarkCount, &t.LikedByMe, &t.RepostedByMe, &t.BookmarkedByMe,
+			); err != nil {
+				return nil, fmt.Errorf("scan user thread: %w", err)
+			}
+			t.ParentID = parentUUID
+			threads = append(threads, t)
+		}
+		return threads, nil
 	}
 
+	query := baseQuery + `
+		AND t.pinned_at IS NULL
+		AND t.created_at < $3
+		GROUP BY t.id
+		ORDER BY t.created_at DESC, t.id DESC
+		LIMIT $4
+	`
+	rows, err := r.pool.Query(ctx, query, authorUserID, viewerUserID, cursor, limit)
 	if err != nil {
 		return nil, fmt.Errorf("query user threads: %w", err)
 	}
 	defer rows.Close()
 
-	var threads []*ThreadModel
 	for rows.Next() {
 		t := &ThreadModel{}
 		var parentUUID *string
@@ -670,9 +714,6 @@ func (r *pgThreadRepo) ListUserReplies(ctx context.Context, authorUserID, viewer
 		limit = 20
 	}
 
-	var rows pgx.Rows
-	var err error
-
 	baseQuery := `
 		SELECT 
 			t.id, t.user_id, t.author_name, t.author_username, t.author_avatar_url, t.author_is_verified,
@@ -693,29 +734,75 @@ func (r *pgThreadRepo) ListUserReplies(ctx context.Context, authorUserID, viewer
 		  AND (t.scheduled_at IS NULL OR t.scheduled_at <= NOW())
 	`
 
+	var threads []*ThreadModel
+
 	if cursor.IsZero() {
-		query := baseQuery + `
+		pinnedQuery := baseQuery + `
+			AND t.pinned_at IS NOT NULL
 			GROUP BY t.id
-			ORDER BY (t.pinned_at IS NOT NULL) DESC, t.created_at DESC, t.id DESC
+			ORDER BY t.pinned_at DESC
+			LIMIT 1
+		`
+		pinnedRows, err := r.pool.Query(ctx, pinnedQuery, authorUserID, viewerUserID)
+		if err == nil {
+			defer pinnedRows.Close()
+			if pinnedRows.Next() {
+				p := &ThreadModel{}
+				var parentUUID *string
+				if err := pinnedRows.Scan(
+					&p.ID, &p.UserID, &p.AuthorName, &p.AuthorUsername, &p.AuthorAvatarURL, &p.AuthorIsVerified,
+					&p.Content, &p.ReplyPermission, &p.CommunityID, &p.CommunityName, &p.IsAd, &p.ScheduledAt, &p.CreatedAt,
+					&parentUUID, &p.PinnedAt,
+					&p.Categories, &p.LikeCount, &p.ReplyCount, &p.RepostCount, &p.BookmarkCount, &p.LikedByMe, &p.RepostedByMe, &p.BookmarkedByMe,
+				); err == nil {
+					p.ParentID = parentUUID
+					threads = append(threads, p)
+				}
+			}
+		}
+
+		unpinnedQuery := baseQuery + `
+			AND t.pinned_at IS NULL
+			GROUP BY t.id
+			ORDER BY t.created_at DESC, t.id DESC
 			LIMIT $3
 		`
-		rows, err = r.pool.Query(ctx, query, authorUserID, viewerUserID, limit)
-	} else {
-		query := baseQuery + `
-			AND t.created_at < $3
-			GROUP BY t.id
-			ORDER BY (t.pinned_at IS NOT NULL) DESC, t.created_at DESC, t.id DESC
-			LIMIT $4
-		`
-		rows, err = r.pool.Query(ctx, query, authorUserID, viewerUserID, cursor, limit)
+		rows, err := r.pool.Query(ctx, unpinnedQuery, authorUserID, viewerUserID, limit)
+		if err != nil {
+			return nil, fmt.Errorf("query user replies: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			t := &ThreadModel{}
+			var parentUUID *string
+			if err := rows.Scan(
+				&t.ID, &t.UserID, &t.AuthorName, &t.AuthorUsername, &t.AuthorAvatarURL, &t.AuthorIsVerified,
+				&t.Content, &t.ReplyPermission, &t.CommunityID, &t.CommunityName, &t.IsAd, &t.ScheduledAt, &t.CreatedAt,
+				&parentUUID, &t.PinnedAt,
+				&t.Categories, &t.LikeCount, &t.ReplyCount, &t.RepostCount, &t.BookmarkCount, &t.LikedByMe, &t.RepostedByMe, &t.BookmarkedByMe,
+			); err != nil {
+				return nil, fmt.Errorf("scan user reply: %w", err)
+			}
+			t.ParentID = parentUUID
+			threads = append(threads, t)
+		}
+		return threads, nil
 	}
 
+	query := baseQuery + `
+		AND t.pinned_at IS NULL
+		AND t.created_at < $3
+		GROUP BY t.id
+		ORDER BY t.created_at DESC, t.id DESC
+		LIMIT $4
+	`
+	rows, err := r.pool.Query(ctx, query, authorUserID, viewerUserID, cursor, limit)
 	if err != nil {
 		return nil, fmt.Errorf("query user replies: %w", err)
 	}
 	defer rows.Close()
 
-	var threads []*ThreadModel
 	for rows.Next() {
 		t := &ThreadModel{}
 		var parentUUID *string
@@ -825,6 +912,57 @@ func (r *pgThreadRepo) TogglePin(ctx context.Context, threadID, userID string) (
 		_, err = tx.Exec(ctx, `UPDATE threads SET pinned_at = NULL WHERE id = $1::uuid`, threadID)
 		if err != nil {
 			return false, fmt.Errorf("unpin failed: %w", err)
+		}
+		if err := tx.Commit(ctx); err != nil {
+			return false, err
+		}
+		return false, nil
+	}
+
+	if parentID == nil {
+		_, err = tx.Exec(ctx, `UPDATE threads SET pinned_at = NULL WHERE user_id = $1::uuid AND parent_id IS NULL`, userID)
+	} else {
+		_, err = tx.Exec(ctx, `UPDATE threads SET pinned_at = NULL WHERE user_id = $1::uuid AND parent_id IS NOT NULL`, userID)
+	}
+	if err != nil {
+		return false, fmt.Errorf("clear existing pin: %w", err)
+	}
+
+	_, err = tx.Exec(ctx, `UPDATE threads SET pinned_at = NOW() WHERE id = $1::uuid`, threadID)
+	if err != nil {
+		return false, fmt.Errorf("pin failed: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (r *pgThreadRepo) SetPin(ctx context.Context, threadID, userID string, pin bool) (bool, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return false, fmt.Errorf("begin tx: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	var parentID *string
+	var pinnedAt *time.Time
+	err = tx.QueryRow(ctx, `
+		SELECT parent_id, pinned_at 
+		FROM threads 
+		WHERE id = $1::uuid AND user_id = $2::uuid
+	`, threadID, userID).Scan(&parentID, &pinnedAt)
+	if err != nil {
+		return false, fmt.Errorf("thread not found or unauthorized")
+	}
+
+	if !pin {
+		if pinnedAt != nil {
+			_, err = tx.Exec(ctx, `UPDATE threads SET pinned_at = NULL WHERE id = $1::uuid`, threadID)
+			if err != nil {
+				return false, fmt.Errorf("unpin failed: %w", err)
+			}
 		}
 		if err := tx.Commit(ctx); err != nil {
 			return false, err

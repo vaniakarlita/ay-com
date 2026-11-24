@@ -4,6 +4,7 @@
   import { currentUser } from './user';
   import ThreadCard from './components/ThreadCard.svelte';
   import ThreadSkeleton from './components/ThreadSkeleton.svelte';
+  import EditProfileModal from './components/EditProfileModal.svelte';
 
   let { username }: { username?: string } = $props();
 
@@ -15,6 +16,7 @@
   let errorMsg = $state('');
   let isFollowing = $state(false);
   let followInProgress = $state(false);
+  let showEditModal = $state(false);
 
   const isOwnProfile = $derived(!username || username === $currentUser?.username);
   const targetUsername = $derived(username || $currentUser?.username || '');
@@ -111,6 +113,15 @@
       return '';
     }
   }
+  function handleProfileUpdated(updatedUser: any) {
+    if (profile) {
+      profile.name = updatedUser.name;
+      profile.username = updatedUser.username;
+      profile.profilePictureUrl = updatedUser.profilePictureUrl;
+      profile.bannerUrl = updatedUser.bannerUrl;
+      profile.bio = updatedUser.bio;
+    }
+  }
 </script>
 
 <div class="profile-container">
@@ -145,7 +156,9 @@
 
           <div class="actions">
             {#if isOwnProfile}
-              <button class="btn btn-outline" type="button">Edit profile</button>
+              <button class="btn btn-outline" type="button" onclick={() => (showEditModal = true)}>
+                Edit profile
+              </button>
             {:else}
               <button
                 class="btn btn-follow"
@@ -251,6 +264,21 @@
         {/each}
       {/if}
     </main>
+  {/if}
+
+  {#if showEditModal && profile}
+    <EditProfileModal
+      user={{
+        userId: profile.userId,
+        name: profile.name,
+        username: profile.username,
+        profilePictureUrl: profile.profilePictureUrl,
+        bannerUrl: profile.bannerUrl,
+        bio: profile.bio,
+      }}
+      onClose={() => (showEditModal = false)}
+      onSaved={handleProfileUpdated}
+    />
   {/if}
 </div>
 

@@ -33,6 +33,7 @@ type mockRepo struct {
 	listUserRepliesFunc    func(ctx context.Context, authorUserID, viewerUserID string, limit int, cursor time.Time) ([]*repository.ThreadModel, error)
 	listUserLikesFunc      func(ctx context.Context, targetUserID, viewerUserID string, limit int, cursor time.Time) ([]*repository.ThreadModel, error)
 	togglePinFunc          func(ctx context.Context, threadID, userID string) (bool, error)
+	setPinFunc             func(ctx context.Context, threadID, userID string, pin bool) (bool, error)
 }
 
 func (m *mockRepo) Create(ctx context.Context, t *repository.ThreadModel, hashtags []string) error {
@@ -156,6 +157,13 @@ func (m *mockRepo) TogglePin(ctx context.Context, threadID, userID string) (bool
 		return m.togglePinFunc(ctx, threadID, userID)
 	}
 	return true, nil
+}
+
+func (m *mockRepo) SetPin(ctx context.Context, threadID, userID string, pin bool) (bool, error) {
+	if m.setPinFunc != nil {
+		return m.setPinFunc(ctx, threadID, userID, pin)
+	}
+	return pin, nil
 }
 
 func (m *mockRepo) ListCategories(ctx context.Context) ([]repository.CategoryModel, error) {
